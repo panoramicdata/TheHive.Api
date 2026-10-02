@@ -289,7 +289,7 @@ Plan groups: Alerts, Cases, CaseTemplates, Tasks, TaskLogs, Observables, Comment
 | PageTemplate | POST | `/api/v1/pageTemplate` | | |
 | PageTemplate | DELETE | `/api/v1/pageTemplate/{pageTemplateId}` | | |
 | PageTemplate | PATCH | `/api/v1/pageTemplate/{pageTemplateId}` | | |
-| Permission | GET | `/api/v1/permission` | | |
+| Permission | GET | `/api/v1/permission` | `IPermissions.ListAsync` | `PermissionsTests.ListAsync_GetsAndMapsEveryField` |
 | Profile | POST | `/api/v1/profile` | `IProfiles.CreateAsync` | `ProfilesTests.CreateAsync_PostsBodyAndMapsEveryField` |
 | Profile | DELETE | `/api/v1/profile/{profileId}` | `IProfiles.DeleteAsync` | `ProfilesTests.DeleteAsync_SendsDelete` |
 | Profile | GET | `/api/v1/profile/{profileId}` | `IProfiles.GetAsync` | `ProfilesTests.GetAsync_FullProfile_MapsEveryField` |
