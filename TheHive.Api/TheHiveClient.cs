@@ -29,6 +29,8 @@ public sealed class TheHiveClient : IDisposable
 			ContentSerializer = new SystemTextJsonContentSerializer(TheHiveJson.Options),
 			// Interface paths are relative (no leading slash) so they append to a path-prefixed BaseUrl such as https://host/thehive/.
 			UrlResolution = UrlResolutionMode.Rfc3986,
+			// Boolean query parameters must be lowercase true/false, not Refit's True/False.
+			UrlParameterFormatter = new TheHiveUrlParameterFormatter(),
 			ExceptionFactory = response => new ValueTask<Exception?>(TheHiveErrorMapper.CreateAsync(response))
 		};
 		Cases = RestService.For<ICases>(_httpClient, Settings);

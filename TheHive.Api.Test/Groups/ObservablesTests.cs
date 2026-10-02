@@ -280,8 +280,20 @@ public class ObservablesTests
 
 		using var content = await client.Observables.DownloadAttachmentAsync("~8529344", "~456789012", asZip: true, cancellationToken: TestContext.Current.CancellationToken);
 
-		stub.Calls[0].Uri.Query.Should().Be("?asZip=True");
+		stub.Calls[0].Uri.Query.Should().Be("?asZip=true");
 		(await content.ReadAsByteArrayAsync(TestContext.Current.CancellationToken)).Should().Equal(zip);
+	}
+
+	[Fact]
+	public async Task DownloadAttachmentAsync_AsZipFalse_SendsLowercaseFalse()
+	{
+		var stub = new StubHandler();
+		stub.EnqueueFile([1], "application/octet-stream", "a.bin");
+		using var client = TestClient.Create(stub);
+
+		using var content = await client.Observables.DownloadAttachmentAsync("~1", "~2", asZip: false, cancellationToken: TestContext.Current.CancellationToken);
+
+		stub.Calls[0].Uri.Query.Should().Be("?asZip=false");
 	}
 
 	[Fact]
