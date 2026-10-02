@@ -555,12 +555,12 @@ public class AuthRetryHandlerTests
 			o.Logger = logger;
 		});
 
-		using var content = await client.Cases.ExportAsync("~1", "s3cret", TestContext.Current.CancellationToken);
+		using var content = await client.Cases.ExportAsync("~1", "fake-export-password", TestContext.Current.CancellationToken);
 
 		stub.Calls.Should().HaveCount(2);
-		stub.Calls[0].Uri.Query.Should().Contain("s3cret");
+		stub.Calls[0].Uri.Query.Should().Contain("fake-export-password");
 		logger.Messages.Should().HaveCount(3);
-		logger.Messages.Should().OnlyContain(m => !m.Contains("s3cret") && !m.Contains("password"));
+		logger.Messages.Should().OnlyContain(m => !m.Contains("fake-export-password") && !m.Contains("password"));
 		logger.Messages.Should().Contain(m => m.Contains("https://hive.test/api/v1/case/~1/export"));
 		logger.Messages.Should().Contain(m => m.Contains("retrying"));
 	}

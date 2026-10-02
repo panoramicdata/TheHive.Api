@@ -88,7 +88,7 @@ public class UsersTests
 				Login = "sami@example.com",
 				Name = "Sami Analyst",
 				Email = "sami@example.com",
-				Password = "Str0ngP@ssw0rd!",
+				Password = "fake-password",
 				Profile = "analyst",
 				Organisation = "TheOrganization",
 				Type = UserType.Normal
@@ -100,7 +100,7 @@ public class UsersTests
 		stub.Calls[0].Uri.Query.Should().BeEmpty();
 		stub.Calls[0].ContentType.Should().Be("application/json");
 		stub.Calls[0].Body.Should().Be(
-			"""{"login":"sami@example.com","name":"Sami Analyst","email":"sami@example.com","password":"Str0ngP@ssw0rd!","profile":"analyst","organisation":"TheOrganization","type":"Normal"}""");
+			"""{"login":"sami@example.com","name":"Sami Analyst","email":"sami@example.com","password":"fake-password","profile":"analyst","organisation":"TheOrganization","type":"Normal"}""");
 		AssertFullUser(result);
 	}
 
@@ -343,12 +343,12 @@ public class UsersTests
 		var stub = Stub(HttpStatusCode.NoContent);
 		using var client = TestClient.Create(stub);
 
-		await client.Users.SetPasswordAsync("~192024", new UserPasswordSetRequest { Password = "Str0ngP@ssw0rd!" }, TestContext.Current.CancellationToken);
+		await client.Users.SetPasswordAsync("~192024", new UserPasswordSetRequest { Password = "fake-password" }, TestContext.Current.CancellationToken);
 
 		stub.Calls[0].Method.Should().Be(HttpMethod.Post);
 		stub.Calls[0].Uri.AbsolutePath.Should().Be("/api/v1/user/~192024/password/set");
 		stub.Calls[0].Uri.Query.Should().BeEmpty();
-		stub.Calls[0].Body.Should().Be("""{"password":"Str0ngP@ssw0rd!"}""");
+		stub.Calls[0].Body.Should().Be("""{"password":"fake-password"}""");
 	}
 
 	[Fact]
@@ -359,13 +359,13 @@ public class UsersTests
 
 		await client.Users.ChangePasswordAsync(
 			"lucas@example.com",
-			new UserPasswordChangeRequest { Password = "N3wStr0ngP@ss!", CurrentPassword = "Str0ngP@ssw0rd!" },
+			new UserPasswordChangeRequest { Password = "fake-new-password", CurrentPassword = "fake-password" },
 			TestContext.Current.CancellationToken);
 
 		stub.Calls[0].Method.Should().Be(HttpMethod.Post);
 		stub.Calls[0].Uri.AbsolutePath.Should().Be("/api/v1/user/lucas%40example.com/password/change");
 		stub.Calls[0].Uri.Query.Should().BeEmpty();
-		stub.Calls[0].Body.Should().Be("""{"password":"N3wStr0ngP@ss!","currentPassword":"Str0ngP@ssw0rd!"}""");
+		stub.Calls[0].Body.Should().Be("""{"password":"fake-new-password","currentPassword":"fake-password"}""");
 	}
 
 	[Fact]
