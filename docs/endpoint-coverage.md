@@ -89,23 +89,23 @@ Plan groups: Alerts, Cases, CaseTemplates, Tasks, TaskLogs, Observables, Comment
 | Group | Method | Path | Client method | Test |
 |---|---|---|---|---|
 | Admin | PUT | `/api/v1/admin/log/set/{packageName}/{level}` | | |
-| Alert | POST | `/api/v1/alert` | | |
-| Alert | PATCH | `/api/v1/alert/_bulk` | | |
-| Alert | DELETE | `/api/v1/alert/{alertId}` | | |
-| Alert | GET | `/api/v1/alert/{alertId}` | | |
-| Alert | PATCH | `/api/v1/alert/{alertId}` | | |
-| Alert | DELETE | `/api/v1/alert/{alertId}/attachment/{attachmentId}` | | |
+| Alert | POST | `/api/v1/alert` | `IAlerts.CreateAsync` | `AlertsTests.CreateAsync_PostsRequiredFieldsOnlyAndMapsResult`, `AlertsTests.CreateAsync_SerializesEveryFieldWithWireNames` |
+| Alert | PATCH | `/api/v1/alert/_bulk` | `IAlerts.BulkUpdateAsync` | `AlertsTests.BulkUpdateAsync_PatchesIdsFirstThenFields`, `AlertsTests.BulkUpdateAsync_SendsOnlyIdsAndSetFields` |
+| Alert | DELETE | `/api/v1/alert/{alertId}` | `IAlerts.DeleteAsync` | `AlertsTests.DeleteAsync_SendsDelete` |
+| Alert | GET | `/api/v1/alert/{alertId}` | `IAlerts.GetAsync` | `AlertsTests.GetAsync_MapsEveryAlertField`, `AlertsTests.GetAsync_UnknownStage_And_AbsentOptionals` |
+| Alert | PATCH | `/api/v1/alert/{alertId}` | `IAlerts.UpdateAsync` | `AlertsTests.UpdateAsync_PatchesOnlySetFields`, `AlertsTests.UpdateAsync_SerializesEveryFieldWithWireNames`, `AlertsTests.UpdateAsync_ExplicitNull_SendsNullToUnset` |
+| Alert | DELETE | `/api/v1/alert/{alertId}/attachment/{attachmentId}` | `IAlerts.DeleteAttachmentAsync` | `AlertsTests.DeleteAttachmentAsync_SendsDelete` |
 | Alert | GET | `/api/v1/alert/{alertId}/attachment/{attachmentId}` (deprecated) | | |
 | Alert | GET | `/api/v1/alert/{alertId}/attachment/{attachmentId}/download` (deprecated) | | |
-| Alert | POST | `/api/v1/alert/{alertId}/attachments` | | |
-| Alert | POST | `/api/v1/alert/{alertId}/case` | | |
-| Alert | POST | `/api/v1/alert/{alertId}/follow` | | |
-| Alert | POST | `/api/v1/alert/{alertId}/import/{caseId}` | | |
-| Alert | POST | `/api/v1/alert/{alertId}/merge/{caseId}` | | |
-| Alert | GET | `/api/v1/alert/{alertId}/similar/{alertOrCaseId}/observables` | | |
-| Alert | POST | `/api/v1/alert/{alertId}/unfollow` | | |
-| Alert | POST | `/api/v1/alert/delete/_bulk` | | |
-| Alert | POST | `/api/v1/alert/merge/_bulk` | | |
+| Alert | POST | `/api/v1/alert/{alertId}/attachments` | `IAlerts.AddAttachmentsAsync` | `AlertsTests.AddAttachmentsAsync_UploadsEachFileAsAnAttachmentsPart`, `AlertsTests.AddAttachmentsAsync_WithoutCanRename_SendsOnlyFiles` |
+| Alert | POST | `/api/v1/alert/{alertId}/case` | `IAlerts.CreateCaseAsync` | `AlertsTests.CreateCaseAsync_PostsEveryOverrideAndMapsCase`, `AlertsTests.CreateCaseAsync_EmptyRequest_SendsEmptyObject` |
+| Alert | POST | `/api/v1/alert/{alertId}/follow` | `IAlerts.FollowAsync` | `AlertsTests.FollowAndUnfollowAsync_PostWithoutBody` |
+| Alert | POST | `/api/v1/alert/{alertId}/import/{caseId}` | `IAlerts.ImportIntoCaseAsync` | `AlertsTests.ImportIntoCaseAsync_PostsAndMapsCase` |
+| Alert | POST | `/api/v1/alert/{alertId}/merge/{caseId}` | `IAlerts.MergeIntoCaseAsync` | `AlertsTests.MergeIntoCaseAsync_PostsAndMapsCase` |
+| Alert | GET | `/api/v1/alert/{alertId}/similar/{alertOrCaseId}/observables` | `IAlerts.GetSimilarObservablesAsync` | `AlertsTests.GetSimilarObservablesAsync_MapsObservables` |
+| Alert | POST | `/api/v1/alert/{alertId}/unfollow` | `IAlerts.UnfollowAsync` | `AlertsTests.FollowAndUnfollowAsync_PostWithoutBody` |
+| Alert | POST | `/api/v1/alert/delete/_bulk` | `IAlerts.BulkDeleteAsync` | `AlertsTests.BulkDeleteAsync_PostsIds` |
+| Alert | POST | `/api/v1/alert/merge/_bulk` | `IAlerts.BulkMergeIntoCaseAsync` | `AlertsTests.BulkMergeIntoCaseAsync_PostsCaseAndAlertIds`, `AlertsTests.BulkMergeIntoCaseAsync_CaseOnly_OmitsAlertIds` |
 | Alert Feeder | GET | `/api/v1/connector/alert-feeder` | | |
 | Alert Feeder | POST | `/api/v1/connector/alert-feeder` | | |
 | Alert Feeder | DELETE | `/api/v1/connector/alert-feeder/{alertFeederName}` | | |

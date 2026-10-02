@@ -32,10 +32,14 @@ public sealed class TheHiveClient : IDisposable
 			ExceptionFactory = response => new ValueTask<Exception?>(TheHiveErrorMapper.CreateAsync(response))
 		};
 		Cases = RestService.For<ICases>(_httpClient, Settings);
+		Alerts = RestService.For<IAlerts>(_httpClient, Settings);
 	}
 
 	/// <summary>Case operations.</summary>
 	public ICases Cases { get; }
+
+	/// <summary>Alert operations.</summary>
+	public IAlerts Alerts { get; }
 
 	internal HttpClient HttpClient => _httpClient;
 
