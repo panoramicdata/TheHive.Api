@@ -1,4 +1,5 @@
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using TheHive.Api.Converters;
 
 namespace TheHive.Api.Test.Core;
@@ -6,6 +7,13 @@ namespace TheHive.Api.Test.Core;
 public class TolerantEnumConverterTests
 {
 	public enum Colour { Unknown = 0, Red, DarkBlue }
+
+	public enum Rule
+	{
+		Unknown = 0,
+		[JsonStringEnumMemberName("autoShare")] AutoShare,
+		[JsonStringEnumMemberName("manual")] Manual
+	}
 
 	private static readonly JsonSerializerOptions Options = new() { Converters = { new TolerantEnumConverterFactory() } };
 
@@ -27,6 +35,28 @@ public class TolerantEnumConverterTests
 	[Fact]
 	public void Write_UsesName() =>
 		JsonSerializer.Serialize(Colour.Red, Options).Should().Be("\"Red\"");
+
+	[Fact]
+	public void Write_UndefinedValue_UsesNumericName() =>
+		JsonSerializer.Serialize((Colour)99, Options).Should().Be("\"99\"");
+
+	[Fact]
+	public void Write_MemberNameAttribute_UsesWireName() =>
+		JsonSerializer.Serialize(Rule.AutoShare, Options).Should().Be("\"autoShare\"");
+
+	[Theory]
+	[InlineData("\"autoShare\"", Rule.AutoShare)]
+	[InlineData("\"MANUAL\"", Rule.Manual)]
+	[InlineData("\"sometimes\"", Rule.Unknown)]
+	public void Read_MemberNameAttribute_UsesWireName(string json, Rule expected) =>
+		JsonSerializer.Deserialize<Rule>(json, Options).Should().Be(expected);
+
+	[Fact]
+	public void Read_Nullable_HandlesNullAndValue()
+	{
+		JsonSerializer.Deserialize<Colour?>("null", Options).Should().BeNull();
+		JsonSerializer.Deserialize<Colour?>("\"red\"", Options).Should().Be(Colour.Red);
+	}
 
 	[Fact]
 	public void CanConvert_OnlyEnums()
