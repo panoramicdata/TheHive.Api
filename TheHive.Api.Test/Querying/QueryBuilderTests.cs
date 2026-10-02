@@ -79,7 +79,7 @@ public class QueryBuilderTests
 		var builder = QueryBuilder.ListCases()
 			.Filter("status", "New")
 			.FilterIn("severity", 2, 3)
-			.FilterLike("title", "*ransom*")
+			.FilterLike("title", "ransom")
 			.FilterGt("number", 10)
 			.FilterLt("number", 20)
 			.FilterBetween("_createdAt", 1000, 2000);
@@ -88,7 +88,7 @@ public class QueryBuilderTests
 			"""{"query":[{"_name":"listCase"},""" +
 			"""{"_name":"filter","_eq":{"_field":"status","_value":"New"}},""" +
 			"""{"_name":"filter","_in":{"_field":"severity","_values":[2,3]}},""" +
-			"""{"_name":"filter","_like":{"_field":"title","_value":"*ransom*"}},""" +
+			"""{"_name":"filter","_like":{"_field":"title","_value":"ransom"}},""" +
 			"""{"_name":"filter","_gt":{"_field":"number","_value":10}},""" +
 			"""{"_name":"filter","_lt":{"_field":"number","_value":20}},""" +
 			"""{"_name":"filter","_between":{"_field":"_createdAt","_from":1000,"_to":2000}}]}""");
@@ -103,6 +103,18 @@ public class QueryBuilderTests
 
 		Json(builder).Should().Be(
 			"""{"query":[{"_name":"listCase"},{"_name":"filter","_eq":{"_field":"assignee","_value":null}},{"_name":"filter","_gt":{"_field":"_createdAt","_value":1734425224596}}]}""");
+	}
+
+	[Fact]
+	public void Filter_LevelConstantsAndEnums_WriteTheServerForm()
+	{
+		// Severity, TLP and PAP are int constants, so the server's integer is written; tolerant enums write their wire name.
+		var builder = QueryBuilder.ListCases()
+			.Filter("severity", TheHive.Api.Data.Common.Severity.High)
+			.Filter("stage", TheHive.Api.Data.Cases.CaseStage.Closed);
+
+		Json(builder).Should().Be(
+			"""{"query":[{"_name":"listCase"},{"_name":"filter","_eq":{"_field":"severity","_value":3}},{"_name":"filter","_eq":{"_field":"stage","_value":"Closed"}}]}""");
 	}
 
 	[Fact]

@@ -15,8 +15,15 @@ public static class QueryExtensions
 	/// <param name="builder">The query; it must not end with <see cref="QueryBuilder.Count"/> (use <see cref="RunCountAsync"/>).</param>
 	/// <param name="name">An optional label for the query, sent as the <c>name</c> query-string parameter.</param>
 	/// <param name="cancellationToken">A cancellation token.</param>
-	/// <returns>The results; a single-object result is returned as a one-item list (TheHive 5.8.0 already answers <c>getXxx</c> with an array).</returns>
+	/// <returns>
+	/// The results; a JSON <c>null</c> gives an empty list and a single object a one-item list (TheHive 5.8.0 answers
+	/// <c>getXxx</c> with an array).
+	/// </returns>
 	/// <exception cref="ArgumentException"><paramref name="builder"/> ends with a <c>count</c> step.</exception>
+	/// <exception cref="InvalidOperationException">
+	/// The query returned a single value (number, string or boolean) rather than entities, because its last operation returns a
+	/// value directly (for example <c>countFreetags</c>); read it with <see cref="IQuery.RunAsync"/>.
+	/// </exception>
 	public static async Task<List<T>> RunAsync<T>(this IQuery query, QueryBuilder builder, string? name = null, CancellationToken cancellationToken = default)
 	{
 		ArgumentNullException.ThrowIfNull(query);
@@ -34,11 +41,12 @@ public static class QueryExtensions
 	/// <returns>The results, and the total when the server sent it.</returns>
 	/// <exception cref="ArgumentException"><paramref name="builder"/> ends with a <c>count</c> step.</exception>
 	/// <exception cref="TheHiveApiException">The server returned an error status.</exception>
+	/// <exception cref="InvalidOperationException">The query returned a single value (number, string or boolean) rather than entities.</exception>
 	public static async Task<QueryPage<T>> RunPageAsync<T>(this IQuery query, QueryBuilder builder, string? name = null, CancellationToken cancellationToken = default)
 	{
 		ArgumentNullException.ThrowIfNull(query);
 		ThrowIfCount(builder);
-		using var response = await query.RunWithResponseAsync(builder.Build(), name, cancellationToken).ConfigureAwait(false);
+		using var response = await query.RunUncheckedAsync(builder.Build(), name, cancellationToken).ConfigureAwait(false);
 		var error = await TheHiveErrorMapper.CreateAsync(response).ConfigureAwait(false);
 		if (error is not null)
 		{
@@ -60,6 +68,7 @@ public static class QueryExtensions
 	/// <param name="cancellationToken">A cancellation token.</param>
 	/// <returns>The number of results.</returns>
 	/// <exception cref="ArgumentException"><paramref name="builder"/> does not end with a <c>count</c> step.</exception>
+	/// <exception cref="InvalidOperationException">The server returned something other than a number.</exception>
 	public static async Task<long> RunCountAsync(this IQuery query, QueryBuilder builder, string? name = null, CancellationToken cancellationToken = default)
 	{
 		ArgumentNullException.ThrowIfNull(query);
@@ -70,7 +79,9 @@ public static class QueryExtensions
 		}
 
 		var result = await query.RunAsync(builder.Build(), name, cancellationToken).ConfigureAwait(false);
-		return result.GetInt64();
+		return result.ValueKind == JsonValueKind.Number
+			? result.GetInt64()
+			: throw new InvalidOperationException($"The count query returned {result.ValueKind}, not a number.");
 	}
 
 	/// <summary>
@@ -102,8 +113,13 @@ public static class QueryExtensions
 		}
 	}
 
-	private static List<T> ToList<T>(JsonElement result)
-		=> result.ValueKind == JsonValueKind.Array
-			? result.Deserialize<List<T>>(TheHiveJson.Options)!
-			: [result.Deserialize<T>(TheHiveJson.Options)!];
+	private static List<T> ToList<T>(JsonElement result) => result.ValueKind switch
+	{
+		JsonValueKind.Array => result.Deserialize<List<T>>(TheHiveJson.Options)!,
+		JsonValueKind.Object => [result.Deserialize<T>(TheHiveJson.Options)!],
+		JsonValueKind.Null => [],
+		_ => throw new InvalidOperationException(
+			$"The query returned a single value ({result.ValueKind}), not entities: its last operation (for example countFreetags or "
+			+ "similarCaseLightCount) returns a value directly. Use IQuery.RunAsync to read the raw JSON, or RunCountAsync for a count.")
+	};
 }

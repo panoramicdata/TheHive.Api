@@ -56,7 +56,12 @@ public sealed class FilterBuilder
 	/// <returns>This builder.</returns>
 	public FilterBuilder Gte(string field, object? value) => Compare("_gte", field, value);
 
-	/// <summary>Field (or a word of it, depending on the index type) contains the text (<c>_like</c>); <c>*</c> is a wildcard.</summary>
+	/// <summary>
+	/// Field contains the text (<c>_like</c>). Checked against TheHive 5.8.0 on a full-text field (a case title): the text matches
+	/// as a <b>case-sensitive</b> substring, also inside a word (<c>ntegrat</c> matches <c>integration</c>, <c>NTEGRAT</c> does not),
+	/// or as a whole indexed word in any case (<c>INTEGRATION</c> matches). No wildcard is needed: a leading or trailing <c>*</c> is
+	/// accepted but changes nothing, and a <c>*</c> inside the text is not a wildcard (it matches nothing).
+	/// </summary>
 	/// <param name="field">The field name.</param>
 	/// <param name="value">The text.</param>
 	/// <returns>This builder.</returns>
@@ -80,7 +85,11 @@ public sealed class FilterBuilder
 	/// <returns>This builder.</returns>
 	public FilterBuilder EndsWith(string field, string value) => Compare("_endsWith", field, value);
 
-	/// <summary>Field is in a range (<c>_between</c>): <paramref name="from"/> is inclusive, <paramref name="to"/> exclusive.</summary>
+	/// <summary>
+	/// Field is in a range (<c>_between</c>): <paramref name="from"/> is inclusive and <paramref name="to"/> exclusive. The spec
+	/// contradicts itself (the tag text says exclusive, the <c>FieldFromTo</c> schema inclusive); TheHive 5.8.0 treats <c>_to</c> as
+	/// exclusive for numbers and dates (checked against a live server).
+	/// </summary>
 	/// <param name="field">The field name.</param>
 	/// <param name="from">The inclusive lower bound.</param>
 	/// <param name="to">The exclusive upper bound.</param>

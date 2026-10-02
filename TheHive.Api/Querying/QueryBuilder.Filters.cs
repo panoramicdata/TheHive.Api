@@ -15,7 +15,7 @@ public sealed partial class QueryBuilder
 	/// <returns>This builder.</returns>
 	public QueryBuilder FilterIn(string field, params object?[] values) => Filter(f => f.In(field, values));
 
-	/// <summary>Adds a <c>filter</c> step: field contains the text (<c>_like</c>; <c>*</c> is a wildcard).</summary>
+	/// <summary>Adds a <c>filter</c> step: field contains the text (<c>_like</c>; a case-sensitive substring or a whole word in any case, see <see cref="FilterBuilder.Like"/>).</summary>
 	/// <param name="field">The field name.</param>
 	/// <param name="value">The text.</param>
 	/// <returns>This builder.</returns>
@@ -33,7 +33,7 @@ public sealed partial class QueryBuilder
 	/// <returns>This builder.</returns>
 	public QueryBuilder FilterLt(string field, object? value) => Filter(f => f.Lt(field, value));
 
-	/// <summary>Adds a <c>filter</c> step: field is in a range (<c>_between</c>; <paramref name="from"/> inclusive, <paramref name="to"/> exclusive).</summary>
+	/// <summary>Adds a <c>filter</c> step: field is in a range (<c>_between</c>; <paramref name="from"/> inclusive, <paramref name="to"/> exclusive, checked live; see <see cref="FilterBuilder.Between"/>).</summary>
 	/// <param name="field">The field name.</param>
 	/// <param name="from">The inclusive lower bound.</param>
 	/// <param name="to">The exclusive upper bound.</param>

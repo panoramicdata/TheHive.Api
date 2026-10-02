@@ -97,6 +97,18 @@ public class DescribeTests
 	}
 
 	[Fact]
+	public async Task GetAllAsync_Forbidden_ThrowsTheHiveApiException()
+	{
+		var stub = Stub(HttpStatusCode.Forbidden, """{"type":"AuthorizationError","message":"Not allowed"}""");
+		using var client = TestClient.Create(stub);
+
+		var act = () => client.Describe.GetAllAsync(TestContext.Current.CancellationToken);
+
+		(await act.Should().ThrowAsync<TheHiveApiException>())
+			.Which.Should().Match<TheHiveApiException>(e => e.StatusCode == HttpStatusCode.Forbidden && e.ErrorType == "AuthorizationError");
+	}
+
+	[Fact]
 	public async Task GetAsync_UnknownModel_ThrowsTheHiveApiException()
 	{
 		var stub = Stub(HttpStatusCode.NotFound, """{"type":"NotFoundError","message":"Model hologram not found"}""");

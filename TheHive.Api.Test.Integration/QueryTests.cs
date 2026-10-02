@@ -48,6 +48,26 @@ public class QueryTests(ITestOutputHelper testOutputHelper, Fixture fixture) : T
 			// _like, _startsWith, _between, _gt, _lt (dates as DateTimeOffset)
 			var guid = title[(title.LastIndexOf(' ') + 1)..];
 			(await CountAsync(QueryBuilder.ListCases().FilterLike("title", guid))).Should().Be(1);
+
+			// _like: a case-sensitive substring, or a whole word in any case; no wildcard needed, outer * changes nothing, inner * is not a wildcard.
+			var token = guid.Split('-')[0];
+			var part = token[1..6];
+			(await CountAsync(QueryBuilder.ListCases().Filter("title", title).FilterLike("title", part))).Should().Be(1);
+			(await CountAsync(QueryBuilder.ListCases().Filter("title", title).FilterLike("title", "*" + part + "*"))).Should().Be(1);
+			(await CountAsync(QueryBuilder.ListCases().Filter("title", title).FilterLike("title", token[..3] + "*" + token[5..]))).Should().Be(0);
+			(await CountAsync(QueryBuilder.ListCases().Filter("title", title).FilterLike("title", "ntegrat"))).Should().Be(1);
+			(await CountAsync(QueryBuilder.ListCases().Filter("title", title).FilterLike("title", "NTEGRAT"))).Should().Be(0);
+			(await CountAsync(QueryBuilder.ListCases().Filter("title", title).FilterLike("title", "INTEGRATION"))).Should().Be(1);
+
+			// _between: _from inclusive, _to exclusive (numbers and dates)
+			(await CountAsync(QueryBuilder.ListCases().Filter("title", title).FilterBetween("severity", Severity.Low, Severity.Medium))).Should().Be(1);
+			(await CountAsync(QueryBuilder.ListCases().Filter("title", title).FilterBetween("severity", 0, Severity.Low))).Should().Be(0);
+			(await CountAsync(QueryBuilder.ListCases().Filter("title", title).FilterBetween("number", created.Number, created.Number + 1))).Should().Be(1);
+			(await CountAsync(QueryBuilder.ListCases().Filter("title", title).FilterBetween("number", created.Number - 1, created.Number))).Should().Be(0);
+			(await CountAsync(QueryBuilder.ListCases().Filter("title", title)
+				.FilterBetween("_createdAt", created.CreatedAt.AddMilliseconds(-1), created.CreatedAt))).Should().Be(0);
+			(await CountAsync(QueryBuilder.ListCases().Filter("title", title)
+				.FilterBetween("_createdAt", created.CreatedAt, created.CreatedAt.AddMilliseconds(1)))).Should().Be(1);
 			(await CountAsync(QueryBuilder.ListCases().Filter("title", title).Filter(f => f.StartsWith("title", "[TheHive.Api integration]")))).Should().Be(1);
 			(await CountAsync(QueryBuilder.ListCases().Filter("title", title)
 				.FilterBetween("_createdAt", created.CreatedAt.AddMinutes(-10), created.CreatedAt.AddMinutes(10)))).Should().Be(1);

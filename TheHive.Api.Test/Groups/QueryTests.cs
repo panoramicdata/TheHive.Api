@@ -176,6 +176,53 @@ public class QueryTests
 	}
 
 	[Fact]
+	public async Task RunAsyncOfT_NullResult_IsEmpty()
+	{
+		var stub = Stub(HttpStatusCode.OK, "null");
+		using var client = TestClient.Create(stub);
+
+		var cases = await client.Query.RunAsync<Case>(QueryBuilder.ListCases(), cancellationToken: TestContext.Current.CancellationToken);
+
+		cases.Should().BeEmpty();
+	}
+
+	[Theory]
+	[InlineData("5")]
+	[InlineData("\"text\"")]
+	[InlineData("true")]
+	public async Task RunAsyncOfT_ValueResult_ThrowsInvalidOperation(string json)
+	{
+		var stub = Stub(HttpStatusCode.OK, json);
+		using var client = TestClient.Create(stub);
+
+		var act = () => client.Query.RunAsync<Case>(QueryBuilder.List("countFreetags"), cancellationToken: TestContext.Current.CancellationToken);
+
+		await act.Should().ThrowAsync<InvalidOperationException>().WithMessage("*single value*IQuery.RunAsync*");
+	}
+
+	[Fact]
+	public async Task RunPageAsync_ValueResult_ThrowsInvalidOperation()
+	{
+		var stub = Stub(HttpStatusCode.OK, "12");
+		using var client = TestClient.Create(stub);
+
+		var act = () => client.Query.RunPageAsync<Case>(QueryBuilder.List("countFreetags"), cancellationToken: TestContext.Current.CancellationToken);
+
+		await act.Should().ThrowAsync<InvalidOperationException>().WithMessage("*single value*");
+	}
+
+	[Fact]
+	public async Task RunCountAsync_NonNumberResult_ThrowsInvalidOperation()
+	{
+		var stub = Stub(HttpStatusCode.OK, "[]");
+		using var client = TestClient.Create(stub);
+
+		var act = () => client.Query.RunCountAsync(QueryBuilder.ListCases().Count(), cancellationToken: TestContext.Current.CancellationToken);
+
+		await act.Should().ThrowAsync<InvalidOperationException>().WithMessage("*not a number*");
+	}
+
+	[Fact]
 	public async Task RunAsyncOfT_CountQuery_Throws()
 	{
 		using var client = TestClient.Create(new StubHandler());
@@ -227,12 +274,12 @@ public class QueryTests
 	}
 
 	[Fact]
-	public async Task RunWithResponseAsync_ExposesTheTotalHeader()
+	public async Task RunUncheckedAsync_ExposesTheTotalHeader()
 	{
 		var stub = Stub(HttpStatusCode.OK, "[]", r => r.Headers.Add("X-Total", "57"));
 		using var client = TestClient.Create(stub);
 
-		using var response = await client.Query.RunWithResponseAsync(SpecQuery().Build(), "cases", TestContext.Current.CancellationToken);
+		using var response = await client.Query.RunUncheckedAsync(SpecQuery().Build(), "cases", TestContext.Current.CancellationToken);
 
 		stub.Calls[0].Method.Should().Be(HttpMethod.Post);
 		stub.Calls[0].Uri.AbsolutePath.Should().Be("/api/v1/query");
@@ -244,12 +291,12 @@ public class QueryTests
 	}
 
 	[Fact]
-	public async Task RunWithResponseAsync_ErrorStatus_IsReturnedNotThrown()
+	public async Task RunUncheckedAsync_ErrorStatus_IsReturnedNotThrown()
 	{
 		var stub = Stub(HttpStatusCode.BadRequest, """{"type":"BadRequest","message":"Invalid query"}""");
 		using var client = TestClient.Create(stub);
 
-		using var response = await client.Query.RunWithResponseAsync(QueryBuilder.ListCases().Build(), cancellationToken: TestContext.Current.CancellationToken);
+		using var response = await client.Query.RunUncheckedAsync(QueryBuilder.ListCases().Build(), cancellationToken: TestContext.Current.CancellationToken);
 
 		response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
 		stub.Calls[0].Uri.Query.Should().BeEmpty();
@@ -401,6 +448,18 @@ public class QueryTests
 		var act = () => client.Query.ExportAsync("[]", "{}", TestContext.Current.CancellationToken);
 
 		(await act.Should().ThrowAsync<TheHiveApiException>()).Which.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+	}
+
+	[Fact]
+	public async Task GetExportFieldsAsync_Forbidden_ThrowsTheHiveApiException()
+	{
+		var stub = Stub(HttpStatusCode.Forbidden, """{"type":"AuthorizationError","message":"Not allowed"}""");
+		using var client = TestClient.Create(stub);
+
+		var act = () => client.Query.GetExportFieldsAsync(TestContext.Current.CancellationToken);
+
+		(await act.Should().ThrowAsync<TheHiveApiException>())
+			.Which.Should().Match<TheHiveApiException>(e => e.StatusCode == HttpStatusCode.Forbidden && e.ErrorType == "AuthorizationError");
 	}
 
 	[Fact]

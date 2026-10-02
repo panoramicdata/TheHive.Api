@@ -11,7 +11,7 @@ namespace TheHive.Api.Querying;
 /// <example>
 /// <code>
 /// var query = QueryBuilder.ListCases()
-///     .FilterLike("title", "*ransomware*")
+///     .FilterLike("title", "ransomware")
 ///     .Sort("_createdAt", SortDirection.Descending)
 ///     .Page(0, 15, "total");
 /// var cases = await client.Query.RunAsync&lt;Case&gt;(query);

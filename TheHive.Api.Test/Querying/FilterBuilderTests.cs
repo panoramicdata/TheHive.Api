@@ -64,11 +64,11 @@ public class FilterBuilderTests
 	{
 		var result = FilterStep(f => f
 			.Eq("status", "New")
-			.Or(o => o.Like("title", "*phish*").And(a => a.Gte("severity", 3).Not(n => n.Has("assignee")))));
+			.Or(o => o.Like("title", "phish").And(a => a.Gte("severity", 3).Not(n => n.Has("assignee")))));
 
 		result.Should().Be(
 			"""{"_name":"filter","_and":[{"_eq":{"_field":"status","_value":"New"}},""" +
-			"""{"_or":[{"_like":{"_field":"title","_value":"*phish*"}},{"_and":[{"_gte":{"_field":"severity","_value":3}},{"_not":{"_has":"assignee"}}]}]}]}""");
+			"""{"_or":[{"_like":{"_field":"title","_value":"phish"}},{"_and":[{"_gte":{"_field":"severity","_value":3}},{"_not":{"_has":"assignee"}}]}]}]}""");
 	}
 
 	[Fact]
@@ -94,14 +94,14 @@ public class FilterBuilderTests
 		act.Should().Throw<ArgumentNullException>().WithParameterName("values");
 	}
 
-	[Theory]
-	[InlineData("Has")]
-	[InlineData("Id")]
-	public void SingleOperandFilters_BlankOperand_Throw(string method)
+	[Fact]
+	public void SingleOperandFilters_BlankOperand_Throw()
 	{
-		var act = () => FilterStep(f => typeof(FilterBuilder).GetMethod(method)!.Invoke(f, [" "]));
+		var has = () => FilterStep(f => f.Has(" "));
+		var id = () => FilterStep(f => f.Id(""));
 
-		act.Should().Throw<System.Reflection.TargetInvocationException>().WithInnerException<ArgumentException>();
+		has.Should().Throw<ArgumentException>().WithParameterName("field");
+		id.Should().Throw<ArgumentException>().WithParameterName("id");
 	}
 
 	[Fact]

@@ -25,19 +25,21 @@ public interface IQuery
 	Task<JsonElement> RunAsync([Body] QueryRequest request, [Query] string? name = null, CancellationToken cancellationToken = default);
 
 	/// <summary>
-	/// Runs a query and returns the response with its headers, so the <c>X-Total</c> header (the total number of matching
-	/// results, sent when the <c>page</c> step's <c>extraData</c> includes <c>total</c>) can be read. Prefer
-	/// <see cref="Querying.QueryExtensions.RunPageAsync"/>, which reads it and throws <see cref="TheHiveApiException"/> on errors.
+	/// UNCHECKED: runs a query and returns the raw response <b>without checking its status</b>. This is the only kind of member
+	/// in this client that does not throw <see cref="TheHiveApiException"/> on an error status. It exists so the <c>X-Total</c>
+	/// header (the total number of matching results, sent when the <c>page</c> step's <c>extraData</c> includes <c>total</c>)
+	/// can be read; prefer <see cref="Querying.QueryExtensions.RunPageAsync"/>, which reads it and throws on errors.
 	/// </summary>
 	/// <param name="request">The query.</param>
 	/// <param name="name">An optional label for the query, as for <see cref="RunAsync"/>.</param>
 	/// <param name="cancellationToken">A cancellation token.</param>
 	/// <returns>
-	/// The raw response, with the result as its JSON body; dispose it. Unlike the other methods, an error status does not throw:
-	/// check <see cref="HttpResponseMessage.IsSuccessStatusCode"/>.
+	/// The raw response; the caller must dispose it and must check <see cref="HttpResponseMessage.IsSuccessStatusCode"/> before
+	/// reading the body. On success the body is the JSON result; on an error status it is a TheHive error object
+	/// (<c>{"type":...,"message":...}</c>), not the result type.
 	/// </returns>
 	[Post("api/v1/query")]
-	Task<HttpResponseMessage> RunWithResponseAsync(
+	Task<HttpResponseMessage> RunUncheckedAsync(
 		[Body] QueryRequest request,
 		[Query] string? name = null,
 		CancellationToken cancellationToken = default);
