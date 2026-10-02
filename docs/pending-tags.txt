@@ -12,7 +12,6 @@ CaseStatus
 Config
 Describe
 License
-Page
 PageTemplate
 Query and Export
 Status

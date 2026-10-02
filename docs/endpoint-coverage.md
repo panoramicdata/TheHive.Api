@@ -283,12 +283,12 @@ Plan groups: Alerts, Cases, CaseTemplates, Tasks, TaskLogs, Observables, Comment
 | Organization | GET | `/api/v1/organisation/{orgId}/links` | `IOrganisations.ListLinksAsync` | `OrganisationsTests.ListLinksAsync_GetsAndMapsEveryField` |
 | Organization | PUT | `/api/v1/organisation/{orgId}/links` | `IOrganisations.ReplaceLinksAsync` | `OrganisationsTests.ReplaceLinksAsync_PutsLinks` |
 | Organization | GET | `/api/v1/sharingProfile` | `IOrganisations.ListSharingProfilesAsync` | `OrganisationsTests.ListSharingProfilesAsync_GetsAndMapsEveryField` |
-| Page | POST | `/api/v1/case/{caseId}/page` | | |
-| Page | DELETE | `/api/v1/case/{caseId}/page/{pageId}` | | |
-| Page | PATCH | `/api/v1/case/{caseId}/page/{pageId}` | | |
-| Page | POST | `/api/v1/page` | | |
-| Page | DELETE | `/api/v1/page/{pageId}` | | |
-| Page | PATCH | `/api/v1/page/{pageId}` | | |
+| Page | POST | `/api/v1/case/{caseId}/page` | `IPages.CreateInCaseAsync` | `PagesTests.CreateInCaseAsync_PostsBodyAndMapsResult` |
+| Page | DELETE | `/api/v1/case/{caseId}/page/{pageId}` | `IPages.DeleteInCaseAsync` | `PagesTests.DeleteInCaseAsync_SendsDelete` |
+| Page | PATCH | `/api/v1/case/{caseId}/page/{pageId}` | `IPages.UpdateInCaseAsync` | `PagesTests.UpdateInCaseAsync_PatchesBody` |
+| Page | POST | `/api/v1/page` | `IPages.CreateAsync` | `PagesTests.CreateAsync_PostsBodyAndMapsEveryField`, `PagesTests.CreateAsync_RequiredOnly_OmitsOrder_And_AbsentOptionalsMapToDefaults`, `PagesTests.Page_Defaults_AreEmptyNotNull` |
+| Page | DELETE | `/api/v1/page/{pageId}` | `IPages.DeleteAsync` | `PagesTests.DeleteAsync_SendsDelete`, `PagesTests.DeleteAsync_NotFound_ThrowsTheHiveApiException` |
+| Page | PATCH | `/api/v1/page/{pageId}` | `IPages.UpdateAsync` | `PagesTests.UpdateAsync_PatchesEveryProperty`, `PagesTests.UpdateAsync_Empty_SendsEmptyObject` |
 | PageTemplate | POST | `/api/v1/pageTemplate` | | |
 | PageTemplate | DELETE | `/api/v1/pageTemplate/{pageTemplateId}` | | |
 | PageTemplate | PATCH | `/api/v1/pageTemplate/{pageTemplateId}` | | |
