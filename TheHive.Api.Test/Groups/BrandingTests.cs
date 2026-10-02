@@ -1,5 +1,5 @@
-using System.Net;
 using Refit;
+using System.Net;
 using TheHive.Api.Data.Branding;
 using TheHive.Api.Test.Support;
 
