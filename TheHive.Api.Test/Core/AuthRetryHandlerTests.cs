@@ -11,7 +11,7 @@ public class AuthRetryHandlerTests
 	{
 		private readonly HttpMessageInvoker _invoker;
 
-		public Harness(Action<TheHiveClientOptions>? tweak = null, bool recordDelays = true)
+		public Harness(Action<TheHiveClientOptions>? tweak = null, bool recordDelays = true, HttpMessageHandler? inner = null)
 		{
 			var options = new TheHiveClientOptions
 			{
@@ -21,7 +21,7 @@ public class AuthRetryHandlerTests
 				RetryBaseDelay = TimeSpan.FromSeconds(2)
 			};
 			tweak?.Invoke(options);
-			Handler = new AuthRetryHandler(options) { InnerHandler = Stub };
+			Handler = new AuthRetryHandler(options) { InnerHandler = inner ?? Stub };
 			if (recordDelays)
 			{
 				Handler.Delay = (delay, _) =>
@@ -304,5 +304,92 @@ public class AuthRetryHandlerTests
 		};
 
 		await act.Should().NotThrowAsync();
+	}
+
+	private sealed class HangingHandler : HttpMessageHandler
+	{
+		public int Calls { get; private set; }
+
+		protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
+		{
+			Calls++;
+			await Task.Delay(Timeout.InfiniteTimeSpan, cancellationToken);
+			return new HttpResponseMessage(HttpStatusCode.OK);
+		}
+	}
+
+	private sealed class ThrowingHandler : HttpMessageHandler
+	{
+		protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
+			=> throw new OperationCanceledException("inner gave up");
+	}
+
+	[Fact]
+	public async Task Send_AttemptExceedsTimeout_ThrowsTimeoutException()
+	{
+		var hanging = new HangingHandler();
+		using var harness = new Harness(o => o.Timeout = TimeSpan.FromMilliseconds(50), inner: hanging);
+
+		var act = () => harness.GetAsync(TestContext.Current.CancellationToken);
+
+		await act.Should().ThrowAsync<TimeoutException>();
+		hanging.Calls.Should().Be(1);
+	}
+
+	[Fact]
+	public async Task Send_RetryAfterLongerThanTimeout_StillRetriesAndSucceeds()
+	{
+		using var harness = new Harness(o =>
+		{
+			o.MaxRetries = 1;
+			o.Timeout = TimeSpan.FromMilliseconds(50);
+		});
+		harness.Stub.Enqueue(HttpStatusCode.TooManyRequests, "{}", r => r.Headers.RetryAfter = new RetryConditionHeaderValue(TimeSpan.FromSeconds(120)));
+		harness.Stub.Enqueue(HttpStatusCode.OK);
+
+		using var response = await harness.GetAsync(TestContext.Current.CancellationToken);
+
+		response.StatusCode.Should().Be(HttpStatusCode.OK);
+		harness.Delays.Should().Equal(TimeSpan.FromSeconds(120));
+	}
+
+	[Fact]
+	public async Task Send_CallerCancellationDuringAttempt_IsNotATimeout()
+	{
+		var hanging = new HangingHandler();
+		using var harness = new Harness(o => o.Timeout = TimeSpan.FromMinutes(5), inner: hanging);
+		using var cts = new CancellationTokenSource();
+		cts.CancelAfter(TimeSpan.FromMilliseconds(50));
+
+		var act = () => harness.GetAsync(cts.Token);
+
+		var thrown = (await act.Should().ThrowAsync<OperationCanceledException>()).Which;
+		thrown.Should().NotBeOfType<TimeoutException>();
+		cts.IsCancellationRequested.Should().BeTrue();
+	}
+
+	[Fact]
+	public async Task Send_InnerThrowsCancellationUnprompted_Propagates()
+	{
+		using var harness = new Harness(inner: new ThrowingHandler());
+
+		var act = () => harness.GetAsync(TestContext.Current.CancellationToken);
+
+		await act.Should().ThrowAsync<OperationCanceledException>().WithMessage("inner gave up");
+	}
+
+	[Fact]
+	public async Task Send_ThreeServerErrorsWithTwoRetries_MakesThreeCallsThenReturnsFinal()
+	{
+		using var harness = new Harness(o => o.MaxRetries = 2);
+		harness.Stub.Enqueue(HttpStatusCode.InternalServerError);
+		harness.Stub.Enqueue(HttpStatusCode.BadGateway);
+		harness.Stub.Enqueue(HttpStatusCode.ServiceUnavailable);
+
+		using var response = await harness.GetAsync(TestContext.Current.CancellationToken);
+
+		response.StatusCode.Should().Be(HttpStatusCode.ServiceUnavailable);
+		harness.Stub.Calls.Should().HaveCount(3);
+		harness.Delays.Should().HaveCount(2);
 	}
 }

@@ -13,14 +13,14 @@ internal static class TheHiveErrorMapper
 
 		string? type = null;
 		string? message = null;
-		var body = await response.Content.ReadAsStringAsync();
+		var body = await ReadBodyAsync(response);
 		try
 		{
 			using var document = JsonDocument.Parse(body);
 			if (document.RootElement.ValueKind == JsonValueKind.Object)
 			{
-				type = document.RootElement.TryGetProperty("type", out var t) ? t.GetString() : null;
-				message = document.RootElement.TryGetProperty("message", out var m) ? m.GetString() : null;
+				type = TryGetString(document.RootElement, "type");
+				message = TryGetString(document.RootElement, "message");
 			}
 		}
 		catch (JsonException)
@@ -35,4 +35,22 @@ internal static class TheHiveErrorMapper
 			message ?? $"HTTP {(int)response.StatusCode} ({response.ReasonPhrase ?? response.StatusCode.ToString()})",
 			requestId);
 	}
+
+	private static async Task<string> ReadBodyAsync(HttpResponseMessage response)
+	{
+		try
+		{
+			return await response.Content.ReadAsStringAsync();
+		}
+		catch (InvalidOperationException)
+		{
+			// Unsupported charset in Content-Type: the body is unreadable, use the fallback message.
+			return string.Empty;
+		}
+	}
+
+	private static string? TryGetString(JsonElement element, string name)
+		=> element.TryGetProperty(name, out var property) && property.ValueKind == JsonValueKind.String
+			? property.GetString()
+			: null;
 }

@@ -14,7 +14,10 @@ public class TheHiveClientOptions
 	/// <summary>Optional organisation name, sent as <c>X-Organisation</c>.</summary>
 	public string? Organisation { get; set; }
 
-	/// <summary>HTTP timeout per attempt.</summary>
+	/// <summary>
+	/// HTTP timeout per attempt. It does not include retry back-off or <c>Retry-After</c> waits.
+	/// An attempt that exceeds it raises a <see cref="TimeoutException"/>; caller cancellation still raises <see cref="OperationCanceledException"/>.
+	/// </summary>
 	public TimeSpan Timeout { get; set; } = TimeSpan.FromSeconds(100);
 
 	/// <summary>Maximum retries for 429 and 5xx responses.</summary>

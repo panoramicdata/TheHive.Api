@@ -21,7 +21,7 @@ internal sealed class AuthRetryHandler(TheHiveClientOptions options) : Delegatin
 		for (var attempt = 0; ; attempt++)
 		{
 			options.Logger?.LogDebug("TheHive {Method} {Uri} (attempt {Attempt})", request.Method, request.RequestUri, attempt + 1);
-			var response = await base.SendAsync(request, cancellationToken);
+			var response = await SendAttemptAsync(request, cancellationToken);
 			if (!IsTransient(response.StatusCode) || attempt >= options.MaxRetries)
 			{
 				return response;
@@ -32,6 +32,20 @@ internal sealed class AuthRetryHandler(TheHiveClientOptions options) : Delegatin
 			response.Dispose();
 			await Delay(wait, cancellationToken);
 			backoff *= 2;
+		}
+	}
+
+	private async Task<HttpResponseMessage> SendAttemptAsync(HttpRequestMessage request, CancellationToken cancellationToken)
+	{
+		using var attemptCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+		attemptCts.CancelAfter(options.Timeout);
+		try
+		{
+			return await base.SendAsync(request, attemptCts.Token);
+		}
+		catch (OperationCanceledException) when (!cancellationToken.IsCancellationRequested && attemptCts.IsCancellationRequested)
+		{
+			throw new TimeoutException($"TheHive did not respond within {options.Timeout}.");
 		}
 	}
 

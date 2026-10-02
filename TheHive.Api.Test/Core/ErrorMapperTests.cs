@@ -108,4 +108,28 @@ public class ErrorMapperTests
 		var exception = await TheHiveErrorMapper.CreateAsync(response);
 		exception.Should().BeOfType<TheHiveApiException>().Which.Message.Should().Be("nope");
 	}
+
+	[Theory]
+	[InlineData("""{"message":123}""", null, "HTTP 400 (Bad Request)")]
+	[InlineData("""{"message":{"detail":"x"}}""", null, "HTTP 400 (Bad Request)")]
+	[InlineData("""{"message":null}""", null, "HTTP 400 (Bad Request)")]
+	[InlineData("""{"type":["a"],"message":"m"}""", null, "m")]
+	[InlineData("""{"type":5,"message":"m"}""", null, "m")]
+	public async Task Create_NonStringFields_StillYieldsApiException(string body, string? expectedType, string expectedMessage)
+	{
+		using var response = Response(HttpStatusCode.BadRequest, body);
+		var exception = (await TheHiveErrorMapper.CreateAsync(response)).Should().BeOfType<TheHiveApiException>().Subject;
+		exception.ErrorType.Should().Be(expectedType);
+		exception.Message.Should().Be(expectedMessage);
+	}
+
+	[Fact]
+	public async Task Create_InvalidCharset_FallsBackToStatusMessage()
+	{
+		using var response = new HttpResponseMessage(HttpStatusCode.BadGateway) { Content = new ByteArrayContent("{\"message\":\"m\"}"u8.ToArray()) };
+		response.Content.Headers.TryAddWithoutValidation("Content-Type", "text/html; charset=utf8x");
+		var exception = (await TheHiveErrorMapper.CreateAsync(response)).Should().BeOfType<TheHiveApiException>().Subject;
+		exception.StatusCode.Should().Be(HttpStatusCode.BadGateway);
+		exception.Message.Should().Be("HTTP 502 (Bad Gateway)");
+	}
 }

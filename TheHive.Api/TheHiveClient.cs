@@ -20,7 +20,8 @@ public sealed class TheHiveClient : IDisposable
 		_httpClient = new HttpClient(new Handlers.AuthRetryHandler(options) { InnerHandler = inner })
 		{
 			BaseAddress = new Uri(baseUrl),
-			Timeout = options.Timeout
+			// The per-attempt timeout is applied inside AuthRetryHandler so retries and Retry-After waits are not cut short.
+			Timeout = System.Threading.Timeout.InfiniteTimeSpan
 		};
 		Settings = new RefitSettings
 		{
