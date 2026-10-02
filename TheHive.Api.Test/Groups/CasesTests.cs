@@ -434,9 +434,9 @@ public class CasesTests
 		{
 			"_id":"~456789012","_type":"Attachment","_createdBy":"lucas@example.com","_updatedBy":"alice@example.com",
 			"_createdAt":1748739600000,"_updatedAt":1776902400000,"name":"encrypt.ps1",
-			"hashes":["e5c67f1d2e6f8b3a4c1f2b7d9a0e8c6d","2b4f6dacb1e3f5a7c9d0e2b4f6dacb1e"],"size":2048,
-			"contentType":"application/x-powershell","id":"a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4",
-			"path":"attachments/a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4","extraData":{"links":1},"external":true
+			"hashes":["fake-hash-0001","fake-hash-0002"],"size":2048,
+			"contentType":"application/x-powershell","id":"fake-storage-id",
+			"path":"attachments/fake-storage-id","extraData":{"links":1},"external":true
 		}
 		""";
 
@@ -1071,11 +1071,11 @@ public class CasesTests
 		attachment.CreatedAt.Should().Be(DateTimeOffset.FromUnixTimeMilliseconds(1748739600000));
 		attachment.UpdatedAt.Should().Be(DateTimeOffset.FromUnixTimeMilliseconds(1776902400000));
 		attachment.Name.Should().Be("encrypt.ps1");
-		attachment.Hashes.Should().Equal("e5c67f1d2e6f8b3a4c1f2b7d9a0e8c6d", "2b4f6dacb1e3f5a7c9d0e2b4f6dacb1e");
+		attachment.Hashes.Should().Equal("fake-hash-0001", "fake-hash-0002");
 		attachment.Size.Should().Be(2048);
 		attachment.ContentType.Should().Be("application/x-powershell");
-		attachment.StorageId.Should().Be("a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4");
-		attachment.Path.Should().Be("attachments/a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4");
+		attachment.StorageId.Should().Be("fake-storage-id");
+		attachment.Path.Should().Be("attachments/fake-storage-id");
 		attachment.ExtraData["links"].GetInt32().Should().Be(1);
 		attachment.External.Should().BeTrue();
 	}

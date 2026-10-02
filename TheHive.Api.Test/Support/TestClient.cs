@@ -7,7 +7,7 @@ internal static class TestClient
 		var options = new TheHiveClientOptions
 		{
 			BaseUrl = "https://hive.test/",
-			ApiKey = "secret-key",
+			ApiKey = "fake-key",
 			MaxRetries = 0
 		};
 		tweak?.Invoke(options);

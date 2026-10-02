@@ -34,7 +34,7 @@ public interface IOrganisations
 
 	/// <summary>Streams the avatar image of an organization.</summary>
 	/// <param name="orgId">The organization ID preceded by <c>~</c>, or its name.</param>
-	/// <param name="fileHash">The hash of the avatar file, the last segment of an avatar path such as <c>api/v1/organisation/~1048576/avatar/e3b0c44298fc1c14</c>.</param>
+	/// <param name="fileHash">The hash of the avatar file, the last segment of an avatar path such as <c>api/v1/organisation/~1048576/avatar/fake-avatar-hash</c>.</param>
 	/// <param name="ifNoneMatch">The <c>ETag</c> of a previous response, sent as <c>If-None-Match</c>; omitted when <see langword="null"/>.
 	/// When it still matches, the server answers 304 and this method throws <see cref="TheHiveApiException"/> with status <c>NotModified</c>.</param>
 	/// <param name="cancellationToken">A cancellation token.</param>

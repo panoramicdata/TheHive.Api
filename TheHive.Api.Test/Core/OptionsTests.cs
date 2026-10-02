@@ -2,7 +2,7 @@ namespace TheHive.Api.Test.Core;
 
 public class OptionsTests
 {
-	private static TheHiveClientOptions Valid() => new() { BaseUrl = "https://hive.test", ApiKey = "secret-key" };
+	private static TheHiveClientOptions Valid() => new() { BaseUrl = "https://hive.test", ApiKey = "fake-key" };
 
 	[Fact]
 	public void Validate_EmptyBaseUrl_Throws()
@@ -54,7 +54,7 @@ public class OptionsTests
 	public void ToString_DoesNotContainApiKey()
 	{
 		var text = Valid().ToString();
-		text.Should().NotContain("secret-key");
+		text.Should().NotContain("fake-key");
 		text.Should().Contain("https://hive.test");
 	}
 }

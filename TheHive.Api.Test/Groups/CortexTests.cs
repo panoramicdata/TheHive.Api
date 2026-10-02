@@ -10,9 +10,9 @@ public class CortexTests
 	private const string ActionJson = """
 		{
 			"_id":"~327696","_type":"Action","_createdBy":"emma@example.com","_updatedBy":"sami@example.com",
-			"_createdAt":1748739600000,"_updatedAt":1748739605000,"responderId":"b7fa3af4dd7a6de1d8c1f1f4a9c6e7ab",
+			"_createdAt":1748739600000,"_updatedAt":1748739605000,"responderId":"fake-responder-id",
 			"responderName":"Mailer","responderDefinition":{"name":"Mailer_1_0","version":"1.0"},"cortexId":"Cortex1",
-			"cortexJobId":"AWmX6HGxi3s3zwsBQJer","objectType":"Observable","objectId":"~276824","status":"Success",
+			"cortexJobId":"fake-job-id","objectType":"Observable","objectId":"~276824","status":"Success",
 			"startDate":1748739600000,"endDate":1748739605000,
 			"operations":[{"tag":"ransomware","type":"AddTagToCase","status":"Success","message":"Tag added to the case."}],
 			"report":"{\"success\":true}","extraData":{"k":1}
@@ -29,10 +29,10 @@ public class CortexTests
 	private const string JobJson = """
 		{
 			"_id":"~380928","_type":"case_artifact_job","_createdBy":"emma@example.com","_updatedBy":"sami@example.com",
-			"_createdAt":1748739600000,"_updatedAt":1748739605000,"analyzerId":"220483fde9608c580fb6a2508ff3d2d3",
+			"_createdAt":1748739600000,"_updatedAt":1748739605000,"analyzerId":"fake-analyzer-id",
 			"analyzerName":"VirusTotal_GetReport","analyzerDefinition":"VirusTotal_GetReport_3_0","status":"Success",
 			"startDate":1748739600000,"endDate":1748739605000,"report":{"summary":{"taxonomies":[]}},"cortexId":"Cortex1",
-			"cortexJobId":"AWmX6HGxi3s3zwsBQJer","id":"~380928","case_artifact":{"_id":"~344112","dataType":"ip"},"operations":"[]"
+			"cortexJobId":"fake-job-id","id":"~380928","case_artifact":{"_id":"~344112","dataType":"ip"},"operations":"[]"
 		}
 		""";
 
@@ -45,7 +45,7 @@ public class CortexTests
 
 	private const string AnalyzerJson = """
 		{
-			"id":"220483fde9608c580fb6a2508ff3d2d3","name":"VirusTotal_GetReport","version":"3.0",
+			"id":"fake-analyzer-id","name":"VirusTotal_GetReport","version":"3.0",
 			"description":"Search for a specific hash, IP, domain, or URL in the VirusTotal database.",
 			"dataTypeList":["hash","domain","ip","url"],"cortexIds":["Cortex1"]
 		}
@@ -68,11 +68,11 @@ public class CortexTests
 		action.UpdatedBy.Should().Be("sami@example.com");
 		action.CreatedAt.Should().Be(DateTimeOffset.FromUnixTimeMilliseconds(1748739600000));
 		action.UpdatedAt.Should().Be(DateTimeOffset.FromUnixTimeMilliseconds(1748739605000));
-		action.ResponderId.Should().Be("b7fa3af4dd7a6de1d8c1f1f4a9c6e7ab");
+		action.ResponderId.Should().Be("fake-responder-id");
 		action.ResponderName.Should().Be("Mailer");
 		action.ResponderDefinition!.Value.GetProperty("name").GetString().Should().Be("Mailer_1_0");
 		action.CortexId.Should().Be("Cortex1");
-		action.CortexJobId.Should().Be("AWmX6HGxi3s3zwsBQJer");
+		action.CortexJobId.Should().Be("fake-job-id");
 		action.ObjectType.Should().Be("Observable");
 		action.ObjectId.Should().Be("~276824");
 		action.Status.Should().Be(CortexActionStatus.Success);
@@ -92,7 +92,7 @@ public class CortexTests
 		var action = await client.Cortex.CreateActionAsync(
 			new CortexActionInput
 			{
-				ResponderId = "b7fa3af4dd7a6de1d8c1f1f4a9c6e7ab",
+				ResponderId = "fake-responder-id",
 				CortexId = "Cortex1",
 				ObjectType = "case",
 				ObjectId = "~276824",
@@ -104,7 +104,7 @@ public class CortexTests
 		stub.Calls[0].Method.Should().Be(HttpMethod.Post);
 		stub.Calls[0].Uri.AbsolutePath.Should().Be("/api/v1/connector/cortex/action");
 		stub.Calls[0].Body.Should().Be(
-			"""{"responderId":"b7fa3af4dd7a6de1d8c1f1f4a9c6e7ab","cortexId":"Cortex1","objectType":"case","objectId":"~276824","parameters":{"to":"sami@example.com"},"tlp":2}""");
+			"""{"responderId":"fake-responder-id","cortexId":"Cortex1","objectType":"case","objectId":"~276824","parameters":{"to":"sami@example.com"},"tlp":2}""");
 		AssertAction(action);
 	}
 
@@ -164,7 +164,7 @@ public class CortexTests
 		stub.Calls[0].Uri.Query.Should().Be("?range=all");
 		stub.Calls[0].Body.Should().BeNull();
 		var analyzer = analyzers.Should().ContainSingle().Subject;
-		analyzer.Id.Should().Be("220483fde9608c580fb6a2508ff3d2d3");
+		analyzer.Id.Should().Be("fake-analyzer-id");
 		analyzer.Name.Should().Be("VirusTotal_GetReport");
 		analyzer.Version.Should().Be("3.0");
 		analyzer.Description.Should().StartWith("Search for a specific hash");
@@ -327,7 +327,7 @@ public class CortexTests
 		var job = await client.Cortex.CreateJobAsync(
 			new CortexJobCreateRequest
 			{
-				AnalyzerId = "220483fde9608c580fb6a2508ff3d2d3",
+				AnalyzerId = "fake-analyzer-id",
 				CortexId = "Cortex1",
 				ArtifactId = "~344112",
 				Parameters = new() { ["comment"] = "Investigating phishing campaign" }
@@ -337,14 +337,14 @@ public class CortexTests
 		stub.Calls[0].Method.Should().Be(HttpMethod.Post);
 		stub.Calls[0].Uri.AbsolutePath.Should().Be("/api/v1/connector/cortex/job");
 		stub.Calls[0].Body.Should().Be(
-			"""{"analyzerId":"220483fde9608c580fb6a2508ff3d2d3","cortexId":"Cortex1","artifactId":"~344112","parameters":{"comment":"Investigating phishing campaign"}}""");
+			"""{"analyzerId":"fake-analyzer-id","cortexId":"Cortex1","artifactId":"~344112","parameters":{"comment":"Investigating phishing campaign"}}""");
 		job.Id.Should().Be("~380928");
 		job.Type.Should().Be("case_artifact_job");
 		job.CreatedBy.Should().Be("emma@example.com");
 		job.UpdatedBy.Should().Be("sami@example.com");
 		job.CreatedAt.Should().Be(DateTimeOffset.FromUnixTimeMilliseconds(1748739600000));
 		job.UpdatedAt.Should().Be(DateTimeOffset.FromUnixTimeMilliseconds(1748739605000));
-		job.AnalyzerId.Should().Be("220483fde9608c580fb6a2508ff3d2d3");
+		job.AnalyzerId.Should().Be("fake-analyzer-id");
 		job.AnalyzerName.Should().Be("VirusTotal_GetReport");
 		job.AnalyzerDefinition!.Value.GetString().Should().Be("VirusTotal_GetReport_3_0");
 		job.Status.Should().Be("Success");
@@ -352,7 +352,7 @@ public class CortexTests
 		job.EndDate.Should().Be(DateTimeOffset.FromUnixTimeMilliseconds(1748739605000));
 		job.Report!.Value.GetProperty("summary").GetProperty("taxonomies").GetArrayLength().Should().Be(0);
 		job.CortexId.Should().Be("Cortex1");
-		job.CortexJobId.Should().Be("AWmX6HGxi3s3zwsBQJer");
+		job.CortexJobId.Should().Be("fake-job-id");
 		job.JobId.Should().Be("~380928");
 		job.CaseArtifact!.Value.GetProperty("dataType").GetString().Should().Be("ip");
 		job.Operations!.Value.GetString().Should().Be("[]");

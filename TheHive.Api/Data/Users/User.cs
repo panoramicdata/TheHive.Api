@@ -69,7 +69,7 @@ public sealed class User
 	[JsonPropertyName("organisation")]
 	public string Organisation { get; set; } = string.Empty;
 
-	/// <summary>The relative path of the avatar image (for example <c>api/v1/user/~1048576/avatar/e3b0c44298fc1c14</c>), if the user has one; pass its last segment to <c>IUsers.GetAvatarAsync</c>.</summary>
+	/// <summary>The relative path of the avatar image (for example <c>api/v1/user/~1048576/avatar/fake-avatar-hash</c>), if the user has one; pass its last segment to <c>IUsers.GetAvatarAsync</c>.</summary>
 	[JsonPropertyName("avatar")]
 	public string? Avatar { get; set; }
 

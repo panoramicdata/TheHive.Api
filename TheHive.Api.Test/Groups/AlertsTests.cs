@@ -54,9 +54,9 @@ public class AlertsTests
 	private const string AttachmentJson = """
 		{
 			"_id":"~456789012","_type":"Attachment","_createdBy":"lucas@example.com","_createdAt":1748739600000,
-			"name":"encrypt.ps1","hashes":["e5c67f1d2e6f8b3a4c1f2b7d9a0e8c6d"],"size":2048,
-			"contentType":"application/x-powershell","id":"a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4",
-			"path":"attachments/a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4","extraData":{},"external":false
+			"name":"encrypt.ps1","hashes":["fake-hash-0001"],"size":2048,
+			"contentType":"application/x-powershell","id":"fake-storage-id",
+			"path":"attachments/fake-storage-id","extraData":{},"external":false
 		}
 		""";
 
@@ -614,7 +614,7 @@ public class AlertsTests
 		attachment.Id.Should().Be("~456789012");
 		attachment.Name.Should().Be("encrypt.ps1");
 		attachment.Size.Should().Be(2048);
-		attachment.StorageId.Should().Be("a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4");
+		attachment.StorageId.Should().Be("fake-storage-id");
 	}
 
 	[Fact]

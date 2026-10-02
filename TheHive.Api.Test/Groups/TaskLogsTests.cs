@@ -14,8 +14,8 @@ public class TaskLogsTests
 			"message":"Ran memory analysis on CORP-LAPTOP-056 using Volatility.","date":1742048580000,
 			"attachments":[{
 				"_id":"~456789012","_type":"Attachment","_createdBy":"lucas@example.com","_createdAt":1748739600000,
-				"name":"memory.txt","hashes":["e5c67f1d2e6f8b3a4c1f2b7d9a0e8c6d"],"size":2048,"contentType":"text/plain",
-				"id":"a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4","path":"attachments/a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4","extraData":{},"external":false
+				"name":"memory.txt","hashes":["fake-hash-0001"],"size":2048,"contentType":"text/plain",
+				"id":"fake-storage-id","path":"attachments/fake-storage-id","extraData":{},"external":false
 			}],
 			"owner":"TheOrganization","includeInTimeline":1742046000000,"extraData":{"links":2}
 		}

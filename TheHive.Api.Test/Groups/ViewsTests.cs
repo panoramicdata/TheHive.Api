@@ -145,7 +145,7 @@ public class ViewsTests
 		item.CreatedBy.Should().BeEmpty();
 		item.Name.Should().BeEmpty();
 		item.Filter.ValueKind.Should().Be(JsonValueKind.Undefined);
-		item.ListOptions.Should().NotBeNull();
+		item.ListOptions.ItemsPerPage.Should().Be(50);
 		item.SortList.Should().BeEmpty();
 		item.ShowColumns.Should().BeEmpty();
 	}

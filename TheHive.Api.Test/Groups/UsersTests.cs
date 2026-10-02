@@ -15,9 +15,9 @@ public class UsersTests
 			"_createdAt":1748739600000,"_updatedAt":1776902400000,"login":"lucas@example.com","name":"Sami Analyst",
 			"email":"notify@example.com","hasKey":true,"hasPassword":true,"hasMFA":true,"locked":false,"profile":"analyst",
 			"permissions":["manageCase","manageAlert"],"organisation":"TheOrganization",
-			"avatar":"api/v1/user/~1048576/avatar/e3b0c44298fc1c14",
+			"avatar":"api/v1/user/~1048576/avatar/fake-avatar-hash",
 			"organisations":[{"organisationId":"~128458762","organisation":"TheOrganization","profile":"analyst",
-				"avatar":"api/v1/organisation/~1048576/avatar/e3b0c44298fc1c14",
+				"avatar":"api/v1/organisation/~1048576/avatar/fake-avatar-hash",
 				"links":[{"toOrganisation":"Partner","linkType":"default","otherLinkType":"supervised"}]}],
 			"type":"Normal","defaultOrganisation":"TheOrganization","extraData":{"x":1}
 		}
@@ -34,8 +34,8 @@ public class UsersTests
 	private const string AttachmentJson = """
 		{
 			"_id":"~456789012","_type":"Attachment","_createdBy":"lucas@example.com","_createdAt":1748739600000,
-			"name":"sample.exe","hashes":["e5c67f1d2e6f8b3a4c1f2b7d9a0e8c6d"],"size":4,"contentType":"application/octet-stream",
-			"id":"a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4","path":"attachments/a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4","extraData":{},"external":false
+			"name":"sample.exe","hashes":["fake-hash-0001"],"size":4,"contentType":"application/octet-stream",
+			"id":"fake-storage-id","path":"attachments/fake-storage-id","extraData":{},"external":false
 		}
 		""";
 
@@ -63,12 +63,12 @@ public class UsersTests
 		item.Profile.Should().Be("analyst");
 		item.Permissions.Should().Equal("manageCase", "manageAlert");
 		item.Organisation.Should().Be("TheOrganization");
-		item.Avatar.Should().Be("api/v1/user/~1048576/avatar/e3b0c44298fc1c14");
+		item.Avatar.Should().Be("api/v1/user/~1048576/avatar/fake-avatar-hash");
 		var membership = item.Organisations.Should().ContainSingle().Subject;
 		membership.OrganisationId.Should().Be("~128458762");
 		membership.Organisation.Should().Be("TheOrganization");
 		membership.Profile.Should().Be("analyst");
-		membership.Avatar.Should().Be("api/v1/organisation/~1048576/avatar/e3b0c44298fc1c14");
+		membership.Avatar.Should().Be("api/v1/organisation/~1048576/avatar/fake-avatar-hash");
 		membership.Links.Should().ContainSingle().Which.Should().Match<OrganisationLink>(
 			l => l.ToOrganisation == "Partner" && l.LinkType == "default" && l.OtherLinkType == "supervised");
 		item.Type.Should().Be(UserType.Normal);
@@ -250,10 +250,10 @@ public class UsersTests
 		stub.EnqueueFile(image, "application/octet-stream", "avatar.jpg");
 		using var client = TestClient.Create(stub);
 
-		using var content = await client.Users.GetAvatarAsync("~192024", "e3b0c44298fc1c14", cancellationToken: TestContext.Current.CancellationToken);
+		using var content = await client.Users.GetAvatarAsync("~192024", "fake-avatar-hash", cancellationToken: TestContext.Current.CancellationToken);
 
 		stub.Calls[0].Method.Should().Be(HttpMethod.Get);
-		stub.Calls[0].Uri.AbsolutePath.Should().Be("/api/v1/user/~192024/avatar/e3b0c44298fc1c14");
+		stub.Calls[0].Uri.AbsolutePath.Should().Be("/api/v1/user/~192024/avatar/fake-avatar-hash");
 		stub.Calls[0].Uri.Query.Should().BeEmpty();
 		stub.Calls[0].Headers.Contains("If-None-Match").Should().BeFalse();
 		content.Headers.ContentType!.MediaType.Should().Be("application/octet-stream");
@@ -266,7 +266,7 @@ public class UsersTests
 		var stub = Stub(HttpStatusCode.NotModified);
 		using var client = TestClient.Create(stub);
 
-		var act = () => client.Users.GetAvatarAsync("~192024", "e3b0c44298fc1c14", "\"abc123\"", TestContext.Current.CancellationToken);
+		var act = () => client.Users.GetAvatarAsync("~192024", "fake-avatar-hash", "\"abc123\"", TestContext.Current.CancellationToken);
 
 		(await act.Should().ThrowAsync<TheHiveApiException>())
 			.Which.StatusCode.Should().Be(HttpStatusCode.NotModified);
@@ -372,7 +372,7 @@ public class UsersTests
 	public async Task GetApiKeyAsync_ReturnsPlainTextKey()
 	{
 		var stub = new StubHandler();
-		stub.Enqueue(HttpStatusCode.OK, "GbxDw3j3qXi5MMCJmLEetMn5ilIjjWtZ", r => r.Content = new StringContent("GbxDw3j3qXi5MMCJmLEetMn5ilIjjWtZ", System.Text.Encoding.UTF8, "text/plain"));
+		stub.Enqueue(HttpStatusCode.OK, "fake-api-key", r => r.Content = new StringContent("fake-api-key", System.Text.Encoding.UTF8, "text/plain"));
 		using var client = TestClient.Create(stub);
 
 		var key = await client.Users.GetApiKeyAsync("~192024", TestContext.Current.CancellationToken);
@@ -381,7 +381,7 @@ public class UsersTests
 		stub.Calls[0].Uri.AbsolutePath.Should().Be("/api/v1/user/~192024/key");
 		stub.Calls[0].Uri.Query.Should().BeEmpty();
 		stub.Calls[0].Body.Should().BeNull();
-		key.Should().Be("GbxDw3j3qXi5MMCJmLEetMn5ilIjjWtZ");
+		key.Should().Be("fake-api-key");
 	}
 
 	[Fact]
@@ -480,10 +480,10 @@ public class UsersTests
 		var stub = Stub(HttpStatusCode.Forbidden, """{"type":"AuthorizationError","message":"Not allowed"}""");
 		using var client = TestClient.Create(stub);
 
-		var act = () => client.Users.SetPasswordAsync("~1", new UserPasswordSetRequest { Password = "S3cret!" }, TestContext.Current.CancellationToken);
+		var act = () => client.Users.SetPasswordAsync("~1", new UserPasswordSetRequest { Password = "fake-password" }, TestContext.Current.CancellationToken);
 
 		var thrown = (await act.Should().ThrowAsync<TheHiveApiException>()).Which;
 		thrown.StatusCode.Should().Be(HttpStatusCode.Forbidden);
-		thrown.Message.Should().NotContain("S3cret!");
+		thrown.Message.Should().NotContain("fake-password");
 	}
 }

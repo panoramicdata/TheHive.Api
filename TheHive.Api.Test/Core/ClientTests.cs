@@ -75,6 +75,6 @@ public class ClientTests
 
 		using var response = await client.HttpClient.GetAsync("api/v1/case", TestContext.Current.CancellationToken);
 
-		stub.Calls.Single().Headers.Authorization!.ToString().Should().Be("Bearer secret-key");
+		stub.Calls.Single().Headers.Authorization!.ToString().Should().Be("Bearer fake-key");
 	}
 }

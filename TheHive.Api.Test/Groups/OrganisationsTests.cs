@@ -28,8 +28,8 @@ public class OrganisationsTests
 	private const string AttachmentJson = """
 		{
 			"_id":"~456789012","_type":"Attachment","_createdBy":"lucas@example.com","_createdAt":1748739600000,
-			"name":"sample.exe","hashes":["e5c67f1d2e6f8b3a4c1f2b7d9a0e8c6d"],"size":4,"contentType":"application/octet-stream",
-			"id":"a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4","path":"attachments/a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4","extraData":{},"external":false
+			"name":"sample.exe","hashes":["fake-hash-0001"],"size":4,"contentType":"application/octet-stream",
+			"id":"fake-storage-id","path":"attachments/fake-storage-id","extraData":{},"external":false
 		}
 		""";
 
@@ -193,10 +193,10 @@ public class OrganisationsTests
 		stub.EnqueueFile(image, "application/octet-stream", "avatar.png");
 		using var client = TestClient.Create(stub);
 
-		using var content = await client.Organisations.GetAvatarAsync("~128458762", "e3b0c44298fc1c14", cancellationToken: TestContext.Current.CancellationToken);
+		using var content = await client.Organisations.GetAvatarAsync("~128458762", "fake-avatar-hash", cancellationToken: TestContext.Current.CancellationToken);
 
 		stub.Calls[0].Method.Should().Be(HttpMethod.Get);
-		stub.Calls[0].Uri.AbsolutePath.Should().Be("/api/v1/organisation/~128458762/avatar/e3b0c44298fc1c14");
+		stub.Calls[0].Uri.AbsolutePath.Should().Be("/api/v1/organisation/~128458762/avatar/fake-avatar-hash");
 		stub.Calls[0].Uri.Query.Should().BeEmpty();
 		stub.Calls[0].Headers.Contains("If-None-Match").Should().BeFalse();
 		content.Headers.ContentType!.MediaType.Should().Be("application/octet-stream");
@@ -209,7 +209,7 @@ public class OrganisationsTests
 		var stub = Stub(HttpStatusCode.NotModified);
 		using var client = TestClient.Create(stub);
 
-		var act = () => client.Organisations.GetAvatarAsync("~128458762", "e3b0c44298fc1c14", "\"abc123\"", TestContext.Current.CancellationToken);
+		var act = () => client.Organisations.GetAvatarAsync("~128458762", "fake-avatar-hash", "\"abc123\"", TestContext.Current.CancellationToken);
 
 		(await act.Should().ThrowAsync<TheHiveApiException>())
 			.Which.StatusCode.Should().Be(HttpStatusCode.NotModified);
@@ -376,7 +376,7 @@ public class OrganisationsTests
 		call.Parts[1].Bytes.Should().Equal(4, 5);
 		var attachment = result.Attachments.Should().ContainSingle().Subject;
 		attachment.Id.Should().Be("~456789012");
-		attachment.StorageId.Should().Be("a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4");
+		attachment.StorageId.Should().Be("fake-storage-id");
 		attachment.Name.Should().Be("sample.exe");
 		attachment.ContentType.Should().Be("application/octet-stream");
 		attachment.Size.Should().Be(4);

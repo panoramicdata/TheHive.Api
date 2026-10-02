@@ -16,7 +16,7 @@ public class AuthRetryHandlerTests
 			var options = new TheHiveClientOptions
 			{
 				BaseUrl = "https://hive.test/",
-				ApiKey = "secret-key",
+				ApiKey = "fake-key",
 				MaxRetries = 0,
 				RetryBaseDelay = TimeSpan.FromSeconds(2)
 			};
@@ -57,7 +57,7 @@ public class AuthRetryHandlerTests
 
 		using var response = await harness.GetAsync(TestContext.Current.CancellationToken);
 
-		harness.Stub.Calls.Single().Headers.Authorization!.ToString().Should().Be("Bearer secret-key");
+		harness.Stub.Calls.Single().Headers.Authorization!.ToString().Should().Be("Bearer fake-key");
 	}
 
 	[Fact]
@@ -287,7 +287,7 @@ public class AuthRetryHandlerTests
 		using var response = await harness.GetAsync(TestContext.Current.CancellationToken);
 
 		logger.Messages.Should().NotBeEmpty();
-		logger.Messages.Should().OnlyContain(m => !m.Contains("secret-key"));
+		logger.Messages.Should().OnlyContain(m => !m.Contains("fake-key"));
 		logger.Messages.Should().Contain(m => m.Contains("retrying"));
 	}
 

@@ -43,7 +43,7 @@ public class CaseReportTemplatesTests
 	private const string AttachmentJson = """
 		{
 			"_id":"~456789012","_type":"Attachment","_createdBy":"lucas@example.com","_createdAt":1718532000000,
-			"name":"logo.png","hashes":["e5c67f1d2e6f8b3a4c1f2b7d9a0e8c6d"],"size":2048,"contentType":"image/png",
+			"name":"logo.png","hashes":["fake-hash-0001"],"size":2048,"contentType":"image/png",
 			"id":"a1b2c3d4","path":"/data/a1b2","extraData":{},"external":false
 		}
 		""";
