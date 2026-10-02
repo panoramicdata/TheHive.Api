@@ -14,6 +14,5 @@ Describe
 License
 Query and Export
 Status
-Timeline
 TTP
 Views

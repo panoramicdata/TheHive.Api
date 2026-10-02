@@ -340,9 +340,9 @@ Plan groups: Alerts, Cases, CaseTemplates, Tasks, TaskLogs, Observables, Comment
 | Taxonomy | PUT | `/api/v1/taxonomy/{taxonomyId}/activate` | `ITaxonomies.ActivateAsync` | `TaxonomiesTests.ActivateAsync_SendsPutWithoutBody` |
 | Taxonomy | PUT | `/api/v1/taxonomy/{taxonomyId}/deactivate` | `ITaxonomies.DeactivateAsync` | `TaxonomiesTests.DeactivateAsync_SendsPutWithoutBody` |
 | Taxonomy | POST | `/api/v1/taxonomy/import-zip` | `ITaxonomies.ImportZipAsync` | `TaxonomiesTests.ImportZipAsync_UploadsTheArchiveAsAFilePart_And_MapsOkResult` |
-| Timeline | POST | `/api/v1/case/{caseId}/customEvent` | | |
-| Timeline | DELETE | `/api/v1/customEvent/{eventId}` | | |
-| Timeline | PATCH | `/api/v1/customEvent/{eventId}` | | |
+| Timeline | POST | `/api/v1/case/{caseId}/customEvent` | `ITimeline.CreateCustomEventAsync` | `TimelineTests.CreateCustomEventAsync_PostsBodyAndMapsEveryField`, `TimelineTests.CreateCustomEventAsync_RequiredOnly_OmitsOptionals_And_AbsentOptionalsMapToDefaults`, `TimelineTests.CustomEvent_Defaults_AreEmptyNotNull` |
+| Timeline | DELETE | `/api/v1/customEvent/{eventId}` | `ITimeline.DeleteCustomEventAsync` | `TimelineTests.DeleteCustomEventAsync_SendsDelete`, `TimelineTests.DeleteCustomEventAsync_NotFound_ThrowsTheHiveApiException` |
+| Timeline | PATCH | `/api/v1/customEvent/{eventId}` | `ITimeline.UpdateCustomEventAsync` | `TimelineTests.UpdateCustomEventAsync_PatchesEveryProperty`, `TimelineTests.UpdateCustomEventAsync_NullEndDateAndDescription_SendExplicitNulls`, `TimelineTests.UpdateCustomEventAsync_Empty_SendsEmptyObject` |
 | TTP | POST | `/api/v1/alert/{alertId}/procedure` | | |
 | TTP | POST | `/api/v1/alert/{alertId}/procedures` | | |
 | TTP | POST | `/api/v1/case/{caseId}/procedure` | | |

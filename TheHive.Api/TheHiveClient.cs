@@ -57,6 +57,7 @@ public sealed class TheHiveClient : IDisposable
 		EmailIntake = RestService.For<IEmailIntake>(_httpClient, Settings);
 		Pages = RestService.For<IPages>(_httpClient, Settings);
 		PageTemplates = RestService.For<IPageTemplates>(_httpClient, Settings);
+		Timeline = RestService.For<ITimeline>(_httpClient, Settings);
 	}
 
 	/// <summary>Case operations.</summary>
@@ -130,6 +131,9 @@ public sealed class TheHiveClient : IDisposable
 
 	/// <summary>Page template operations.</summary>
 	public IPageTemplates PageTemplates { get; }
+
+	/// <summary>Case timeline custom event operations.</summary>
+	public ITimeline Timeline { get; }
 
 	internal HttpClient HttpClient => _httpClient;
 
