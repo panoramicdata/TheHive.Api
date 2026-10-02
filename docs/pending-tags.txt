@@ -2,4 +2,3 @@
 # InventoryTests tolerates empty rows only for these tags. Remove a tag when its group lands.
 Authentication
 Branding
-Config

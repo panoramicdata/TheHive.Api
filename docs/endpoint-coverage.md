@@ -205,9 +205,9 @@ Plan groups: Alerts, Cases, CaseTemplates, Tasks, TaskLogs, Observables, Comment
 | Comment | POST | `/api/v1/case/{caseId}/comment` | `IComments.AddToCaseAsync` | `CommentsTests.AddToCaseAsync_PostsBodyAndMapsEveryField`, `CommentsTests.AddToCaseAsync_MessageOnly_OmitsExternal_And_AbsentOptionalsMapToDefaults` |
 | Comment | DELETE | `/api/v1/comment/{commentId}` | `IComments.DeleteAsync` | `CommentsTests.DeleteAsync_SendsDelete`, `CommentsTests.DeleteAsync_Forbidden_ThrowsTheHiveApiException` |
 | Comment | PATCH | `/api/v1/comment/{commentId}` | `IComments.UpdateAsync` | `CommentsTests.UpdateAsync_PatchesMessageAndExternal` |
-| Config | GET | `/api/v1/config/user` | | |
-| Config | GET | `/api/v1/config/user/{path}` | | |
-| Config | PUT | `/api/v1/config/user/{path}` | | |
+| Config | GET | `/api/v1/config/user` | `IConfig.ListAsync` | `ConfigTests.ListAsync_WithoutPath_ReturnsTheWholeConfiguration`, `ConfigTests.ListAsync_WithPath_SendsItAsTheQueryParameter` |
+| Config | GET | `/api/v1/config/user/{path}` | `IConfig.GetAsync` | `ConfigTests.GetAsync_MapsPathDefaultAndValue`, `ConfigTests.UserConfigItem_Defaults_AreEmptyAndUndefined`, `ConfigTests.GetAsync_NotFound_ThrowsTheHiveApiException` |
+| Config | PUT | `/api/v1/config/user/{path}` | `IConfig.SetAsync` | `ConfigTests.SetAsync_PutsTheValueObject_AndMapsTheItem`, `ConfigTests.SetAsync_AcceptsAnyJsonValue` |
 | Cortex | POST | `/api/v1/connector/cortex/action` | `ICortex.CreateActionAsync` | `CortexTests.CreateActionAsync_PostsBodyAndMapsEveryField` |
 | Cortex | POST | `/api/v1/connector/cortex/actions` | `ICortex.CreateActionsAsync` | `CortexTests.CreateActionsAsync_PostsArrayBody` |
 | Cortex | GET | `/api/v1/connector/cortex/analyzer` | `ICortex.ListAnalyzersAsync` | `CortexTests.ListAnalyzersAsync_SendsRangeQuery_AndMapsEveryField` |
