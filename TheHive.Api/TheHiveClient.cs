@@ -53,6 +53,7 @@ public sealed class TheHiveClient : IDisposable
 		Cortex = RestService.For<ICortex>(_httpClient, Settings);
 		Misp = RestService.For<IMisp>(_httpClient, Settings);
 		Functions = RestService.For<IFunctions>(_httpClient, Settings);
+		AlertFeeders = RestService.For<IAlertFeeders>(_httpClient, Settings);
 	}
 
 	/// <summary>Case operations.</summary>
@@ -114,6 +115,9 @@ public sealed class TheHiveClient : IDisposable
 
 	/// <summary>Function operations: JavaScript functions that process data and call TheHive API.</summary>
 	public IFunctions Functions { get; }
+
+	/// <summary>Alert feeder operations: scheduled HTTP retrieval of data converted into alerts.</summary>
+	public IAlertFeeders AlertFeeders { get; }
 
 	internal HttpClient HttpClient => _httpClient;
 

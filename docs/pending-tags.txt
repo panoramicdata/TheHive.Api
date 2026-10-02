@@ -1,7 +1,6 @@
 # Spec tags (the Group column of docs/endpoint-coverage.md) whose operations are not implemented yet.
 # InventoryTests tolerates empty rows only for these tags. Remove a tag when its group lands.
 Admin
-Alert Feeder
 AlertStatus
 Att&ck
 Audit

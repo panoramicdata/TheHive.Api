@@ -113,12 +113,12 @@ Plan groups: Alerts, Cases, CaseTemplates, Tasks, TaskLogs, Observables, Comment
 | Alert | POST | `/api/v1/alert/{alertId}/unfollow` | `IAlerts.UnfollowAsync` | `AlertsTests.FollowAndUnfollowAsync_PostWithoutBody` |
 | Alert | POST | `/api/v1/alert/delete/_bulk` | `IAlerts.BulkDeleteAsync` | `AlertsTests.BulkDeleteAsync_PostsIds` |
 | Alert | POST | `/api/v1/alert/merge/_bulk` | `IAlerts.BulkMergeIntoCaseAsync` | `AlertsTests.BulkMergeIntoCaseAsync_PostsCaseAndAlertIds`, `AlertsTests.BulkMergeIntoCaseAsync_CaseOnly_OmitsAlertIds` |
-| Alert Feeder | GET | `/api/v1/connector/alert-feeder` | | |
-| Alert Feeder | POST | `/api/v1/connector/alert-feeder` | | |
-| Alert Feeder | DELETE | `/api/v1/connector/alert-feeder/{alertFeederName}` | | |
-| Alert Feeder | PUT | `/api/v1/connector/alert-feeder/{alertFeederName}` | | |
-| Alert Feeder | POST | `/api/v1/connector/alert-feeder/run/{alertFeederName}` | | |
-| Alert Feeder | POST | `/api/v1/connector/alert-feeder/test` | | |
+| Alert Feeder | GET | `/api/v1/connector/alert-feeder` | `IAlertFeeders.ListAsync` | `AlertFeedersTests.ListAsync_Gets_AndMapsEveryField` |
+| Alert Feeder | POST | `/api/v1/connector/alert-feeder` | `IAlertFeeders.CreateAsync` | `AlertFeedersTests.CreateAsync_PostsBodyAndMapsTheFeeder` |
+| Alert Feeder | DELETE | `/api/v1/connector/alert-feeder/{alertFeederName}` | `IAlertFeeders.DeleteAsync` | `AlertFeedersTests.DeleteAsync_SendsDelete` |
+| Alert Feeder | PUT | `/api/v1/connector/alert-feeder/{alertFeederName}` | `IAlertFeeders.UpdateAsync` | `AlertFeedersTests.UpdateAsync_PutsBodyAndMapsTheFeeder` |
+| Alert Feeder | POST | `/api/v1/connector/alert-feeder/run/{alertFeederName}` | `IAlertFeeders.RunAsync` | `AlertFeedersTests.RunAsync_PostsWithoutBody_AndSendsDryRunLowercase` |
+| Alert Feeder | POST | `/api/v1/connector/alert-feeder/test` (verify: response returned as raw text) | `IAlertFeeders.TestAsync` | `AlertFeedersTests.TestAsync_PostsBody_AndReturnsTheRawResponseText` |
 | AlertStatus | POST | `/api/v1/alertStatus` | | |
 | AlertStatus | DELETE | `/api/v1/alertStatus/{id}` | | |
 | AlertStatus | PATCH | `/api/v1/alertStatus/{id}` | | |
