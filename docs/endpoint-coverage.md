@@ -348,20 +348,20 @@ Plan groups: Alerts, Cases, CaseTemplates, Tasks, TaskLogs, Observables, Comment
 | TTP | DELETE | `/api/v1/procedure/{procedureId}` | | |
 | TTP | PATCH | `/api/v1/procedure/{procedureId}` | | |
 | TTP | POST | `/api/v1/procedure/delete/_bulk` | | |
-| User | POST | `/api/v1/user` | | |
+| User | POST | `/api/v1/user` | `IUsers.CreateAsync` | `UsersTests.CreateAsync_PostsBodyAndMapsEveryField` |
 | User | DELETE | `/api/v1/user/{userId}` (deprecated) | | |
-| User | GET | `/api/v1/user/{userId}` | | |
-| User | PATCH | `/api/v1/user/{userId}` | | |
-| User | GET | `/api/v1/user/{userId}/avatar/{file}` | | |
-| User | DELETE | `/api/v1/user/{userId}/force` | | |
-| User | DELETE | `/api/v1/user/{userId}/key` | | |
-| User | GET | `/api/v1/user/{userId}/key` | | |
-| User | POST | `/api/v1/user/{userId}/key/renew` | | |
-| User | PUT | `/api/v1/user/{userId}/organisations` | | |
-| User | POST | `/api/v1/user/{userId}/password/change` | | |
-| User | POST | `/api/v1/user/{userId}/password/set` | | |
-| User | GET | `/api/v1/user/current` | | |
-| User | POST | `/api/v1/user/current/attachments` | | |
+| User | GET | `/api/v1/user/{userId}` | `IUsers.GetAsync` | `UsersTests.GetAsync_FullUser_MapsEveryField` |
+| User | PATCH | `/api/v1/user/{userId}` | `IUsers.UpdateAsync` | `UsersTests.UpdateAsync_PatchesEveryProperty` |
+| User | GET | `/api/v1/user/{userId}/avatar/{file}` | `IUsers.GetAvatarAsync` | `UsersTests.GetAvatarAsync_ReturnsExactBytes_WithoutConditionalHeaderByDefault` |
+| User | DELETE | `/api/v1/user/{userId}/force` | `IUsers.DeleteAsync` | `UsersTests.DeleteAsync_WithOrganisation_SendsItAsQuery` |
+| User | DELETE | `/api/v1/user/{userId}/key` | `IUsers.RevokeApiKeyAsync` | `UsersTests.RevokeApiKeyAsync_SendsDelete` |
+| User | GET | `/api/v1/user/{userId}/key` | `IUsers.GetApiKeyAsync` | `UsersTests.GetApiKeyAsync_ReturnsPlainTextKey` |
+| User | POST | `/api/v1/user/{userId}/key/renew` | `IUsers.RenewApiKeyAsync` | `UsersTests.RenewApiKeyAsync_PostsAndReturnsPlainTextKey` |
+| User | PUT | `/api/v1/user/{userId}/organisations` | `IUsers.SetOrganisationsAsync` | `UsersTests.SetOrganisationsAsync_PutsMembershipsAndMapsResult` |
+| User | POST | `/api/v1/user/{userId}/password/change` | `IUsers.ChangePasswordAsync` | `UsersTests.ChangePasswordAsync_PostsBothPasswordsInBodyOnly` |
+| User | POST | `/api/v1/user/{userId}/password/set` | `IUsers.SetPasswordAsync` | `UsersTests.SetPasswordAsync_PostsPasswordInBodyOnly` |
+| User | GET | `/api/v1/user/current` | `IUsers.GetCurrentAsync` | `UsersTests.GetCurrentAsync_Gets` |
+| User | POST | `/api/v1/user/current/attachments` | `IUsers.UploadTemporaryAttachmentsAsync` | `UsersTests.UploadTemporaryAttachmentsAsync_UploadsEachFileAsAnAttachmentsPart_And_ReturnsAttachments` |
 | Views | POST | `/api/v1/views` | | |
 | Views | DELETE | `/api/v1/views/{viewsId}` | | |
 | Views | GET | `/api/v1/views/{viewsId}` | | |
