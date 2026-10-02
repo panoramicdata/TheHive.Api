@@ -202,22 +202,22 @@ Plan groups: Alerts, Cases, CaseTemplates, Tasks, TaskLogs, Observables, Comment
 | Config | GET | `/api/v1/config/user` | | |
 | Config | GET | `/api/v1/config/user/{path}` | | |
 | Config | PUT | `/api/v1/config/user/{path}` | | |
-| Cortex | POST | `/api/v1/connector/cortex/action` | | |
-| Cortex | POST | `/api/v1/connector/cortex/actions` | | |
-| Cortex | GET | `/api/v1/connector/cortex/analyzer` | | |
-| Cortex | GET | `/api/v1/connector/cortex/analyzer/{analyzerId}` | | |
-| Cortex | POST | `/api/v1/connector/cortex/analyzer/template` | | |
-| Cortex | POST | `/api/v1/connector/cortex/analyzer/template/_import` | | |
-| Cortex | DELETE | `/api/v1/connector/cortex/analyzer/template/{analyzerTemplateId}` | | |
-| Cortex | PATCH | `/api/v1/connector/cortex/analyzer/template/{analyzerTemplateId}` | | |
-| Cortex | GET | `/api/v1/connector/cortex/analyzer/template/content/{analyzerId}` | | |
-| Cortex | GET | `/api/v1/connector/cortex/analyzer/type/{dataType}` | | |
-| Cortex | POST | `/api/v1/connector/cortex/job` | | |
-| Cortex | GET | `/api/v1/connector/cortex/job/{jobId}` | | |
-| Cortex | GET | `/api/v1/connector/cortex/responder/{entityType}/{entityId}` | | |
-| Cortex | GET | `/api/v1/connector/cortex/responders/{entityType}` | | |
-| Cortex | GET | `/api/v1/responder-execution/{scope}/{rootId}` | | |
-| Cortex | GET | `/api/v1/responder-execution/{scope}/{rootId}/count` | | |
+| Cortex | POST | `/api/v1/connector/cortex/action` | `ICortex.CreateActionAsync` | `CortexTests.CreateActionAsync_PostsBodyAndMapsEveryField` |
+| Cortex | POST | `/api/v1/connector/cortex/actions` | `ICortex.CreateActionsAsync` | `CortexTests.CreateActionsAsync_PostsArrayBody` |
+| Cortex | GET | `/api/v1/connector/cortex/analyzer` | `ICortex.ListAnalyzersAsync` | `CortexTests.ListAnalyzersAsync_SendsRangeQuery_AndMapsEveryField` |
+| Cortex | GET | `/api/v1/connector/cortex/analyzer/{analyzerId}` | `ICortex.GetAnalyzerAsync` | `CortexTests.GetAnalyzerAsync_Gets_AndAbsentOptionalsMapToDefaults` |
+| Cortex | POST | `/api/v1/connector/cortex/analyzer/template` | `ICortex.CreateAnalyzerTemplateAsync` | `CortexTests.CreateAnalyzerTemplateAsync_PostsBodyAndMapsEveryField` |
+| Cortex | POST | `/api/v1/connector/cortex/analyzer/template/_import` | `ICortex.ImportAnalyzerTemplatesAsync` | `CortexTests.ImportAnalyzerTemplatesAsync_UploadsTheArchiveAsATemplatesPart` |
+| Cortex | DELETE | `/api/v1/connector/cortex/analyzer/template/{analyzerTemplateId}` | `ICortex.DeleteAnalyzerTemplateAsync` | `CortexTests.DeleteAnalyzerTemplateAsync_SendsDelete` |
+| Cortex | PATCH | `/api/v1/connector/cortex/analyzer/template/{analyzerTemplateId}` | `ICortex.UpdateAnalyzerTemplateAsync` | `CortexTests.UpdateAnalyzerTemplateAsync_PatchesBody_AndOmitsAnUnsetContent` |
+| Cortex | GET | `/api/v1/connector/cortex/analyzer/template/content/{analyzerId}` | `ICortex.GetAnalyzerTemplateContentAsync` | `CortexTests.GetAnalyzerTemplateContentAsync_ReturnsTheRawTextBody` |
+| Cortex | GET | `/api/v1/connector/cortex/analyzer/type/{dataType}` | `ICortex.ListAnalyzersByTypeAsync` | `CortexTests.ListAnalyzersByTypeAsync_GetsByDataType` |
+| Cortex | POST | `/api/v1/connector/cortex/job` | `ICortex.CreateJobAsync` | `CortexTests.CreateJobAsync_PostsBodyAndMapsEveryField` |
+| Cortex | GET | `/api/v1/connector/cortex/job/{jobId}` | `ICortex.GetJobAsync` | `CortexTests.GetJobAsync_Gets` |
+| Cortex | GET | `/api/v1/connector/cortex/responder/{entityType}/{entityId}` | `ICortex.ListRespondersAsync` | `CortexTests.ListRespondersAsync_GetsForEntity_AndMapsEveryField` |
+| Cortex | GET | `/api/v1/connector/cortex/responders/{entityType}` | `ICortex.ListRespondersForEntityTypeAsync` | `CortexTests.ListRespondersForEntityTypeAsync_GetsByEntityType` |
+| Cortex | GET | `/api/v1/responder-execution/{scope}/{rootId}` (verify: filter and sort are JSON-encoded query values) | `ICortex.ListActionsAsync` | `CortexTests.ListActionsAsync_SendsFilterSortAndPaging_AsEncodedQueryValues` |
+| Cortex | GET | `/api/v1/responder-execution/{scope}/{rootId}/count` | `ICortex.CountActionsAsync` | `CortexTests.CountActionsAsync_SendsFilter_AndReturnsTheCount` |
 | CustomField | GET | `/api/v1/customField` | `ICustomFields.ListAsync` | `CustomFieldsTests.ListAsync_GetsAndMapsEveryField` |
 | CustomField | POST | `/api/v1/customField` | `ICustomFields.CreateAsync` | `CustomFieldsTests.CreateAsync_PostsBodyAndMapsEveryField` |
 | CustomField | DELETE | `/api/v1/customField/{customFieldId}` | `ICustomFields.DeleteAsync` | `CustomFieldsTests.DeleteAsync_Force_SendsLowercaseBoolean` |
