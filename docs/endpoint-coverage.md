@@ -318,8 +318,8 @@ Plan groups: Alerts, Cases, CaseTemplates, Tasks, TaskLogs, Observables, Comment
 | Share (+Task) | DELETE | `/api/v1/task/{taskId}/shares` | `IShares.UnshareTaskAsync` | `SharesTests.UnshareTaskAsync_SendsDeleteWithBody` |
 | Share (+Task) | GET | `/api/v1/task/{taskId}/shares` | `IShares.ListByTaskAsync` | `SharesTests.ListByTaskAsync_GetsAndMapsEveryField` |
 | Share (+Task) | POST | `/api/v1/task/{taskId}/shares` | `IShares.ShareTaskAsync` | `SharesTests.ShareTaskAsync_PostsOrganisations` |
-| Status | GET | `/api/v1/status` | | |
-| Status | GET | `/api/v1/status/public` | | |
+| Status | GET | `/api/v1/status` | `IStatus.GetAsync` | `StatusTests.GetAsync_Default_SendsNoQuery_AndMapsEveryField`, `StatusTests.GetAsync_AbsentOptionals_MapToDefaults`, `StatusTests.GetAsync_Verbose_IsSentLowercase`, `StatusTests.Defaults_AreEmptyNotNull`, `StatusTests.GetAsync_Unauthorized_ThrowsTheHiveApiException` |
+| Status | GET | `/api/v1/status/public` | `IStatus.GetPublicAsync` | `StatusTests.GetPublicAsync_MapsEveryField`, `StatusTests.GetPublicAsync_WithoutProviders_MapsEmptyList` |
 | Tag | DELETE | `/api/v1/tag/{tagId}` | `ITags.DeleteAsync` | `TagsTests.DeleteAsync_SendsDelete` |
 | Tag | GET | `/api/v1/tag/{tagId}` | `ITags.GetAsync` | `TagsTests.GetAsync_FullTag_MapsEveryField` |
 | Tag | PATCH | `/api/v1/tag/{tagId}` | `ITags.UpdateAsync` | `TagsTests.UpdateAsync_PatchesEveryProperty` |
