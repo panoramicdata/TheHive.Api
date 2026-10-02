@@ -255,13 +255,13 @@ Plan groups: Alerts, Cases, CaseTemplates, Tasks, TaskLogs, Observables, Comment
 | MISP | POST | `/api/v1/connector/misp/case/import` | | |
 | MISP | POST | `/api/v1/connector/misp/export/{caseId}/{mispName}` | | |
 | MISP | GET | `/api/v1/connector/misp/status` | | |
-| Observable | POST | `/api/v1/alert/{alertId}/observable` | | |
-| Observable | POST | `/api/v1/case/{caseId}/observable` | | |
-| Observable | PATCH | `/api/v1/observable/_bulk` | | |
-| Observable | DELETE | `/api/v1/observable/{observableId}` | | |
-| Observable | GET | `/api/v1/observable/{observableId}` | | |
-| Observable | PATCH | `/api/v1/observable/{observableId}` | | |
-| Observable | GET | `/api/v1/observable/{observableId}/attachment/{attachmentId}/download` | | |
+| Observable | POST | `/api/v1/alert/{alertId}/observable` | `IObservables.CreateInAlertAsync` | `ObservablesTests.CreateInAlertAsync_PostsBodyAndMapsObservables` |
+| Observable | POST | `/api/v1/case/{caseId}/observable` | `IObservables.CreateInCaseAsync` | `ObservablesTests.CreateInCaseAsync_PostsBodyAndMapsEveryField` |
+| Observable | PATCH | `/api/v1/observable/_bulk` | `IObservables.BulkUpdateAsync` | `ObservablesTests.BulkUpdateAsync_PatchesIdsFirstThenFields` |
+| Observable | DELETE | `/api/v1/observable/{observableId}` | `IObservables.DeleteAsync` | `ObservablesTests.DeleteAsync_SendsDelete` |
+| Observable | GET | `/api/v1/observable/{observableId}` | `IObservables.GetAsync` | `ObservablesTests.GetAsync_FullObservable_MapsEveryField` |
+| Observable | PATCH | `/api/v1/observable/{observableId}` | `IObservables.UpdateAsync` | `ObservablesTests.UpdateAsync_SerializesEveryFieldWithWireNames` |
+| Observable | GET | `/api/v1/observable/{observableId}/attachment/{attachmentId}/download` | `IObservables.DownloadAttachmentAsync` | `ObservablesTests.DownloadAttachmentAsync_ReturnsExactBytes` |
 | Observable Type | POST | `/api/v1/observable/type` | | |
 | Observable Type | DELETE | `/api/v1/observable/type/{typeId}` | | |
 | Observable Type | GET | `/api/v1/observable/type/{typeId}` | | |

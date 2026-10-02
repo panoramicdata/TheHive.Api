@@ -20,7 +20,6 @@ Email Intake
 Function
 License
 MISP
-Observable
 Observable Type
 Organization
 Page
