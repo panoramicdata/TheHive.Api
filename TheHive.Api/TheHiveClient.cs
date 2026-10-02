@@ -61,6 +61,7 @@ public sealed class TheHiveClient : IDisposable
 		Views = RestService.For<IViews>(_httpClient, Settings);
 		CaseReportTemplates = RestService.For<ICaseReportTemplates>(_httpClient, Settings);
 		CaseReports = RestService.For<ICaseReports>(_httpClient, Settings);
+		Query = RestService.For<IQuery>(_httpClient, Settings);
 		Describe = RestService.For<IDescribe>(_httpClient, Settings);
 	}
 
@@ -147,6 +148,9 @@ public sealed class TheHiveClient : IDisposable
 
 	/// <summary>Case report operations: generate, upload, download and preview.</summary>
 	public ICaseReports CaseReports { get; }
+
+	/// <summary>Query API operations (list, search, filter, sort, page and count any entity) and query exports; see <see cref="Querying.QueryBuilder"/>.</summary>
+	public IQuery Query { get; }
 
 	/// <summary>Entity model metadata: the fields of each model that queries can filter, sort and aggregate on.</summary>
 	public IDescribe Describe { get; }

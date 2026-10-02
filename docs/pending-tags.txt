@@ -9,6 +9,5 @@ Branding
 CaseStatus
 Config
 License
-Query and Export
 Status
 TTP
