@@ -368,6 +368,7 @@ FodyWeavers.xsd
 
 
 .superpowers/
+.vscode/
 
 # Coverage output
 coverage.cobertura.xml
