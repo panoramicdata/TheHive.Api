@@ -58,7 +58,7 @@ The Cases group is the worked template; copy it for every later group.
 | Cortex | 16 | ICortex / Cortex |
 | CustomField | 4 | ICustomFields / CustomFields |
 | Dashboard | 5 | IDashboards / Dashboards |
-| Describe | 2 | Query (fold in; describe/{model} supports query) |
+| Describe | 2 | IDescribe / Describe |
 | Email Intake | 11 | IEmailIntake / EmailIntake |
 | Function | 8 | IFunctions / Functions |
 | License | 6 | Admin (fold in) or outside plan |
@@ -90,7 +90,7 @@ Plan groups: Alerts, Cases, CaseTemplates, Tasks, TaskLogs, Observables, Comment
 - **Procedures = spec tag `TTP`; Patterns = spec tag `Att&ck`** (patterns, plus `/catalog` and `/pattern/import/attack`).
 - **Singular tag to plural group:** Alert to Alerts, Case to Cases, Task to Tasks, Task Log to TaskLogs, Organization to Organisations (British spelling per plan), Dashboard to Dashboards, Query and Export to Query.
 - **Multi-tag operations:** `Case | Timeline` (1, listed under Case) and `Share | Case` (5), `Share | Observable` (3), `Share | Task` (3) (listed under Share).
-- **Spec tags outside the plan group list** (no planned interface) and not yet implemented: AlertStatus, CaseStatus, Audit, Authentication, Branding, Config, Describe, License, Status. (Case Report, Case Report Template, Page, PageTemplate, Views, Observable Type, Permission, Share, Tag, Taxonomy, Alert Feeder, Email Intake, Function and MISP are outside the original plan list but now have interfaces.) Suggested folds are in the table above; confirm with the plan owner before implementing.
+- **Spec tags outside the plan group list** (no planned interface) and not yet implemented: AlertStatus, CaseStatus, Audit, Authentication, Branding, Config, License, Status. (Describe, Case Report, Case Report Template, Page, PageTemplate, Views, Observable Type, Permission, Share, Tag, Taxonomy, Alert Feeder, Email Intake, Function and MISP are outside the original plan list but now have interfaces.) Suggested folds are in the table above; confirm with the plan owner before implementing.
 - **x-tagGroups tags with no operations in `paths`:** Features, GDPR, ThirdPartyProviders, Orchestrator, SlaRule, Authenticated and the Portal tags (Attachment/Case/Comment/Observable/User/Status (Portal)) are declared but have no operations in this spec version.
 - Some spec tags are wrong on individual operations (e.g. `GET /api/v1/observable/{observableId}/attachment/{attachmentId}` and `GET /api/v1/log/{caseId}/attachment/{attachmentId}` are tagged Task Log). The inventory reproduces the spec as published.
 
@@ -230,8 +230,8 @@ Plan groups: Alerts, Cases, CaseTemplates, Tasks, TaskLogs, Observables, Comment
 | Dashboard | GET | `/api/v1/dashboard/{dashboardId}` | `IDashboards.GetAsync` | `DashboardsTests.GetAsync_FullDashboard_MapsEveryField` |
 | Dashboard | PATCH | `/api/v1/dashboard/{dashboardId}` | `IDashboards.UpdateAsync` | `DashboardsTests.UpdateAsync_PatchesEveryProperty` |
 | Dashboard | POST | `/api/v1/dashboard/{dashboardId}/owner` | `IDashboards.ChangeOwnerAsync` | `DashboardsTests.ChangeOwnerAsync_PostsUser` |
-| Describe | GET | `/api/v1/describe/_all` | | |
-| Describe | GET | `/api/v1/describe/{model}` | | |
+| Describe | GET | `/api/v1/describe/_all` | `IDescribe.GetAllAsync` | `DescribeTests.GetAllAsync_MapsEveryModel` |
+| Describe | GET | `/api/v1/describe/{model}` | `IDescribe.GetAsync` | `DescribeTests.GetAsync_MapsTheModel`, `DescribeTests.GetAsync_UnknownModel_ThrowsTheHiveApiException` |
 | Email Intake | POST | `/api/v1/connector/email-intake/config` | `IEmailIntake.CreateConfigAsync` | `EmailIntakeTests.CreateConfigAsync_PostsBodyAndMapsEveryField` |
 | Email Intake | DELETE | `/api/v1/connector/email-intake/config/{configId}` | `IEmailIntake.DeleteConfigAsync` | `EmailIntakeTests.DeleteConfigAsync_SendsDelete` |
 | Email Intake | GET | `/api/v1/connector/email-intake/config/{configId}` | `IEmailIntake.GetConfigAsync` | `EmailIntakeTests.GetConfigAsync_Gets_AndMapsEveryField` |
