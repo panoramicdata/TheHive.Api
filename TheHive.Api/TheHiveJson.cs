@@ -9,7 +9,7 @@ namespace TheHive.Api;
 /// <summary>Shared <see cref="JsonSerializerOptions"/> for TheHive payloads.</summary>
 public static class TheHiveJson
 {
-	/// <summary>The options used by the <see cref="TheHiveClient"/>.</summary>
+	/// <summary>The options used by the <see cref="TheHiveClient"/>. They are read-only: copy them (<c>new JsonSerializerOptions(TheHiveJson.Options)</c>) to customise.</summary>
 	/// <remarks>
 	/// When reading, these options ignore <c>required</c> members (both the C# <c>required</c> modifier and
 	/// <see cref="JsonRequiredAttribute"/>), so a response that leaves such a member out still deserializes; <c>required</c>
@@ -29,6 +29,8 @@ public static class TheHiveJson
 		options.Converters.Add(new EpochMillisecondsConverter());
 		options.Converters.Add(new TolerantEnumConverterFactory());
 		options.Converters.Add(new OptionalConverterFactory());
+		// Shared and static: lock it so no caller can change serialization for every client.
+		options.MakeReadOnly();
 		return options;
 	}
 

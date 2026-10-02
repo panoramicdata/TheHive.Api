@@ -25,4 +25,12 @@ public class TheHiveJsonTests
 
 		json.Should().NotContain("Z").And.NotContain("null");
 	}
+
+	[Fact]
+	public void Options_AreReadOnly_SoMutationThrows()
+	{
+		TheHiveJson.Options.IsReadOnly.Should().BeTrue();
+		var act = () => TheHiveJson.Options.PropertyNameCaseInsensitive = false;
+		act.Should().Throw<InvalidOperationException>();
+	}
 }

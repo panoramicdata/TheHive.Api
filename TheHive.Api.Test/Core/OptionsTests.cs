@@ -46,6 +46,36 @@ public class OptionsTests
 		options.Invoking(o => o.Validate()).Should().Throw<ArgumentOutOfRangeException>();
 	}
 
+
+	[Fact]
+	public void Validate_NegativeRetryBaseDelay_Throws()
+	{
+		var options = Valid();
+		options.RetryBaseDelay = TimeSpan.FromSeconds(-1);
+		options.Invoking(o => o.Validate()).Should().Throw<ArgumentOutOfRangeException>();
+	}
+
+	[Fact]
+	public void Validate_ZeroRetryBaseDelay_DoesNotThrow()
+	{
+		var options = Valid();
+		options.RetryBaseDelay = TimeSpan.Zero;
+		options.Invoking(o => o.Validate()).Should().NotThrow();
+	}
+
+	[Theory]
+	[InlineData(0)]
+	[InlineData(-5)]
+	public void Validate_NonPositiveMaxRetryDelay_Throws(int seconds)
+	{
+		var options = Valid();
+		options.MaxRetryDelay = TimeSpan.FromSeconds(seconds);
+		options.Invoking(o => o.Validate()).Should().Throw<ArgumentOutOfRangeException>();
+	}
+
+	[Fact]
+	public void MaxRetryDelay_DefaultsToThirtySeconds()
+		=> Valid().MaxRetryDelay.Should().Be(TimeSpan.FromSeconds(30));
 	[Fact]
 	public void Validate_ValidOptions_DoesNotThrow()
 		=> Valid().Invoking(o => o.Validate()).Should().NotThrow();

@@ -2,7 +2,7 @@ using Microsoft.Extensions.Logging;
 
 namespace TheHive.Api;
 
-/// <summary>Configuration for <see cref="TheHiveClient"/>.</summary>
+/// <summary>Configuration for <see cref="TheHiveClient"/>. The values are read once when the client is constructed; changing this object afterwards does not affect an existing client.</summary>
 public class TheHiveClientOptions
 {
 	/// <summary>Absolute URL of the TheHive instance, e.g. <c>https://thehive.example.com</c>.</summary>
@@ -30,8 +30,11 @@ public class TheHiveClientOptions
 	/// </summary>
 	public int MaxRetries { get; set; } = 3;
 
-	/// <summary>Initial back-off, doubled on each retry.</summary>
+	/// <summary>Initial back-off, doubled on each retry (up to <see cref="MaxRetryDelay"/>). Must not be negative; <see cref="TimeSpan.Zero"/> retries without waiting.</summary>
 	public TimeSpan RetryBaseDelay { get; set; } = TimeSpan.FromSeconds(1);
+
+	/// <summary>The longest single wait before a retry. Both the exponential back-off and a server-supplied <c>Retry-After</c> are clamped to it, so a huge header cannot stall a caller. Must be greater than zero.</summary>
+	public TimeSpan MaxRetryDelay { get; set; } = TimeSpan.FromSeconds(30);
 
 	/// <summary>Optional logger. The API key and request query strings (which may hold secrets such as an export password) are never logged.</summary>
 	public ILogger? Logger { get; set; }
@@ -46,6 +49,8 @@ public class TheHiveClientOptions
 		ArgumentException.ThrowIfNullOrWhiteSpace(ApiKey);
 		ArgumentOutOfRangeException.ThrowIfNegative(MaxRetries);
 		ArgumentOutOfRangeException.ThrowIfLessThanOrEqual(Timeout, TimeSpan.Zero);
+		ArgumentOutOfRangeException.ThrowIfLessThan(RetryBaseDelay, TimeSpan.Zero);
+		ArgumentOutOfRangeException.ThrowIfLessThanOrEqual(MaxRetryDelay, TimeSpan.Zero);
 	}
 
 	/// <inheritdoc />

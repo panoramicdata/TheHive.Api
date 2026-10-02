@@ -161,6 +161,118 @@ public class AuthRetryHandlerTests
 	}
 
 	[Fact]
+	public async Task Send_BackoffGrowth_IsCappedAtMaxRetryDelay()
+	{
+		using var harness = new Harness(o =>
+		{
+			o.MaxRetries = 8;
+			o.RetryBaseDelay = TimeSpan.FromSeconds(2);
+			o.MaxRetryDelay = TimeSpan.FromSeconds(10);
+		});
+		for (var i = 0; i < 8; i++)
+		{
+			harness.Stub.Enqueue(HttpStatusCode.ServiceUnavailable);
+		}
+
+		harness.Stub.Enqueue(HttpStatusCode.OK);
+
+		using var response = await harness.GetAsync(TestContext.Current.CancellationToken);
+
+		harness.Delays.Select(d => d.TotalSeconds).Should().Equal(2, 4, 8, 10, 10, 10, 10, 10);
+	}
+
+	[Fact]
+	public async Task Send_HugeMaxRetryDelayAndManyRetries_NeverOverflows()
+	{
+		using var harness = new Harness(o =>
+		{
+			o.MaxRetries = 70;
+			o.RetryBaseDelay = TimeSpan.FromDays(1);
+			o.MaxRetryDelay = TimeSpan.MaxValue;
+		});
+		for (var i = 0; i < 70; i++)
+		{
+			harness.Stub.Enqueue(HttpStatusCode.ServiceUnavailable);
+		}
+
+		harness.Stub.Enqueue(HttpStatusCode.OK);
+
+		using var response = await harness.GetAsync(TestContext.Current.CancellationToken);
+
+		harness.Delays.Should().HaveCount(70).And.OnlyContain(d => d > TimeSpan.Zero);
+	}
+
+	[Fact]
+	public async Task Send_ZeroBaseDelay_NeverWaits()
+	{
+		using var harness = new Harness(o =>
+		{
+			o.MaxRetries = 2;
+			o.RetryBaseDelay = TimeSpan.Zero;
+		});
+		harness.Stub.Enqueue(HttpStatusCode.ServiceUnavailable);
+		harness.Stub.Enqueue(HttpStatusCode.ServiceUnavailable);
+		harness.Stub.Enqueue(HttpStatusCode.OK);
+
+		using var response = await harness.GetAsync(TestContext.Current.CancellationToken);
+
+		harness.Delays.Should().Equal(TimeSpan.Zero, TimeSpan.Zero);
+	}
+
+	[Fact]
+	public async Task Send_HugeRetryAfterDelta_IsCapped()
+	{
+		using var harness = new Harness(o => o.MaxRetries = 1);
+		harness.Stub.Enqueue(HttpStatusCode.TooManyRequests, "{}", r => r.Headers.RetryAfter = new RetryConditionHeaderValue(TimeSpan.FromSeconds(86400)));
+		harness.Stub.Enqueue(HttpStatusCode.OK);
+
+		using var response = await harness.GetAsync(TestContext.Current.CancellationToken);
+
+		harness.Delays.Should().Equal(TimeSpan.FromSeconds(30));
+	}
+
+	[Fact]
+	public async Task Send_HugeRetryAfterDate_IsCapped()
+	{
+		using var harness = new Harness(o => o.MaxRetries = 1);
+		harness.Stub.Enqueue(HttpStatusCode.TooManyRequests, "{}", r => r.Headers.RetryAfter = new RetryConditionHeaderValue(DateTimeOffset.UtcNow.AddDays(1)));
+		harness.Stub.Enqueue(HttpStatusCode.OK);
+
+		using var response = await harness.GetAsync(TestContext.Current.CancellationToken);
+
+		harness.Delays.Should().Equal(TimeSpan.FromSeconds(30));
+	}
+
+	[Fact]
+	public async Task Send_RetryAfterBelowCap_IsUnchanged()
+	{
+		using var harness = new Harness(o => o.MaxRetries = 1);
+		harness.Stub.Enqueue(HttpStatusCode.TooManyRequests, "{}", r => r.Headers.RetryAfter = new RetryConditionHeaderValue(TimeSpan.FromSeconds(29)));
+		harness.Stub.Enqueue(HttpStatusCode.OK);
+
+		using var response = await harness.GetAsync(TestContext.Current.CancellationToken);
+
+		harness.Delays.Should().Equal(TimeSpan.FromSeconds(29));
+	}
+
+	[Fact]
+	public async Task Send_MutatingOptionsAfterConstruction_DoesNotChangeHeaders()
+	{
+		var options = new TheHiveClientOptions { BaseUrl = "https://hive.test/", ApiKey = "fake-key", Organisation = "org-a", MaxRetries = 0 };
+		var stub = new StubHandler();
+		stub.Enqueue(HttpStatusCode.OK);
+		using var invoker = new HttpMessageInvoker(new AuthRetryHandler(options) { InnerHandler = stub });
+
+		options.ApiKey = "other-key";
+		options.Organisation = "org-b";
+		using var response = await invoker.SendAsync(new HttpRequestMessage(HttpMethod.Get, "https://hive.test/api/v1/case"), TestContext.Current.CancellationToken);
+
+		var call = stub.Calls.Single();
+		call.Headers.Authorization!.ToString().Should().Be("Bearer fake-key");
+		call.Headers.GetValues("X-Organisation").Should().Equal("org-a");
+	}
+
+	[Fact]
 	public async Task Send_TooManyRequestsWithoutHeader_UsesBackoff()
 	{
 		using var harness = new Harness(o => o.MaxRetries = 1);
@@ -343,6 +455,7 @@ public class AuthRetryHandlerTests
 		{
 			o.MaxRetries = 1;
 			o.Timeout = TimeSpan.FromMilliseconds(50);
+			o.MaxRetryDelay = TimeSpan.FromMinutes(10);
 		});
 		harness.Stub.Enqueue(HttpStatusCode.TooManyRequests, "{}", r => r.Headers.RetryAfter = new RetryConditionHeaderValue(TimeSpan.FromSeconds(120)));
 		harness.Stub.Enqueue(HttpStatusCode.OK);
