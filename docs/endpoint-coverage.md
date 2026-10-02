@@ -101,7 +101,7 @@ Plan groups: Alerts, Cases, CaseTemplates, Tasks, TaskLogs, Observables, Comment
 
 | Group | Method | Path | Client method | Test |
 |---|---|---|---|---|
-| Admin | PUT | `/api/v1/admin/log/set/{packageName}/{level}` | | |
+| Admin | PUT | `/api/v1/admin/log/set/{packageName}/{level}` | `IAdmin.SetLogLevelAsync` | `AdminTests.SetLogLevelAsync_PutsLoggerAndLevelInThePath`, `AdminTests.SetLogLevelAsync_Forbidden_ThrowsTheHiveApiException` |
 | Alert | POST | `/api/v1/alert` | `IAlerts.CreateAsync` | `AlertsTests.CreateAsync_PostsRequiredFieldsOnlyAndMapsResult`, `AlertsTests.CreateAsync_SerializesEveryFieldWithWireNames` |
 | Alert | PATCH | `/api/v1/alert/_bulk` | `IAlerts.BulkUpdateAsync` | `AlertsTests.BulkUpdateAsync_PatchesIdsFirstThenFields`, `AlertsTests.BulkUpdateAsync_SendsOnlyIdsAndSetFields` |
 | Alert | DELETE | `/api/v1/alert/{alertId}` | `IAlerts.DeleteAsync` | `AlertsTests.DeleteAsync_SendsDelete` |
