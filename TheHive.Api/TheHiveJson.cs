@@ -7,7 +7,7 @@ namespace TheHive.Api;
 /// <summary>Shared <see cref="JsonSerializerOptions"/> for TheHive payloads.</summary>
 public static class TheHiveJson
 {
-	/// <summary>The options used by the TheHive client.</summary>
+	/// <summary>The options used by the <see cref="TheHiveClient"/>.</summary>
 	public static JsonSerializerOptions Options { get; } = Create();
 
 	private static JsonSerializerOptions Create()
