@@ -19,13 +19,13 @@ public sealed class EmailIntakeMailbox
 	[JsonPropertyName("_kind")]
 	public string Kind { get; set; } = string.Empty;
 
-	/// <summary>The provider settings.</summary>
+	/// <summary>The provider settings. <see langword="null"/> (and then omitted) when the server sent none, as for an unknown mailbox kind.</summary>
 	[JsonPropertyName("provider")]
-	public EmailIntakeProvider Provider { get; set; } = new();
+	public EmailIntakeProvider? Provider { get; set; }
 
-	/// <summary>The credentials of the mailbox account.</summary>
+	/// <summary>The credentials of the mailbox account. <see langword="null"/> (and then omitted) when the server sent none, as for an unknown mailbox kind.</summary>
 	[JsonPropertyName("credential")]
-	public EmailIntakeCredential Credential { get; set; } = new();
+	public EmailIntakeCredential? Credential { get; set; }
 
 	/// <summary>The folder emails are fetched from (the server default is <c>Inbox</c>); see <see cref="Interfaces.IEmailIntake.ListFoldersAsync"/>.</summary>
 	[JsonPropertyName("inbox")]

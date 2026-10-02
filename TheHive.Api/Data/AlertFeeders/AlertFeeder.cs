@@ -1,3 +1,4 @@
+using System.Text.Json;
 using System.Text.Json.Serialization;
 using TheHive.Api.Data.Functions;
 
@@ -42,9 +43,9 @@ public sealed class AlertFeeder
 	[JsonPropertyName("auth")]
 	public AlertFeederAuth? Auth { get; set; }
 
-	/// <summary>The HTTP request body sent with the request.</summary>
+	/// <summary>The HTTP request body sent with the request. The spec declares a string, but its own examples and curl samples send a JSON object, so this is raw JSON: a string is written as a JSON string and an object as an object, and either form reads (verify against a live server). Build it with <c>JsonSerializer.SerializeToElement</c>; a default (undefined) <see cref="JsonElement"/> cannot be written, so leave the property <see langword="null"/> to omit it.</summary>
 	[JsonPropertyName("body")]
-	public string? Body { get; set; }
+	public JsonElement? Body { get; set; }
 
 	/// <summary>Whether the alert feeder is active and runs on schedule.</summary>
 	[JsonPropertyName("enabled")]

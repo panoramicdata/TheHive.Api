@@ -17,7 +17,7 @@ public class AlertFeedersTests
 			"function":{"_id":"~84123","_type":"Function","_createdBy":"emma@example.com","_createdAt":1748739600000,"name":"feed-fn","mode":"Enabled","definition":"x","config":{},"types":["feeder:alert"]},
 			"headers":[{"key":"X-Feed","value":"fake-header"}],
 			"auth":{"type":"basic","username":"feeder","password":"fake-pass"},
-			"body":"{}","enabled":true,"requestTimeout":{"value":10,"unit":"Seconds"},"responseMaxSize":10485760,
+			"body":{"maxRecords":100},"enabled":true,"requestTimeout":{"value":10,"unit":"Seconds"},"responseMaxSize":10485760,
 			"proxyConfig":{{ProxyJson}}
 		}
 		""";
@@ -147,7 +147,7 @@ public class AlertFeedersTests
 		feeder.Auth!.Type.Should().Be(AlertFeederAuthTypes.Basic);
 		feeder.Auth.Username.Should().Be("feeder");
 		feeder.Auth.Password.Should().Be("fake-pass");
-		feeder.Body.Should().Be("{}");
+		feeder.Body!.Value.GetProperty("maxRecords").GetInt32().Should().Be(100);
 		feeder.Enabled.Should().BeTrue();
 		feeder.RequestTimeout.Value.Should().Be(10);
 		feeder.RequestTimeout.Unit.Should().Be(IntervalUnit.Seconds);
@@ -189,7 +189,7 @@ public class AlertFeedersTests
 				Url = "https://feed.test/api",
 				Interval = new Interval { Value = 5, Unit = IntervalUnit.Minutes },
 				FunctionName = "feed-fn",
-				Body = "{}",
+				Body = JsonSerializer.SerializeToElement("{}"),
 				Headers = [new AlertFeederHeader { Key = "X-Feed", Value = "fake-header" }],
 				Enabled = true,
 				Auth = new AlertFeederAuth { Type = AlertFeederAuthTypes.Bearer, Key = "fake-key" },
@@ -256,7 +256,7 @@ public class AlertFeedersTests
 				Method = AlertFeederMethod.Get,
 				Url = "https://feed.test/v2",
 				Interval = new Interval { Value = 1, Unit = IntervalUnit.Days },
-				Body = "{}",
+				Body = JsonSerializer.SerializeToElement("{}"),
 				Headers = [new AlertFeederHeader { Key = "X-Feed", Value = "fake-header" }],
 				Enabled = false,
 				Auth = FullOAuth2(),
@@ -335,7 +335,7 @@ public class AlertFeedersTests
 				Method = AlertFeederMethod.Get,
 				Url = "https://feed.test",
 				Interval = new Interval { Value = 1, Unit = IntervalUnit.Minutes },
-				Body = "b",
+				Body = JsonSerializer.SerializeToElement("b"),
 				Headers = [new AlertFeederHeader { Key = "X-Feed", Value = "fake-header" }],
 				Enabled = true,
 				Auth = new AlertFeederAuth { Type = AlertFeederAuthTypes.None },
@@ -435,6 +435,69 @@ public class AlertFeedersTests
 
 		var proxy = JsonSerializer.Deserialize<ClientProxyServer>("""{"state":"sometimes"}""", TheHiveJson.Options)!;
 		proxy.State.Should().Be(ClientProxyState.Unknown);
+	}
+
+	[Fact]
+	public async Task ListAsync_ObjectBody_AsInTheSpecExample_IsReadAsAnObject()
+	{
+		var stub = Stub(HttpStatusCode.OK, "[" + MinimalFeederJson.Replace("\"enabled\":false", "\"body\":{\"maxRecords\":100},\"enabled\":false", StringComparison.Ordinal) + "]");
+		using var client = TestClient.Create(stub);
+
+		var feeder = (await client.AlertFeeders.ListAsync(TestContext.Current.CancellationToken)).Should().ContainSingle().Subject;
+
+		feeder.Body!.Value.ValueKind.Should().Be(JsonValueKind.Object);
+		feeder.Body.Value.GetProperty("maxRecords").GetInt32().Should().Be(100);
+	}
+
+	[Fact]
+	public async Task ListAsync_StringBody_IsStillReadAsAString()
+	{
+		var stub = Stub(HttpStatusCode.OK, "[" + MinimalFeederJson.Replace("\"enabled\":false", "\"body\":\"raw\",\"enabled\":false", StringComparison.Ordinal) + "]");
+		using var client = TestClient.Create(stub);
+
+		var feeder = (await client.AlertFeeders.ListAsync(TestContext.Current.CancellationToken)).Should().ContainSingle().Subject;
+
+		feeder.Body!.Value.GetString().Should().Be("raw");
+	}
+
+	[Fact]
+	public async Task CreateUpdateTest_WriteAnObjectBodyAsAnObject_AndAStringBodyAsAString()
+	{
+		var stub = new StubHandler();
+		for (var i = 0; i < 6; i++)
+		{
+			stub.Enqueue(HttpStatusCode.OK, i == 5 ? "x" : MinimalFeederJson);
+		}
+
+		using var client = TestClient.Create(stub);
+		var objectBody = JsonSerializer.SerializeToElement(new { maxRecords = 100 });
+		var stringBody = JsonSerializer.SerializeToElement("raw");
+		var interval = new Interval { Value = 1, Unit = IntervalUnit.Hours };
+
+		foreach (var body in new[] { objectBody, stringBody })
+		{
+			await client.AlertFeeders.CreateAsync(
+				new AlertFeederCreateRequest { Name = "f", Description = "d", Method = AlertFeederMethod.Post, Url = "u", Interval = interval, FunctionName = "fn", Body = body },
+				TestContext.Current.CancellationToken);
+			await client.AlertFeeders.UpdateAsync(
+				"f",
+				new AlertFeederUpdateRequest { Description = "d", Method = AlertFeederMethod.Post, Url = "u", Interval = interval, Body = body },
+				TestContext.Current.CancellationToken);
+		}
+
+		await client.AlertFeeders.TestAsync(
+			new AlertFeederTestRequest { Name = "f", Description = "d", Method = AlertFeederMethod.Post, Url = "u", Interval = interval, Body = objectBody },
+			TestContext.Current.CancellationToken);
+		await client.AlertFeeders.TestAsync(
+			new AlertFeederTestRequest { Name = "f", Description = "d", Method = AlertFeederMethod.Post, Url = "u", Interval = interval, Body = stringBody },
+			TestContext.Current.CancellationToken);
+
+		stub.Calls[0].Body.Should().Contain("\"body\":{\"maxRecords\":100}");
+		stub.Calls[1].Body.Should().Contain("\"body\":{\"maxRecords\":100}");
+		stub.Calls[2].Body.Should().Contain("\"body\":\"raw\"");
+		stub.Calls[3].Body.Should().Contain("\"body\":\"raw\"");
+		stub.Calls[4].Body.Should().Contain("\"body\":{\"maxRecords\":100}");
+		stub.Calls[5].Body.Should().Contain("\"body\":\"raw\"");
 	}
 
 	[Fact]

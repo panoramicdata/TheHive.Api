@@ -95,19 +95,19 @@ public class EmailIntakeTests
 		config.AlertProperties.Tags.Should().Equal("email");
 		var mailbox = config.Mailbox;
 		mailbox.Kind.Should().Be("imap");
-		mailbox.Provider.Name.Should().Be("imap");
-		mailbox.Provider.Host.Should().Be("imap.test");
-		mailbox.Provider.Protocol.Should().Be("imap");
-		mailbox.Provider.Port.Should().Be(993);
-		mailbox.Provider.Ssl.Should().BeTrue();
-		mailbox.Provider.StartTls.Should().BeFalse();
-		mailbox.Provider.CheckServerIdentity.Should().BeTrue();
-		var certificate = mailbox.Provider.Certificates.Should().ContainSingle().Subject;
+		mailbox.Provider!.Name.Should().Be("imap");
+		mailbox.Provider!.Host.Should().Be("imap.test");
+		mailbox.Provider!.Protocol.Should().Be("imap");
+		mailbox.Provider!.Port.Should().Be(993);
+		mailbox.Provider!.Ssl.Should().BeTrue();
+		mailbox.Provider!.StartTls.Should().BeFalse();
+		mailbox.Provider!.CheckServerIdentity.Should().BeTrue();
+		var certificate = mailbox.Provider!.Certificates.Should().ContainSingle().Subject;
 		certificate.Data.Should().Be("fake-cert");
 		certificate.Type.Should().Be("pem");
-		mailbox.Credential.Email.Should().Be("soc@example.com");
-		mailbox.Credential.BasicAuth!.Password.Should().Be("fake-pass");
-		mailbox.Credential.OAuth2.Should().BeNull();
+		mailbox.Credential!.Email.Should().Be("soc@example.com");
+		mailbox.Credential!.BasicAuth!.Password.Should().Be("fake-pass");
+		mailbox.Credential!.OAuth2.Should().BeNull();
 		mailbox.Inbox.Should().Be("Inbox");
 		mailbox.Archive.Should().Be("Archive");
 		mailbox.MarkAsRead.Should().BeTrue();
@@ -169,9 +169,9 @@ public class EmailIntakeTests
 		config.Enabled.Should().BeFalse();
 		config.AlertProperties.Tags.Should().BeNull();
 		config.Mailbox.Kind.Should().Be("api");
-		config.Mailbox.Provider.Name.Should().Be("office365");
-		config.Mailbox.Provider.Host.Should().BeNull();
-		config.Mailbox.Credential.BasicAuth.Should().BeNull();
+		config.Mailbox.Provider!.Name.Should().Be("office365");
+		config.Mailbox.Provider!.Host.Should().BeNull();
+		config.Mailbox.Credential!.BasicAuth.Should().BeNull();
 		config.Mailbox.Archive.Should().BeNull();
 	}
 
@@ -210,7 +210,7 @@ public class EmailIntakeTests
 
 		var config = await client.EmailIntake.GetConfigAsync("~2", TestContext.Current.CancellationToken);
 
-		var oAuth2 = config.Mailbox.Credential.OAuth2!;
+		var oAuth2 = config.Mailbox.Credential!.OAuth2!;
 		oAuth2.ClientId.Should().Be("cid");
 		oAuth2.TenantId.Should().Be("tid");
 		oAuth2.Secret.Should().Be("fake-secret");
@@ -218,7 +218,7 @@ public class EmailIntakeTests
 		oAuth2.Scopes.Should().Equal("Mail.Read");
 		oAuth2.RedirectUri.Should().Be("https://app.test/cb");
 		oAuth2.AuthorizationCode.Should().Be("fake-code");
-		config.Mailbox.Credential.BasicAuth.Should().BeNull();
+		config.Mailbox.Credential!.BasicAuth.Should().BeNull();
 		config.Mailbox.MarkAsRead.Should().BeFalse();
 	}
 
@@ -339,6 +339,7 @@ public class EmailIntakeTests
 	[Theory]
 	[InlineData(ImapMailboxJson)]
 	[InlineData(ApiMailboxJson)]
+	[InlineData("""{"_kind":"graph","tokenCache":{"ttl":60}}""")]
 	[InlineData("""{"_kind":"graph","provider":{"name":"newcomer"},"credential":{"email":"e"},"tokenCache":{"ttl":60}}""")]
 	public void Mailbox_RoundTripsEveryKind_IncludingAnUnknownOne(string json)
 		=> RoundTrip<EmailIntakeMailbox>(json).Should().Be(json);
@@ -359,8 +360,8 @@ public class EmailIntakeTests
 		config.Id.Should().BeEmpty();
 		config.Name.Should().BeEmpty();
 		config.Mailbox.Kind.Should().BeEmpty();
-		config.Mailbox.Provider.Name.Should().BeEmpty();
-		config.Mailbox.Credential.Email.Should().BeEmpty();
+		config.Mailbox.Provider.Should().BeNull();
+		config.Mailbox.Credential.Should().BeNull();
 		config.AlertProperties.Source.Should().BeEmpty();
 
 		new EmailIntakeCertificate().Data.Should().BeEmpty();

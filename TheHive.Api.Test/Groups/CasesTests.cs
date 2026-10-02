@@ -952,11 +952,11 @@ public class CasesTests
 		stub.EnqueueFile(archive, "application/octet-stream", "7.thar");
 		using var client = TestClient.Create(stub);
 
-		using var content = await client.Cases.ExportAsync("~123", "Arch1ve-P@ss 2025", TestContext.Current.CancellationToken);
+		using var content = await client.Cases.ExportAsync("~123", "fake pass", TestContext.Current.CancellationToken);
 
 		stub.Calls[0].Method.Should().Be(HttpMethod.Get);
 		stub.Calls[0].Uri.AbsolutePath.Should().Be("/api/v1/case/~123/export");
-		stub.Calls[0].Uri.Query.Should().Be("?password=Arch1ve-P%40ss%202025");
+		stub.Calls[0].Uri.Query.Should().Be("?password=fake%20pass");
 		content.Headers.ContentType!.MediaType.Should().Be("application/octet-stream");
 		content.Headers.ContentDisposition!.FileName.Should().Be("7.thar");
 		(await content.ReadAsByteArrayAsync(TestContext.Current.CancellationToken)).Should().Equal(archive);
@@ -995,7 +995,7 @@ public class CasesTests
 		using var archive = new MemoryStream([7, 8, 9]);
 		var request = new CaseImportRequest
 		{
-			Password = "Arch1ve-P@ss2025",
+			Password = "fake-password",
 			SharingParameters = [new ShareSettings { Organisation = "Org" }],
 			TaskRule = SharingRule.Manual,
 			ObservableRule = SharingRule.AutoShare
@@ -1011,7 +1011,7 @@ public class CasesTests
 		call.Parts[0].Name.Should().Be("_json");
 		call.Parts[0].FileName.Should().BeNull();
 		call.Parts[0].Text.Should().Be(
-			"""{"password":"Arch1ve-P@ss2025","sharingParameters":[{"organisation":"Org"}],"taskRule":"manual","observableRule":"autoShare"}""");
+			"""{"password":"fake-password","sharingParameters":[{"organisation":"Org"}],"taskRule":"manual","observableRule":"autoShare"}""");
 		call.Parts[1].Should().Match<RecordedPart>(p => p.Name == "file" && p.FileName == "7.thar" && p.ContentType == "application/octet-stream");
 		call.Parts[1].Bytes.Should().Equal(7, 8, 9);
 		result.Case.Id.Should().Be("~123");

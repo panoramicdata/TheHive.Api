@@ -17,7 +17,9 @@ namespace TheHive.Api.Data.AlertFeeders;
 /// (<see cref="Password"/>, <see cref="Key"/>, <see cref="ClientSecret"/>) only ever travel in a request or response body, never a URL. The spec's
 /// output variants carry <c>password</c> and <c>key</c> too (this client does not mask anything: it reports what the server returns) but not
 /// the OAuth 2.0 <c>clientSecret</c>, and its update variant leaves <c>clientSecret</c> optional. The class has no <c>ToString</c> override, so
-/// nothing prints the secrets.
+/// nothing prints the secrets. Only the discriminator is protected against values this client does not know: the nested tolerant enums
+/// (<see cref="OAuthGrantType"/>, <see cref="OAuthClientAuthenticationMethod"/>) write <c>Unknown</c> when the server sent a value this client
+/// does not recognise, so a replacing update built from a read model can corrupt such a field. Do not round-trip a read model blindly.
 /// </remarks>
 public sealed class AlertFeederAuth
 {

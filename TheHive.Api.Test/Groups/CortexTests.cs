@@ -230,6 +230,23 @@ public class CortexTests
 	}
 
 	[Fact]
+	public async Task CreateAnalyzerTemplateAsync_HtmlContent_IsWrittenWithTheDefaultJsonEscapes()
+	{
+		var stub = Stub(HttpStatusCode.Created, TemplateJson);
+		using var client = TestClient.Create(stub);
+
+		await client.Cortex.CreateAnalyzerTemplateAsync(
+			new AnalyzerTemplateCreateRequest { AnalyzerId = "A", Content = "<div class=\"x\">&</div>" },
+			TestContext.Current.CancellationToken);
+
+		// System.Text.Json escapes <, >, & and " as \u00XX by default. These are valid JSON, decoded identically by the server.
+		// Changing the encoder (TheHiveJson.Options) must be a deliberate decision, so the exact body is pinned here.
+		var bs = '\\';
+		stub.Calls[0].Body.Should().Be(
+			$$"""{"analyzerId":"A","content":"{{bs}}u003Cdiv class={{bs}}u0022x{{bs}}u0022{{bs}}u003E{{bs}}u0026{{bs}}u003C/div{{bs}}u003E"}""");
+	}
+
+	[Fact]
 	public async Task ImportAnalyzerTemplatesAsync_UploadsTheArchiveAsATemplatesPart()
 	{
 		var stub = Stub(HttpStatusCode.OK, """{"VirusTotal_GetReport":true,"Abuse_Finder":false}""");

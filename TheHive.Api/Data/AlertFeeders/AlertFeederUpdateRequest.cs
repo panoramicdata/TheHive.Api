@@ -1,3 +1,4 @@
+using System.Text.Json;
 using System.Text.Json.Serialization;
 
 namespace TheHive.Api.Data.AlertFeeders;
@@ -24,9 +25,9 @@ public sealed class AlertFeederUpdateRequest
 	[JsonPropertyName("interval")]
 	public required Interval Interval { get; set; }
 
-	/// <summary>The new HTTP request body; used when the method is <c>POST</c>.</summary>
+	/// <summary>The new HTTP request body; used when the method is <c>POST</c>. The spec declares a string, but its own examples and curl samples send a JSON object, so this is raw JSON: a string is written as a JSON string and an object as an object, and either form reads (verify against a live server). Build it with <c>JsonSerializer.SerializeToElement</c>; a default (undefined) <see cref="JsonElement"/> cannot be written, so leave the property <see langword="null"/> to omit it.</summary>
 	[JsonPropertyName("body")]
-	public string? Body { get; set; }
+	public JsonElement? Body { get; set; }
 
 	/// <summary>The new HTTP headers; they replace the current set. Header values can be secrets: they travel only in this request body.</summary>
 	[JsonPropertyName("headers")]

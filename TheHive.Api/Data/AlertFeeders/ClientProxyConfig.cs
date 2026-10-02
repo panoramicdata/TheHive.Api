@@ -2,7 +2,7 @@ using System.Text.Json.Serialization;
 
 namespace TheHive.Api.Data.AlertFeeders;
 
-/// <summary>The HTTP client and proxy settings of an alert feeder request (the spec's <c>ClientProxyWSConfigDto</c>). The server requires <see cref="Ssl"/> and <see cref="Proxy"/>.</summary>
+/// <summary>The HTTP client and proxy settings of an alert feeder request (the spec's <c>ClientProxyWSConfigDto</c>). The server requires <see cref="Ssl"/> and <see cref="Proxy"/>. Nested tolerant enums (<see cref="ClientProxyServer.State"/>) write <c>Unknown</c> for a value this client does not know, so do not round-trip a read model blindly into an update.</summary>
 public sealed class ClientProxyConfig
 {
 	/// <summary>The connection, idle and request timeouts.</summary>
