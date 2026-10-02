@@ -1,6 +1,6 @@
+using Refit;
 using System.Reflection;
 using System.Text.RegularExpressions;
-using Refit;
 using TheHive.Api.Interfaces;
 
 namespace TheHive.Api.Test.Core;

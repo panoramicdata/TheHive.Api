@@ -18,6 +18,10 @@ The Cases group is the worked template; copy it for every later group.
 - **Shared value types** live in `Data/Common/` (`Access`, `AccessKind`, `CustomFieldValue`, `CustomFieldInput`, `SharingRule`, `Optional<T>`, ...). Reuse them; do not duplicate.
 - **Interface** in `TheHive.Api/Interfaces/I{Group}.cs`. Refit attribute paths are relative, with no leading slash (`[Get("api/v1/case/{idOrName}")]`), and parameter names match the spec's path names. Every method takes `CancellationToken cancellationToken = default`. The client uses Refit's `UrlResolutionMode.Rfc3986`, which is what lets relative paths append to a path-prefixed BaseUrl.
 - **Path values are escaped as a single segment** (`Uri.EscapeDataString`). `my case` becomes `my%20case`, `a/b` becomes `a%2Fb`, `a#b` becomes `a%23b`, `a?b` becomes `a%3Fb`, and `~` is not escaped (pinned by `CasesTests.GetAsync_EscapesIdOrNameAsOneSegment`). So a name containing `/` stays one segment, provided the server or proxy does not decode `%2F`. The dot segments `.` and `..` are **not** guarded on the client; ids and names are validated by the server. A comma-separated list in one path parameter (merge `{ids}`) is sent as `%2C`.
+- **Entity types used by several groups** live in the folder of the group that owns the entity, not in the group that first needs them: `Data/Attachments/Attachment` (`OutputAttachment`), `AttachmentUploadResult` (`OutputAttachments`) and `AttachmentUpdateRequest` (`InputUpdateAttachment`); `Data/Observables/Observable` (`OutputObservable`); `Data/Procedures/Procedure` (`OutputProcedure`); `Data/Timeline/CaseTimeline` and `TimelineEvent`. Later groups (Alert, Task Log, Observable, Organization, TTP, Timeline) reuse them.
+- **Bulk `...WithIds` bodies** that are the single-entity body plus `ids` derive from it and put `ids` first with `[JsonPropertyOrder(-1)]`, e.g. `CaseBulkUpdateRequest : CaseUpdateRequest` (so the single-entity request class is not sealed). Bulk bodies with their own fields are plain classes (`CaseBulkAccessRequest`, `CaseBulkApplyTemplateRequest`).
+- **File uploads (multipart/form-data).** Mark the method `[Multipart]` and take each file as a Refit `MultipartItem` (callers pass `StreamPart`, `ByteArrayPart` or `FileInfoPart` with a file name and, ideally, a content type, and leave the part's own name unset). Name every part with `[AliasAs("wireName")]` matching the spec's form property. A spec array of files (`attachments: string[] binary`) is an `IEnumerable<MultipartItem>`; Refit sends one part per file, all with the same name, which is the OpenAPI multipart encoding for arrays. A JSON form field (such as `_json` in `POST /api/v1/case/import`) is the request model with `[AliasAs("_json")]`; Refit writes it with `TheHiveJson.Options` as an `application/json` part. A scalar form field (`canRename`) is a nullable parameter with a `null` default; Refit leaves out a `null` part. Template: `ICases.AddAttachmentsAsync`, `ICases.ImportAsync`. Tests assert the request Content-Type `multipart/form-data` and each part's name, file name, content type and bytes, using `RecordedCall.ContentType` and `RecordedCall.Parts` from `StubHandler`.
+- **File downloads** return `Task<HttpContent>`: the caller reads the bytes or stream and the suggested name from `Headers.ContentDisposition.FileName`, and owns (disposes) the content. Error statuses still throw `TheHiveApiException` through the exception factory. Template: `ICases.ExportAsync`. Tests queue the file with `StubHandler.EnqueueFile(bytes, contentType, fileName)` and assert the exact bytes, content type and file name, plus one failure status.
 - **Client property:** `public I{Group} {Group} { get; }` on `TheHiveClient`, assigned in the constructor with `RestService.For<I{Group}>(_httpClient, Settings);`.
 - **Tests** in `TheHive.Api.Test/Groups/{Group}Tests.cs` using `StubHandler` and `TestClient.Create`: for each method assert verb, path and body, and map a full JSON sample (every property). Pass `TestContext.Current.CancellationToken`. Keep 100% line and branch coverage.
 - **This table:** for each implemented row, fill in the Client method column as `` `I{Group}.{Method}` `` and the Test column as `` `{Class}.{TestMethod}` `` (several are allowed, comma-separated, each in backticks). Fill both or neither. `InventoryTests` resolves both by reflection, and checks that every method of every interface in `TheHive.Api.Interfaces` is listed, that no deprecated row is implemented, and that each Client method's Refit attribute has the row's verb and path (the path in backticks without its leading `/`, compared literally, so parameter names must match the spec). `docs/pending-tags.txt` lists the Group values whose rows may still be empty. **Remove the group's tag from that file when it lands**: the test then requires every non-deprecated row of the group to be filled, and a tag whose rows are all filled fails the test while it stays in the file. Labels such as `Case (+Timeline)` are separate tags. Notes on a row (such as `(verify)`) go in the Path column, after the path.
@@ -132,33 +136,33 @@ Plan groups: Alerts, Cases, CaseTemplates, Tasks, TaskLogs, Observables, Comment
 | Branding | DELETE | `/api/v1/branding/assets/{kind}` | | |
 | Branding | GET | `/api/v1/branding/assets/{kind}` | | |
 | Case | POST | `/api/v1/case` | `ICases.CreateAsync` | `CasesTests.CreateAsync_PostsBodyAndMapsResult`, `CasesTests.CreateAsync_SerializesEveryFieldWithWireNames` |
-| Case | PATCH | `/api/v1/case/_bulk` | | |
-| Case | POST | `/api/v1/case/_bulk/access` | | |
-| Case | POST | `/api/v1/case/_bulk/caseTemplate` | | |
+| Case | PATCH | `/api/v1/case/_bulk` | `ICases.BulkUpdateAsync` | `CasesTests.BulkUpdateAsync_PatchesIdsAndFields`, `CasesTests.BulkUpdateAsync_SendsOnlyIdsAndSetFields` |
+| Case | POST | `/api/v1/case/_bulk/access` | `ICases.BulkSetAccessAsync` | `CasesTests.BulkSetAccessAsync_PostsIdsAndAccess` |
+| Case | POST | `/api/v1/case/_bulk/caseTemplate` | `ICases.BulkApplyTemplateAsync` | `CasesTests.BulkApplyTemplateAsync_PostsEveryFieldWithWireNames`, `CasesTests.BulkApplyTemplateAsync_OmitsUnsetOptions` |
 | Case | POST | `/api/v1/case/_merge/{ids}` (verify: comma-separated `{ids}` is assumed, not stated by the spec) | `ICases.MergeAsync` | `CasesTests.MergeAsync_PostsToMergePathAndMapsNewCase` |
-| Case | POST | `/api/v1/case/{caseId}/access` | | |
-| Case | DELETE | `/api/v1/case/{caseId}/alert/{alertId}` | | |
-| Case | DELETE | `/api/v1/case/{caseId}/attachment/{attachmentId}` | | |
+| Case | POST | `/api/v1/case/{caseId}/access` | `ICases.SetAccessAsync` | `CasesTests.SetAccessAsync_PostsAccess` |
+| Case | DELETE | `/api/v1/case/{caseId}/alert/{alertId}` | `ICases.RemoveAlertAsync` | `CasesTests.RemoveAlertAsync_SendsDelete` |
+| Case | DELETE | `/api/v1/case/{caseId}/attachment/{attachmentId}` | `ICases.DeleteAttachmentAsync` | `CasesTests.DeleteAttachmentAsync_SendsDelete` |
 | Case | GET | `/api/v1/case/{caseId}/attachment/{attachmentId}` (deprecated) | | |
-| Case | PATCH | `/api/v1/case/{caseId}/attachment/{attachmentId}` | | |
+| Case | PATCH | `/api/v1/case/{caseId}/attachment/{attachmentId}` | `ICases.UpdateAttachmentAsync` | `CasesTests.UpdateAttachmentAsync_PatchesExternalFlag` |
 | Case | GET | `/api/v1/case/{caseId}/attachment/{attachmentId}/download` (deprecated) | | |
-| Case | POST | `/api/v1/case/{caseId}/attachments` | | |
-| Case | GET | `/api/v1/case/{caseId}/export` | | |
-| Case | POST | `/api/v1/case/{caseId}/link/case/add` | | |
-| Case | POST | `/api/v1/case/{caseId}/link/case/remove` | | |
-| Case | POST | `/api/v1/case/{caseId}/link/external/add` | | |
-| Case | POST | `/api/v1/case/{caseId}/link/external/remove` | | |
+| Case | POST | `/api/v1/case/{caseId}/attachments` | `ICases.AddAttachmentsAsync` | `CasesTests.AddAttachmentsAsync_UploadsEachFileAsAnAttachmentsPart`, `CasesTests.AddAttachmentsAsync_WithoutCanRename_SendsOnlyFiles` |
+| Case | GET | `/api/v1/case/{caseId}/export` | `ICases.ExportAsync` | `CasesTests.ExportAsync_ReturnsArchiveBytesAndFileName`, `CasesTests.ExportAsync_Forbidden_ThrowsTheHiveApiException` |
+| Case | POST | `/api/v1/case/{caseId}/link/case/add` | `ICases.AddCaseLinkAsync` | `CasesTests.CaseLinks_AddAndRemove_PostTypeAndCaseId` |
+| Case | POST | `/api/v1/case/{caseId}/link/case/remove` | `ICases.RemoveCaseLinkAsync` | `CasesTests.CaseLinks_AddAndRemove_PostTypeAndCaseId` |
+| Case | POST | `/api/v1/case/{caseId}/link/external/add` | `ICases.AddExternalLinkAsync` | `CasesTests.ExternalLinks_AddAndRemove_PostTypeAndUrl` |
+| Case | POST | `/api/v1/case/{caseId}/link/external/remove` | `ICases.RemoveExternalLinkAsync` | `CasesTests.ExternalLinks_AddAndRemove_PostTypeAndUrl` |
 | Case | GET | `/api/v1/case/{caseId}/links` (deprecated) | | |
-| Case | POST | `/api/v1/case/{caseId}/observable/_merge` | | |
-| Case | POST | `/api/v1/case/{caseId}/owner` | | |
-| Case | GET | `/api/v1/case/{caseId}/similar/{alertOrCaseId}/observables` | | |
-| Case (+Timeline) | GET | `/api/v1/case/{caseId}/timeline` | | |
+| Case | POST | `/api/v1/case/{caseId}/observable/_merge` | `ICases.DeduplicateObservablesAsync` | `CasesTests.DeduplicateObservablesAsync_PostsAndMapsCounts` |
+| Case | POST | `/api/v1/case/{caseId}/owner` | `ICases.ChangeOwnerAsync` | `CasesTests.ChangeOwnerAsync_PostsEveryField`, `CasesTests.ChangeOwnerAsync_OrganisationOnly_OmitsTheRest` |
+| Case | GET | `/api/v1/case/{caseId}/similar/{alertOrCaseId}/observables` | `ICases.GetSimilarObservablesAsync` | `CasesTests.GetSimilarObservablesAsync_MapsEveryObservableField`, `CasesTests.Observable_Defaults_AreEmptyNotNull` |
+| Case (+Timeline) | GET | `/api/v1/case/{caseId}/timeline` | `ICases.GetTimelineAsync` | `CasesTests.GetTimelineAsync_MapsEveryEventField`, `CasesTests.CaseTimeline_Defaults_AreEmptyNotNull` |
 | Case | DELETE | `/api/v1/case/{idOrName}` | `ICases.DeleteAsync` | `CasesTests.DeleteAsync_SendsDelete` |
 | Case | GET | `/api/v1/case/{idOrName}` | `ICases.GetAsync` | `CasesTests.GetAsync_MapsEveryCaseField`, `CasesTests.GetAsync_UnknownStage_And_AbsentOptionals`, `CasesTests.GetAsync_NotFound_ThrowsTheHiveApiException`, `CasesTests.GetAsync_PathPrefixedBaseUrl_KeepsPrefix`, `CasesTests.GetAsync_EscapesIdOrNameAsOneSegment`, `CasesTests.GetAsync_AccessWithoutKind_ReadsUnknown` |
 | Case | PATCH | `/api/v1/case/{idOrName}` | `ICases.UpdateAsync` | `CasesTests.UpdateAsync_PatchesOnlySetFields`, `CasesTests.UpdateAsync_SerializesEveryFieldWithWireNames`, `CasesTests.UpdateAsync_ExplicitNull_SendsNullToUnset` |
-| Case | DELETE | `/api/v1/case/customField/{cfId}` | | |
-| Case | POST | `/api/v1/case/import` | | |
-| Case | GET | `/api/v1/case/link/types` | | |
+| Case | DELETE | `/api/v1/case/customField/{cfId}` | `ICases.DeleteCustomFieldAsync` | `CasesTests.DeleteCustomFieldAsync_SendsDelete` |
+| Case | POST | `/api/v1/case/import` | `ICases.ImportAsync` | `CasesTests.ImportAsync_UploadsJsonAndFilePartsAndMapsResult`, `CasesTests.ImportAsync_PasswordOnly_SendsMinimalJson` |
+| Case | GET | `/api/v1/case/link/types` | `ICases.GetLinkTypesAsync` | `CasesTests.GetLinkTypesAsync_MapsNames` |
 | Case Report | POST | `/api/v1/case/{caseId}/report` | | |
 | Case Report | POST | `/api/v1/case/{caseId}/report/upload` | | |
 | Case Report | DELETE | `/api/v1/caseReport/{reportId}` | | |

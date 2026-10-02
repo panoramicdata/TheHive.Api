@@ -3,7 +3,20 @@ using System.Net.Http.Headers;
 
 namespace TheHive.Api.Test.Support;
 
-internal sealed record RecordedCall(HttpMethod Method, Uri Uri, string? Body, HttpRequestHeaders Headers);
+/// <summary>One part of a recorded multipart/form-data body.</summary>
+internal sealed record RecordedPart(string? Name, string? FileName, string? ContentType, byte[] Bytes)
+{
+	public string Text => System.Text.Encoding.UTF8.GetString(Bytes);
+}
+
+internal sealed record RecordedCall(HttpMethod Method, Uri Uri, string? Body, HttpRequestHeaders Headers)
+{
+	/// <summary>The request Content-Type media type, or <see langword="null"/> without a body.</summary>
+	public string? ContentType { get; init; }
+
+	/// <summary>The parts of a multipart body, in order; empty for other bodies.</summary>
+	public IReadOnlyList<RecordedPart> Parts { get; init; } = [];
+}
 
 internal sealed class StubHandler : HttpMessageHandler
 {
@@ -22,10 +35,39 @@ internal sealed class StubHandler : HttpMessageHandler
 			return response;
 		});
 
+	/// <summary>Queues a binary download: the given bytes, media type and <c>attachment; filename=...</c> disposition.</summary>
+	public void EnqueueFile(byte[] bytes, string contentType, string fileName)
+		=> _responses.Enqueue(() =>
+		{
+			var content = new ByteArrayContent(bytes);
+			content.Headers.ContentType = new MediaTypeHeaderValue(contentType);
+			content.Headers.ContentDisposition = new ContentDispositionHeaderValue("attachment") { FileName = fileName };
+			return new HttpResponseMessage(HttpStatusCode.OK) { Content = content };
+		});
+
 	protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
 	{
-		var body = request.Content is null ? null : await request.Content.ReadAsStringAsync(cancellationToken);
-		Calls.Add(new RecordedCall(request.Method, request.RequestUri!, body, request.Headers));
+		var content = request.Content;
+		var parts = new List<RecordedPart>();
+		if (content is MultipartContent multipart)
+		{
+			foreach (var part in multipart)
+			{
+				var disposition = part.Headers.ContentDisposition;
+				parts.Add(new RecordedPart(
+					disposition?.Name?.Trim('"'),
+					disposition?.FileName?.Trim('"'),
+					part.Headers.ContentType?.MediaType,
+					await part.ReadAsByteArrayAsync(cancellationToken)));
+			}
+		}
+
+		var body = content is null ? null : await content.ReadAsStringAsync(cancellationToken);
+		Calls.Add(new RecordedCall(request.Method, request.RequestUri!, body, request.Headers)
+		{
+			ContentType = content?.Headers.ContentType?.MediaType,
+			Parts = parts
+		});
 		return _responses.Dequeue()();
 	}
 }
