@@ -376,4 +376,5 @@ FodyWeavers.xsd
 
 # Coverage output
 coverage.cobertura.xml
+!coverage.settings.xml
 TestResults/
