@@ -6,7 +6,7 @@ Only the latest released version is supported with security updates.
 
 ## Reporting a Vulnerability
 
-If you discover a security vulnerability, please report it responsibly.
+If you discover a security vulnerability in TheHive.Api, please report it responsibly.
 
 **Do NOT open a public GitHub issue.**
 
