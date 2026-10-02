@@ -30,9 +30,19 @@ jobs:
       - name: Test with coverage
         run: dotnet test --project TheHive.Api.Test -c Release --no-build --coverage --coverage-output-format cobertura --coverage-output coverage.cobertura.xml --coverage-settings coverage.settings.xml
 
+      - name: Self-test the coverage gate
+        shell: pwsh
+        run: ./scripts/Test-CheckCoverage.ps1
+
       - name: Enforce 100% coverage
         shell: pwsh
-        run: ./scripts/Check-Coverage.ps1 -File (Get-ChildItem -Recurse -Filter coverage.cobertura.xml | Select-Object -First 1).FullName
+        run: |
+          $report = Get-ChildItem -Recurse -Filter coverage.cobertura.xml | Select-Object -First 1
+          if (-not $report) {
+            Write-Error 'No coverage.cobertura.xml was produced.'
+            exit 1
+          }
+          ./scripts/Check-Coverage.ps1 -File $report.FullName
 
 
       - name: Pack
