@@ -65,6 +65,28 @@ public class LicenseTests
 		result.Should().BeEmpty();
 	}
 
+	[Theory]
+	[InlineData("{}")]
+	[InlineData("{ \n }")]
+	[InlineData("null")]
+	[InlineData("[]")]
+	public void LicenseList_EmptyForms_ReadAsAnEmptyList(string json)
+	{
+		var result = JsonSerializer.Deserialize<LicenseList>(json, TheHiveJson.Options);
+
+		result.Should().NotBeNull().And.BeEmpty();
+	}
+
+	[Theory]
+	[InlineData("""{"unexpected":1}""")]
+	[InlineData("""{"licenses":[]}""")]
+	public void LicenseList_NonEmptyObject_ThrowsJsonExceptionWithAClearMessage(string json)
+	{
+		var act = () => JsonSerializer.Deserialize<LicenseList>(json, TheHiveJson.Options);
+
+		act.Should().Throw<JsonException>().WithMessage("*license array or an empty object*");
+	}
+
 	[Fact]
 	public void LicenseList_Serializes_AsAnArray()
 	{

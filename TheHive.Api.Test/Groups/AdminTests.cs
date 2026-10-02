@@ -28,7 +28,16 @@ public class AdminTests
 	[InlineData(LogLevels.Warn, "WARN")]
 	[InlineData(LogLevels.Error, "ERROR")]
 	[InlineData(LogLevels.Off, "OFF")]
-	public void LogLevels_HaveTheSpecValues(string constant, string wire) => constant.Should().Be(wire);
+	public async Task SetLogLevelAsync_WritesEachSpecLevelToThePathVerbatim(string level, string wire)
+	{
+		var stub = new StubHandler();
+		stub.Enqueue(HttpStatusCode.NoContent, "");
+		using var client = TestClient.Create(stub);
+
+		await client.Admin.SetLogLevelAsync("root", level, TestContext.Current.CancellationToken);
+
+		stub.Calls[0].Uri.AbsolutePath.Should().Be($"/api/v1/admin/log/set/root/{wire}");
+	}
 
 	[Fact]
 	public async Task SetLogLevelAsync_Forbidden_ThrowsTheHiveApiException()

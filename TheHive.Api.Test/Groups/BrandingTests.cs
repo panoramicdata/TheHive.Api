@@ -150,7 +150,19 @@ public class BrandingTests
 	[InlineData(BrandingAssetKinds.LoginLogo, "loginLogo")]
 	[InlineData(BrandingAssetKinds.MenuLogo, "menuLogo")]
 	[InlineData(BrandingAssetKinds.Favicon, "favicon")]
-	public void BrandingAssetKinds_HaveTheSpecValues(string constant, string wire) => constant.Should().Be(wire);
+	public async Task GetAssetAsync_And_DeleteAssetAsync_WriteEachSpecKindToThePathVerbatim(string kind, string wire)
+	{
+		var stub = new StubHandler();
+		stub.EnqueueFile([1, 2], "application/octet-stream", "asset.bin");
+		stub.Enqueue(HttpStatusCode.NoContent, "");
+		using var client = TestClient.Create(stub);
+
+		using var content = await client.Branding.GetAssetAsync(kind, cancellationToken: TestContext.Current.CancellationToken);
+		await client.Branding.DeleteAssetAsync(kind, TestContext.Current.CancellationToken);
+
+		stub.Calls[0].Uri.AbsolutePath.Should().Be($"/api/v1/branding/assets/{wire}");
+		stub.Calls[1].Uri.AbsolutePath.Should().Be($"/api/v1/branding/assets/{wire}");
+	}
 
 	[Fact]
 	public async Task GetAssetAsync_ReturnsExactBytes_WithoutConditionalHeaderByDefault()

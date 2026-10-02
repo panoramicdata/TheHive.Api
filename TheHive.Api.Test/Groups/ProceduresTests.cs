@@ -8,7 +8,7 @@ public class ProceduresTests
 {
 	private const string FullProcedureJson = """
 		{
-			"_id":"~234567890","_type":"procedure","_createdAt":1748739600000,"_createdBy":"analyst@example.com",
+			"_id":"~234567890","_createdAt":1748739600000,"_createdBy":"analyst@example.com",
 			"_updatedAt":1748826000000,"_updatedBy":"lead@example.com",
 			"description":"PowerShell script used to encrypt files.","occurDate":1748739600000,
 			"patternId":"T1486","patternName":"Data Encrypted for Impact","tactic":"impact","tacticLabel":"Impact",

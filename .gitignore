@@ -6,9 +6,6 @@
 # NuGet API key
 nuget-key.txt
 
-# Stray directories
-PanoramicData.Mapper/
-
 # User-specific files
 *.rsuser
 *.suo
@@ -369,8 +366,6 @@ MigrationBackup/
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
 
-#Ignore vscode AI rules
-.github\instructions\codacy.instructions.md
 
 .superpowers/
 
