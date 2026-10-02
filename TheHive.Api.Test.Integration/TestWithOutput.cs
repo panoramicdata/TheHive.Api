@@ -45,7 +45,10 @@ public abstract class TestWithOutput : TestBed<Fixture>, IDisposable
 		}
 	}
 
-	private TheHiveClient CreateClient()
+	private TheHiveClient CreateClient() => CreateClientFor(_config.Organisation);
+
+	/// <summary>Builds a client for another organisation (e.g. <c>admin</c> for platform-level resources), reusing the configured address and key. Skips the test if unconfigured. The caller disposes it.</summary>
+	protected TheHiveClient CreateClientFor(string? organisation)
 	{
 		Assert.SkipWhen(
 			_config.BaseAddress is null || string.IsNullOrWhiteSpace(_config.ApiKey),
@@ -59,7 +62,7 @@ public abstract class TestWithOutput : TestBed<Fixture>, IDisposable
 		{
 			BaseUrl = _config.BaseAddress.ToString(),
 			ApiKey = _config.ApiKey!,
-			Organisation = _config.Organisation,
+			Organisation = organisation,
 			Logger = Logger
 		});
 	}

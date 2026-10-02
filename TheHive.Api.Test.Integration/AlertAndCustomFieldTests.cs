@@ -54,7 +54,8 @@ public class AlertAndCustomFieldTests(ITestOutputHelper testOutputHelper, Fixtur
 	[Fact]
 	public async Task CustomFieldLifecycle_CreatesListsAndDeletes()
 	{
-		var client = Client;
+		// Custom fields are platform-level: managed from the built-in admin organisation, not the configured one.
+		using var client = CreateClientFor("admin");
 		var name = "itest" + Guid.NewGuid().ToString("N")[..12];
 		string? fieldId = null;
 		try
