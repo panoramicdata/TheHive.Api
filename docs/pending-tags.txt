@@ -21,7 +21,6 @@ Organization
 Page
 PageTemplate
 Permission
-Profile
 Query and Export
 Share
 Share (+Case)

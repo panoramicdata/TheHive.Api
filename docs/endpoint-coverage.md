@@ -290,10 +290,10 @@ Plan groups: Alerts, Cases, CaseTemplates, Tasks, TaskLogs, Observables, Comment
 | PageTemplate | DELETE | `/api/v1/pageTemplate/{pageTemplateId}` | | |
 | PageTemplate | PATCH | `/api/v1/pageTemplate/{pageTemplateId}` | | |
 | Permission | GET | `/api/v1/permission` | | |
-| Profile | POST | `/api/v1/profile` | | |
-| Profile | DELETE | `/api/v1/profile/{profileId}` | | |
-| Profile | GET | `/api/v1/profile/{profileId}` | | |
-| Profile | PATCH | `/api/v1/profile/{profileId}` | | |
+| Profile | POST | `/api/v1/profile` | `IProfiles.CreateAsync` | `ProfilesTests.CreateAsync_PostsBodyAndMapsEveryField` |
+| Profile | DELETE | `/api/v1/profile/{profileId}` | `IProfiles.DeleteAsync` | `ProfilesTests.DeleteAsync_SendsDelete` |
+| Profile | GET | `/api/v1/profile/{profileId}` | `IProfiles.GetAsync` | `ProfilesTests.GetAsync_FullProfile_MapsEveryField` |
+| Profile | PATCH | `/api/v1/profile/{profileId}` | `IProfiles.UpdateAsync` | `ProfilesTests.UpdateAsync_PatchesNameAndPermissions` |
 | Query and Export | GET | `/api/v1/export` | | |
 | Query and Export | GET | `/api/v1/export/_fields` | | |
 | Query and Export | POST | `/api/v1/query` | | |

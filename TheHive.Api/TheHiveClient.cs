@@ -43,6 +43,7 @@ public sealed class TheHiveClient : IDisposable
 		CaseTemplates = RestService.For<ICaseTemplates>(_httpClient, Settings);
 		CustomFields = RestService.For<ICustomFields>(_httpClient, Settings);
 		Dashboards = RestService.For<IDashboards>(_httpClient, Settings);
+		Profiles = RestService.For<IProfiles>(_httpClient, Settings);
 	}
 
 	/// <summary>Case operations.</summary>
@@ -74,6 +75,9 @@ public sealed class TheHiveClient : IDisposable
 
 	/// <summary>Dashboard operations.</summary>
 	public IDashboards Dashboards { get; }
+
+	/// <summary>Permission profile operations.</summary>
+	public IProfiles Profiles { get; }
 
 	internal HttpClient HttpClient => _httpClient;
 
