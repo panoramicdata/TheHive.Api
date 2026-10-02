@@ -364,7 +364,7 @@ Plan groups: Alerts, Cases, CaseTemplates, Tasks, TaskLogs, Observables, Comment
 | User | POST | `/api/v1/user/{userId}/password/set` | `IUsers.SetPasswordAsync` | `UsersTests.SetPasswordAsync_PostsPasswordInBodyOnly` |
 | User | GET | `/api/v1/user/current` | `IUsers.GetCurrentAsync` | `UsersTests.GetCurrentAsync_Gets` |
 | User | POST | `/api/v1/user/current/attachments` | `IUsers.UploadTemporaryAttachmentsAsync` | `UsersTests.UploadTemporaryAttachmentsAsync_UploadsEachFileAsAnAttachmentsPart_And_ReturnsAttachments` |
-| Views | POST | `/api/v1/views` | | |
-| Views | DELETE | `/api/v1/views/{viewsId}` | | |
-| Views | GET | `/api/v1/views/{viewsId}` | | |
-| Views | PATCH | `/api/v1/views/{viewsId}` | | |
+| Views | POST | `/api/v1/views` | `IViews.CreateAsync` | `ViewsTests.CreateAsync_PostsBodyAndMapsEveryField`, `ViewsTests.CreateAsync_RequiredOnly_OmitsOptionals_And_AbsentOptionalsMapToDefaults`, `ViewsTests.View_Defaults_AreEmptyNotNull` |
+| Views | DELETE | `/api/v1/views/{viewsId}` | `IViews.DeleteAsync` | `ViewsTests.DeleteAsync_SendsDelete` |
+| Views | GET | `/api/v1/views/{viewsId}` | `IViews.GetAsync` | `ViewsTests.GetAsync_FullView_MapsEveryField`, `ViewsTests.GetAsync_UnknownEntity_IsTolerated`, `ViewsTests.GetAsync_NotFound_ThrowsTheHiveApiException` |
+| Views | PATCH | `/api/v1/views/{viewsId}` | `IViews.UpdateAsync` | `ViewsTests.UpdateAsync_PatchesEveryProperty`, `ViewsTests.UpdateAsync_Empty_SendsEmptyObject` |

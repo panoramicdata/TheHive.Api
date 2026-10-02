@@ -15,4 +15,3 @@ License
 Query and Export
 Status
 TTP
-Views

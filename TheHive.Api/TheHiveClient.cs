@@ -58,6 +58,7 @@ public sealed class TheHiveClient : IDisposable
 		Pages = RestService.For<IPages>(_httpClient, Settings);
 		PageTemplates = RestService.For<IPageTemplates>(_httpClient, Settings);
 		Timeline = RestService.For<ITimeline>(_httpClient, Settings);
+		Views = RestService.For<IViews>(_httpClient, Settings);
 	}
 
 	/// <summary>Case operations.</summary>
@@ -134,6 +135,9 @@ public sealed class TheHiveClient : IDisposable
 
 	/// <summary>Case timeline custom event operations.</summary>
 	public ITimeline Timeline { get; }
+
+	/// <summary>Saved list view operations.</summary>
+	public IViews Views { get; }
 
 	internal HttpClient HttpClient => _httpClient;
 
