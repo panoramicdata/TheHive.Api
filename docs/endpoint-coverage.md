@@ -128,13 +128,13 @@ Plan groups: Alerts, Cases, CaseTemplates, Tasks, TaskLogs, Observables, Comment
 | AlertStatus | POST | `/api/v1/alertStatus` | | |
 | AlertStatus | DELETE | `/api/v1/alertStatus/{id}` | | |
 | AlertStatus | PATCH | `/api/v1/alertStatus/{id}` | | |
-| Att&ck | POST | `/api/v1/catalog` | | |
-| Att&ck | DELETE | `/api/v1/catalog/{catalogId}` | | |
-| Att&ck | PATCH | `/api/v1/catalog/{catalogId}` | | |
-| Att&ck | DELETE | `/api/v1/pattern/{patternId}` | | |
-| Att&ck | GET | `/api/v1/pattern/{patternId}` | | |
-| Att&ck | GET | `/api/v1/pattern/case/{caseId}` | | |
-| Att&ck | POST | `/api/v1/pattern/import/attack` | | |
+| Att&ck | POST | `/api/v1/catalog` | `IPatterns.CreateCatalogAsync` | `PatternsTests.CreateCatalogAsync_PostsBodyAndMapsEveryField`, `PatternsTests.CreateCatalogAsync_NameOnly_OmitsOptionals_And_AbsentOptionalsMapToDefaults`, `PatternsTests.Catalog_And_Pattern_Defaults_AreEmptyNotNull` |
+| Att&ck | DELETE | `/api/v1/catalog/{catalogId}` | `IPatterns.DeleteCatalogAsync` | `PatternsTests.DeleteCatalogAsync_SendsDelete` |
+| Att&ck | PATCH | `/api/v1/catalog/{catalogId}` | `IPatterns.UpdateCatalogAsync` | `PatternsTests.UpdateCatalogAsync_PatchesNameAndExplicitNulls`, `PatternsTests.UpdateCatalogAsync_SetsValues_And_EmptyRequestSendsEmptyObject` |
+| Att&ck | DELETE | `/api/v1/pattern/{patternId}` | `IPatterns.DeleteAsync` | `PatternsTests.DeleteAsync_SendsDelete` |
+| Att&ck | GET | `/api/v1/pattern/{patternId}` | `IPatterns.GetAsync` | `PatternsTests.GetAsync_MapsEveryPatternField`, `PatternsTests.GetAsync_AbsentOptionals_MapToDefaults`, `PatternsTests.GetAsync_NotFound_ThrowsTheHiveApiException` |
+| Att&ck | GET | `/api/v1/pattern/case/{caseId}` | `IPatterns.ListForCaseAsync` | `PatternsTests.ListForCaseAsync_MapsList` |
+| Att&ck | POST | `/api/v1/pattern/import/attack` | `IPatterns.ImportAsync`, `IPatterns.ImportFileAsync` | `PatternsTests.ImportAsync_PostsUrlBody_AndMaps201Result`, `PatternsTests.ImportAsync_PartialSuccess207_IsReturnedWithErrors`, `PatternsTests.ImportFileAsync_UploadsJsonAndFileParts` |
 | Audit | GET | `/api/v1/flow` | | |
 | Authentication | GET | `/api/v1/auth/local/passwordPolicy` | | |
 | Authentication | GET | `/api/v1/auth/totp/get` | | |

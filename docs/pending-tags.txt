@@ -2,7 +2,6 @@
 # InventoryTests tolerates empty rows only for these tags. Remove a tag when its group lands.
 Admin
 AlertStatus
-Att&ck
 Audit
 Authentication
 Branding
