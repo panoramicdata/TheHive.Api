@@ -12,6 +12,14 @@ namespace TheHive.Api.Data.Alerts;
 /// </summary>
 public sealed class CaseFromAlertRequest
 {
+	/// <summary>The title of the case (1 to 512 characters). When omitted, the alert title is used.</summary>
+	[JsonPropertyName("title")]
+	public string? Title { get; set; }
+
+	/// <summary>The details of the case (TheHive-flavored Markdown, at most 1048576 characters). When omitted, the alert description is used.</summary>
+	[JsonPropertyName("description")]
+	public string? Description { get; set; }
+
 	/// <summary>The severity, 1 (low) to 4 (critical); see <see cref="Common.Severity"/>. The server default is 2.</summary>
 	[JsonPropertyName("severity")]
 	public int? Severity { get; set; }

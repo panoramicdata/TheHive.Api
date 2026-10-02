@@ -419,6 +419,8 @@ public class AlertsTests
 		using var client = TestClient.Create(stub);
 		var request = new CaseFromAlertRequest
 		{
+			Title = "Suspicious Ransomware Activity",
+			Description = "cd",
 			Severity = Severity.High,
 			StartDate = DateTimeOffset.FromUnixTimeMilliseconds(1),
 			EndDate = DateTimeOffset.FromUnixTimeMilliseconds(2),
@@ -443,7 +445,7 @@ public class AlertsTests
 		stub.Calls[0].Method.Should().Be(HttpMethod.Post);
 		stub.Calls[0].Uri.AbsolutePath.Should().Be("/api/v1/alert/~354/case");
 		stub.Calls[0].Body.Should().Be(
-			"""{"severity":3,"startDate":1,"endDate":2,"tags":["x"],"flag":true,"tlp":4,"pap":3,"status":"New","summary":"sum","assignee":"lucas@example.com","customFields":[{"name":"threat-type","value":"Malware"}],"caseTemplate":"Ransomware","tasks":[{"title":"Isolate","status":"Waiting"}],"pages":[{"title":"Notes","content":"c","category":"Investigation"}],"sharingParameters":[{"organisation":"Org","share":true}],"taskRule":"manual","observableRule":"autoShare"}""");
+			"""{"title":"Suspicious Ransomware Activity","description":"cd","severity":3,"startDate":1,"endDate":2,"tags":["x"],"flag":true,"tlp":4,"pap":3,"status":"New","summary":"sum","assignee":"lucas@example.com","customFields":[{"name":"threat-type","value":"Malware"}],"caseTemplate":"Ransomware","tasks":[{"title":"Isolate","status":"Waiting"}],"pages":[{"title":"Notes","content":"c","category":"Investigation"}],"sharingParameters":[{"organisation":"Org","share":true}],"taskRule":"manual","observableRule":"autoShare"}""");
 		result.Number.Should().Be(7);
 		result.Title.Should().Be("Ransomware");
 	}
@@ -543,12 +545,12 @@ public class AlertsTests
 	[Fact]
 	public async Task GetSimilarObservablesAsync_MapsObservables()
 	{
-		var stub = Stub(HttpStatusCode.OK, $$"""
+		var stub = Stub(HttpStatusCode.OK, $$$"""
 			[{"_id":"~8529344","_type":"Observable","_createdBy":"lucas@example.com","_updatedBy":"alice@example.com",
 			"_createdAt":1748739600000,"_updatedAt":1776902400000,"dataType":"file","data":null,
-			"startDate":1748739600000,"attachment":{{AttachmentJson}},"tlp":2,"tlpLabel":"AMBER","pap":3,"papLabel":"RED",
+			"startDate":1748739600000,"attachment":{{{AttachmentJson}}},"tlp":2,"tlpLabel":"AMBER","pap":3,"papLabel":"RED",
 			"tags":["Source IP"],"ioc":true,"sighted":true,"sightedAt":1748822400000,
-			"reports":{},"message":"m","extraData":{},"ignoreSimilarity":true,"external":true}]
+			"reports":{"VirusTotal_GetReport":{"status":"Success"}},"message":"m","extraData":{"seen":2},"ignoreSimilarity":true,"external":true}]
 			""");
 		using var client = TestClient.Create(stub);
 
@@ -576,6 +578,8 @@ public class AlertsTests
 		item.Sighted.Should().BeTrue();
 		item.SightedAt.Should().Be(DateTimeOffset.FromUnixTimeMilliseconds(1748822400000));
 		item.Message.Should().Be("m");
+		item.Reports["VirusTotal_GetReport"].GetProperty("status").GetString().Should().Be("Success");
+		item.ExtraData["seen"].GetInt32().Should().Be(2);
 		item.IgnoreSimilarity.Should().BeTrue();
 		item.External.Should().BeTrue();
 	}

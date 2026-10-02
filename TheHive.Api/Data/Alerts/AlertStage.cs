@@ -1,6 +1,6 @@
 namespace TheHive.Api.Data.Alerts;
 
-/// <summary>The stage derived from an alert's (configurable) status.</summary>
+/// <summary>The stage derived from an alert's (configurable) status (the spec's <c>InputAlertStage</c>: <c>New</c>, <c>InProgress</c>, <c>Closed</c>, <c>Imported</c>). Also used for the stage of an alert status.</summary>
 public enum AlertStage
 {
 	/// <summary>A value this client does not recognise.</summary>
