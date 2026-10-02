@@ -289,9 +289,9 @@ Plan groups: Alerts, Cases, CaseTemplates, Tasks, TaskLogs, Observables, Comment
 | Page | POST | `/api/v1/page` | `IPages.CreateAsync` | `PagesTests.CreateAsync_PostsBodyAndMapsEveryField`, `PagesTests.CreateAsync_RequiredOnly_OmitsOrder_And_AbsentOptionalsMapToDefaults`, `PagesTests.Page_Defaults_AreEmptyNotNull` |
 | Page | DELETE | `/api/v1/page/{pageId}` | `IPages.DeleteAsync` | `PagesTests.DeleteAsync_SendsDelete`, `PagesTests.DeleteAsync_NotFound_ThrowsTheHiveApiException` |
 | Page | PATCH | `/api/v1/page/{pageId}` | `IPages.UpdateAsync` | `PagesTests.UpdateAsync_PatchesEveryProperty`, `PagesTests.UpdateAsync_Empty_SendsEmptyObject` |
-| PageTemplate | POST | `/api/v1/pageTemplate` | | |
-| PageTemplate | DELETE | `/api/v1/pageTemplate/{pageTemplateId}` | | |
-| PageTemplate | PATCH | `/api/v1/pageTemplate/{pageTemplateId}` | | |
+| PageTemplate | POST | `/api/v1/pageTemplate` | `IPageTemplates.CreateAsync` | `PageTemplatesTests.CreateAsync_PostsBodyAndMapsEveryField` |
+| PageTemplate | DELETE | `/api/v1/pageTemplate/{pageTemplateId}` | `IPageTemplates.DeleteAsync` | `PageTemplatesTests.DeleteAsync_SendsDelete` |
+| PageTemplate | PATCH | `/api/v1/pageTemplate/{pageTemplateId}` | `IPageTemplates.UpdateAsync` | `PageTemplatesTests.UpdateAsync_PatchesBody`, `PageTemplatesTests.UpdateAsync_Forbidden_ThrowsTheHiveApiException` |
 | Permission | GET | `/api/v1/permission` | `IPermissions.ListAsync` | `PermissionsTests.ListAsync_GetsAndMapsEveryField` |
 | Profile | POST | `/api/v1/profile` | `IProfiles.CreateAsync` | `ProfilesTests.CreateAsync_PostsBodyAndMapsEveryField` |
 | Profile | DELETE | `/api/v1/profile/{profileId}` | `IProfiles.DeleteAsync` | `ProfilesTests.DeleteAsync_SendsDelete` |

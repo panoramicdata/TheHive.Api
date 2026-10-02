@@ -6,7 +6,7 @@ namespace TheHive.Api.Interfaces;
 /// <summary>
 /// Operations on Knowledge Base pages (organization-wide Markdown pages) and case pages (temporary pages scoped to one case).
 /// To list pages use the query API with <c>listOrganisationPage</c> (Knowledge Base) or <c>listPage</c> (categories).
-/// Page templates are on <c>IPageTemplates</c>.
+/// Page templates are on <see cref="IPageTemplates"/>.
 /// </summary>
 public interface IPages
 {

@@ -56,6 +56,7 @@ public sealed class TheHiveClient : IDisposable
 		AlertFeeders = RestService.For<IAlertFeeders>(_httpClient, Settings);
 		EmailIntake = RestService.For<IEmailIntake>(_httpClient, Settings);
 		Pages = RestService.For<IPages>(_httpClient, Settings);
+		PageTemplates = RestService.For<IPageTemplates>(_httpClient, Settings);
 	}
 
 	/// <summary>Case operations.</summary>
@@ -126,6 +127,9 @@ public sealed class TheHiveClient : IDisposable
 
 	/// <summary>Knowledge Base and case page operations.</summary>
 	public IPages Pages { get; }
+
+	/// <summary>Page template operations.</summary>
+	public IPageTemplates PageTemplates { get; }
 
 	internal HttpClient HttpClient => _httpClient;
 
