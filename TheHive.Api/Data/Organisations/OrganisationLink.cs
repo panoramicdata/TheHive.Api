@@ -4,7 +4,7 @@ namespace TheHive.Api.Data.Organisations;
 
 /// <summary>
 /// A sharing link from an organization to another (the spec's <c>OrganisationLink</c>), as returned in <see cref="Organisation.Links"/>
-/// and sent in <see cref="OrganisationBulkLinkRequest.Links"/>. Unset optional properties are omitted.
+/// and sent in <see cref="OrganisationBulkLinkRequest.Links"/>. Unset optional properties are omitted. The three spec-required members use <c>required</c> deliberately; <c>TheHiveJson.Options</c> ignores it on read, so a response missing one still deserializes.
 /// </summary>
 public sealed class OrganisationLink
 {

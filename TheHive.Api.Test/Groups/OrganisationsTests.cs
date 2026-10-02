@@ -299,6 +299,24 @@ public class OrganisationsTests
 	}
 
 	[Fact]
+	public async Task GetAsync_LinkMissingRequiredLinkType_StillDeserializes()
+	{
+		var json = MinimalOrganisationJson.Replace(
+			"\"locked\"",
+			"\"links\":[{\"toOrganisation\":\"Partner\",\"otherLinkType\":\"supervised\"}],\"locked\"",
+			StringComparison.Ordinal);
+		var stub = Stub(HttpStatusCode.OK, json);
+		using var client = TestClient.Create(stub);
+
+		var result = await client.Organisations.GetAsync("~1", TestContext.Current.CancellationToken);
+
+		var link = result.Links.Should().ContainSingle().Subject;
+		link.ToOrganisation.Should().Be("Partner");
+		link.LinkType.Should().BeNull();
+		link.OtherLinkType.Should().Be("supervised");
+	}
+
+	[Fact]
 	public async Task ReplaceLinksAsync_EmptyAndNull_AreDistinguished()
 	{
 		var stub = new StubHandler();

@@ -19,6 +19,7 @@ public sealed class DashboardUpdateRequest
 	public string? Description { get; set; }
 
 	/// <summary>The new widget layout and configuration, as a JSON object; see <see cref="DashboardCreateRequest.Definition"/>.</summary>
+	/// <remarks>A default (<c>Undefined</c>) <see cref="JsonElement"/> throws <see cref="InvalidOperationException"/> when serialised; leave the property <see langword="null"/> to keep the current definition.</remarks>
 	[JsonPropertyName("definition")]
 	public JsonElement? Definition { get; set; }
 

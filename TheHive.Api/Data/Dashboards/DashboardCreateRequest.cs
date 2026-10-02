@@ -27,6 +27,7 @@ public sealed class DashboardCreateRequest
 	/// the simplest way to build a valid value is to create a dashboard in the TheHive web interface, read it back with
 	/// <c>IDashboards.GetAsync</c> and start from its <c>Definition</c>.
 	/// </summary>
+	/// <remarks>A default (<c>Undefined</c>) <see cref="JsonElement"/> throws <see cref="InvalidOperationException"/> when serialised: supply a real JSON object, for example <c>JsonDocument.Parse(json).RootElement</c>.</remarks>
 	[JsonPropertyName("definition")]
 	public required JsonElement Definition { get; set; }
 

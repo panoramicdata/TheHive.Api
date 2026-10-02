@@ -90,9 +90,9 @@ public interface IOrganisations
 
 	/// <summary>
 	/// Uploads one or more permanent files to the organization (requires <c>manageKnowledgeBase</c>). This is also how to obtain the
-	/// attachment to use for a file observable: copy the <see cref="Attachment.StorageId"/> (wire <c>id</c>), <see cref="Attachment.Name"/> and
-	/// <see cref="Attachment.ContentType"/> of a returned attachment into the <c>ObservableAttachmentReference</c> of an <c>ObservableInput</c>,
-	/// so upload here first and then create the observable from it.
+	/// attachment to use for a file observable: pass the returned <see cref="Attachment.Id"/> (the <c>_id</c>, a <c>~…</c> value, matching the spec example for the observable attachment reference <c>id</c>),
+	/// with <see cref="Attachment.Name"/> and <see cref="Attachment.ContentType"/>, in the <c>ObservableAttachmentReference</c> of an <c>ObservableInput</c>,
+	/// so upload here first and then create the observable from it. (verify) This has not been checked against a live server; the hex storage id, <see cref="Attachment.StorageId"/>, is what the spec calls <c>id</c> on an output attachment.
 	/// </summary>
 	/// <param name="attachments">The files, each sent as a multipart part named <c>attachments</c>. Build each with a file name and,
 	/// ideally, a content type, for example <c>new StreamPart(stream, "sample.exe", "application/octet-stream")</c>; leave the part name unset.</param>
