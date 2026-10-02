@@ -63,6 +63,7 @@ public sealed class TheHiveClient : IDisposable
 		CaseReports = RestService.For<ICaseReports>(_httpClient, Settings);
 		Query = RestService.For<IQuery>(_httpClient, Settings);
 		Describe = RestService.For<IDescribe>(_httpClient, Settings);
+		Branding = RestService.For<IBranding>(_httpClient, Settings);
 		Config = RestService.For<IConfig>(_httpClient, Settings);
 		Status = RestService.For<IStatus>(_httpClient, Settings);
 		License = RestService.For<ILicense>(_httpClient, Settings);
@@ -163,6 +164,9 @@ public sealed class TheHiveClient : IDisposable
 
 	/// <summary>Entity model metadata: the fields of each model that queries can filter, sort and aggregate on.</summary>
 	public IDescribe Describe { get; }
+
+	/// <summary>Branding operations: browser tab title, logos and favicon.</summary>
+	public IBranding Branding { get; }
 
 	/// <summary>Configuration items of the calling user.</summary>
 	public IConfig Config { get; }

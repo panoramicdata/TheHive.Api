@@ -144,10 +144,10 @@ Plan groups: Alerts, Cases, CaseTemplates, Tasks, TaskLogs, Observables, Comment
 | Authentication | POST | `/api/v1/login` | | |
 | Authentication | GET | `/api/v1/logout` | | |
 | Authentication | POST | `/api/v1/logout` | | |
-| Branding | GET | `/api/v1/branding` | | |
-| Branding | POST | `/api/v1/branding` | | |
-| Branding | DELETE | `/api/v1/branding/assets/{kind}` | | |
-| Branding | GET | `/api/v1/branding/assets/{kind}` | | |
+| Branding | GET | `/api/v1/branding` | `IBranding.GetAsync` | `BrandingTests.GetAsync_MapsEveryField`, `BrandingTests.GetAsync_NothingConfigured_MapsNulls` |
+| Branding | POST | `/api/v1/branding` | `IBranding.SetAsync` | `BrandingTests.SetAsync_UploadsTitleAndEveryImageAsParts`, `BrandingTests.SetAsync_TitleOnly_LeavesOutTheNullParts`, `BrandingTests.SetAsync_FaviconOnly_UploadsJustThatPart`, `BrandingTests.SetAsync_NonSeekableStream_IsUploadedOnce`, `BrandingTests.SetAsync_Forbidden_ThrowsTheHiveApiException` |
+| Branding | DELETE | `/api/v1/branding/assets/{kind}` | `IBranding.DeleteAssetAsync` | `BrandingTests.DeleteAssetAsync_SendsDelete`, `BrandingTests.BrandingAssetKinds_HaveTheSpecValues` |
+| Branding | GET | `/api/v1/branding/assets/{kind}` | `IBranding.GetAssetAsync` | `BrandingTests.GetAssetAsync_ReturnsExactBytes_WithoutConditionalHeaderByDefault`, `BrandingTests.GetAssetAsync_NotModified_SendsIfNoneMatchAndThrows` |
 | Case | POST | `/api/v1/case` | `ICases.CreateAsync` | `CasesTests.CreateAsync_PostsBodyAndMapsResult`, `CasesTests.CreateAsync_SerializesEveryFieldWithWireNames` |
 | Case | PATCH | `/api/v1/case/_bulk` | `ICases.BulkUpdateAsync` | `CasesTests.BulkUpdateAsync_PatchesIdsAndFields`, `CasesTests.BulkUpdateAsync_SendsOnlyIdsAndSetFields` |
 | Case | POST | `/api/v1/case/_bulk/access` | `ICases.BulkSetAccessAsync` | `CasesTests.BulkSetAccessAsync_PostsIdsAndAccess` |
