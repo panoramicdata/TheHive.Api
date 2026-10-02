@@ -188,11 +188,11 @@ Plan groups: Alerts, Cases, CaseTemplates, Tasks, TaskLogs, Observables, Comment
 | CaseStatus | POST | `/api/v1/caseStatus` | | |
 | CaseStatus | DELETE | `/api/v1/caseStatus/{id}` | | |
 | CaseStatus | PATCH | `/api/v1/caseStatus/{id}` | | |
-| CaseTemplate | POST | `/api/v1/caseTemplate` | | |
-| CaseTemplate | DELETE | `/api/v1/caseTemplate/{caseTemplateNameOrId}` | | |
-| CaseTemplate | GET | `/api/v1/caseTemplate/{caseTemplateNameOrId}` | | |
-| CaseTemplate | PATCH | `/api/v1/caseTemplate/{caseTemplateNameOrId}` | | |
-| CaseTemplate | PUT | `/api/v1/caseTemplate/{caseTemplateNameOrId}/pageTemplate/link` | | |
+| CaseTemplate | POST | `/api/v1/caseTemplate` | `ICaseTemplates.CreateAsync` | `CaseTemplatesTests.CreateAsync_PostsBodyAndMapsEveryField` |
+| CaseTemplate | DELETE | `/api/v1/caseTemplate/{caseTemplateNameOrId}` | `ICaseTemplates.DeleteAsync` | `CaseTemplatesTests.DeleteAsync_SendsDelete` |
+| CaseTemplate | GET | `/api/v1/caseTemplate/{caseTemplateNameOrId}` | `ICaseTemplates.GetAsync` | `CaseTemplatesTests.GetAsync_FullTemplate_MapsEveryField` |
+| CaseTemplate | PATCH | `/api/v1/caseTemplate/{caseTemplateNameOrId}` | `ICaseTemplates.UpdateAsync` | `CaseTemplatesTests.UpdateAsync_SendsSetValuesAndExplicitNulls` |
+| CaseTemplate | PUT | `/api/v1/caseTemplate/{caseTemplateNameOrId}/pageTemplate/link` | `ICaseTemplates.LinkPageTemplatesAsync` | `CaseTemplatesTests.LinkPageTemplatesAsync_PutsIds` |
 | Comment | POST | `/api/v1/alert/{alertId}/comment` | `IComments.AddToAlertAsync` | `CommentsTests.AddToAlertAsync_PostsBodyAndMapsComment` |
 | Comment | POST | `/api/v1/case/{caseId}/comment` | `IComments.AddToCaseAsync` | `CommentsTests.AddToCaseAsync_PostsBodyAndMapsEveryField`, `CommentsTests.AddToCaseAsync_MessageOnly_OmitsExternal_And_AbsentOptionalsMapToDefaults` |
 | Comment | DELETE | `/api/v1/comment/{commentId}` | `IComments.DeleteAsync` | `CommentsTests.DeleteAsync_SendsDelete`, `CommentsTests.DeleteAsync_Forbidden_ThrowsTheHiveApiException` |

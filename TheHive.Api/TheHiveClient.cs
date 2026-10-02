@@ -40,6 +40,7 @@ public sealed class TheHiveClient : IDisposable
 		TaskLogs = RestService.For<ITaskLogs>(_httpClient, Settings);
 		Observables = RestService.For<IObservables>(_httpClient, Settings);
 		ObservableTypes = RestService.For<IObservableTypes>(_httpClient, Settings);
+		CaseTemplates = RestService.For<ICaseTemplates>(_httpClient, Settings);
 	}
 
 	/// <summary>Case operations.</summary>
@@ -62,6 +63,9 @@ public sealed class TheHiveClient : IDisposable
 
 	/// <summary>Observable type operations.</summary>
 	public IObservableTypes ObservableTypes { get; }
+
+	/// <summary>Case template operations.</summary>
+	public ICaseTemplates CaseTemplates { get; }
 
 	internal HttpClient HttpClient => _httpClient;
 

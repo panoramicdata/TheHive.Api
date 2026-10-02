@@ -10,7 +10,6 @@ Branding
 Case Report
 Case Report Template
 CaseStatus
-CaseTemplate
 Config
 Cortex
 CustomField
