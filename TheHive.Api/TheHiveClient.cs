@@ -63,6 +63,7 @@ public sealed class TheHiveClient : IDisposable
 		CaseReports = RestService.For<ICaseReports>(_httpClient, Settings);
 		Query = RestService.For<IQuery>(_httpClient, Settings);
 		Describe = RestService.For<IDescribe>(_httpClient, Settings);
+		Authentication = RestService.For<IAuthentication>(_httpClient, Settings);
 		Branding = RestService.For<IBranding>(_httpClient, Settings);
 		Config = RestService.For<IConfig>(_httpClient, Settings);
 		Status = RestService.For<IStatus>(_httpClient, Settings);
@@ -164,6 +165,9 @@ public sealed class TheHiveClient : IDisposable
 
 	/// <summary>Entity model metadata: the fields of each model that queries can filter, sort and aggregate on.</summary>
 	public IDescribe Describe { get; }
+
+	/// <summary>Session login and logout, TOTP multifactor set-up and the local password policy.</summary>
+	public IAuthentication Authentication { get; }
 
 	/// <summary>Branding operations: browser tab title, logos and favicon.</summary>
 	public IBranding Branding { get; }

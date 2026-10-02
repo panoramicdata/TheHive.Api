@@ -136,14 +136,14 @@ Plan groups: Alerts, Cases, CaseTemplates, Tasks, TaskLogs, Observables, Comment
 | Att&ck | GET | `/api/v1/pattern/case/{caseId}` | `IPatterns.ListForCaseAsync` | `PatternsTests.ListForCaseAsync_MapsList` |
 | Att&ck | POST | `/api/v1/pattern/import/attack` | `IPatterns.ImportAsync`, `IPatterns.ImportFileAsync` | `PatternsTests.ImportAsync_PostsUrlBody_AndMaps201Result`, `PatternsTests.ImportAsync_PartialSuccess207_IsReturnedWithErrors`, `PatternsTests.ImportFileAsync_UploadsJsonAndFileParts` |
 | Audit | GET | `/api/v1/flow` | `IAudit.GetFlowAsync` | `AuditTests.GetFlowAsync_WithoutArguments_SendsNoQuery_AndMapsEveryField`, `AuditTests.GetFlowAsync_AbsentOptionals_MapToDefaults`, `AuditTests.GetFlowAsync_SendsRootIdAndCount`, `AuditTests.Defaults_AreEmptyNotNull`, `AuditTests.GetFlowAsync_NotFound_ThrowsTheHiveApiException` |
-| Authentication | GET | `/api/v1/auth/local/passwordPolicy` | | |
-| Authentication | GET | `/api/v1/auth/totp/get` | | |
-| Authentication | POST | `/api/v1/auth/totp/set` | | |
-| Authentication | POST | `/api/v1/auth/totp/unset` | | |
-| Authentication | POST | `/api/v1/auth/totp/unset/{user}` | | |
-| Authentication | POST | `/api/v1/login` | | |
-| Authentication | GET | `/api/v1/logout` | | |
-| Authentication | POST | `/api/v1/logout` | | |
+| Authentication | GET | `/api/v1/auth/local/passwordPolicy` | `IAuthentication.GetPasswordPolicyAsync` | `AuthenticationTests.GetPasswordPolicyAsync_MapsEveryRule`, `AuthenticationTests.GetPasswordPolicyAsync_NoRulesConfigured_MapsNulls` |
+| Authentication | GET | `/api/v1/auth/totp/get` | `IAuthentication.GetTotpSecretAsync` | `AuthenticationTests.GetTotpSecretAsync_MapsSecretAndUri`, `AuthenticationTests.TotpSecret_Defaults_AreEmptyNotNull` |
+| Authentication | POST | `/api/v1/auth/totp/set` | `IAuthentication.SetTotpAsync` | `AuthenticationTests.SetTotpAsync_PostsCodeAndSecretInTheBody` |
+| Authentication | POST | `/api/v1/auth/totp/unset` | `IAuthentication.UnsetTotpAsync` | `AuthenticationTests.UnsetTotpAsync_PostsWithoutBody` |
+| Authentication | POST | `/api/v1/auth/totp/unset/{user}` | `IAuthentication.UnsetTotpForUserAsync` | `AuthenticationTests.UnsetTotpForUserAsync_PostsTheLoginAsOnePathSegment` |
+| Authentication | POST | `/api/v1/login` | `IAuthentication.LoginAsync` | `AuthenticationTests.LoginAsync_PostsCredentialsInTheBody_KeepsApiKeyAuth_AndMapsTheUser`, `AuthenticationTests.LoginAsync_RequiredFieldsOnly_OmitsOptionals`, `AuthenticationTests.LoginAsync_WrongCredentials_ThrowsTheHiveApiException` |
+| Authentication | GET | `/api/v1/logout` | `IAuthentication.LogoutByGetAsync` | `AuthenticationTests.LogoutByGetAsync_SendsGet` |
+| Authentication | POST | `/api/v1/logout` | `IAuthentication.LogoutAsync` | `AuthenticationTests.LogoutAsync_SendsPostWithoutBody` |
 | Branding | GET | `/api/v1/branding` | `IBranding.GetAsync` | `BrandingTests.GetAsync_MapsEveryField`, `BrandingTests.GetAsync_NothingConfigured_MapsNulls` |
 | Branding | POST | `/api/v1/branding` | `IBranding.SetAsync` | `BrandingTests.SetAsync_UploadsTitleAndEveryImageAsParts`, `BrandingTests.SetAsync_TitleOnly_LeavesOutTheNullParts`, `BrandingTests.SetAsync_FaviconOnly_UploadsJustThatPart`, `BrandingTests.SetAsync_NonSeekableStream_IsUploadedOnce`, `BrandingTests.SetAsync_Forbidden_ThrowsTheHiveApiException` |
 | Branding | DELETE | `/api/v1/branding/assets/{kind}` | `IBranding.DeleteAssetAsync` | `BrandingTests.DeleteAssetAsync_SendsDelete`, `BrandingTests.BrandingAssetKinds_HaveTheSpecValues` |
