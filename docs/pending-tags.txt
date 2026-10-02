@@ -34,7 +34,6 @@ Share (+Observable)
 Share (+Task)
 Status
 Tag
-Task
 Task Log
 Taxonomy
 Timeline

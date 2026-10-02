@@ -314,14 +314,14 @@ Plan groups: Alerts, Cases, CaseTemplates, Tasks, TaskLogs, Observables, Comment
 | Tag | DELETE | `/api/v1/tag/{tagId}` | | |
 | Tag | GET | `/api/v1/tag/{tagId}` | | |
 | Tag | PATCH | `/api/v1/tag/{tagId}` | | |
-| Task | POST | `/api/v1/case/{caseId}/task` | | |
-| Task | PATCH | `/api/v1/task/_bulk` | | |
-| Task | DELETE | `/api/v1/task/{taskId}` | | |
-| Task | GET | `/api/v1/task/{taskId}` | | |
-| Task | PATCH | `/api/v1/task/{taskId}` | | |
-| Task | PUT | `/api/v1/task/{taskId}/actionDone/{orgId}` | | |
-| Task | GET | `/api/v1/task/{taskId}/actionRequired` | | |
-| Task | PUT | `/api/v1/task/{taskId}/actionRequired/{orgId}` | | |
+| Task | POST | `/api/v1/case/{caseId}/task` | `ITasks.CreateAsync` | `TasksTests.CreateAsync_PostsBodyAndMapsEveryField` |
+| Task | PATCH | `/api/v1/task/_bulk` | `ITasks.BulkUpdateAsync` | `TasksTests.BulkUpdateAsync_PatchesIdsFirstThenFields` |
+| Task | DELETE | `/api/v1/task/{taskId}` | `ITasks.DeleteAsync` | `TasksTests.DeleteAsync_SendsDelete` |
+| Task | GET | `/api/v1/task/{taskId}` | `ITasks.GetAsync` | `TasksTests.GetAsync_FullTask_MapsEveryField` |
+| Task | PATCH | `/api/v1/task/{taskId}` | `ITasks.UpdateAsync` | `TasksTests.UpdateAsync_SerializesEveryFieldWithWireNames` |
+| Task | PUT | `/api/v1/task/{taskId}/actionDone/{orgId}` | `ITasks.SetActionDoneAsync` | `TasksTests.SetActionDoneAsync_PutsToOrganization` |
+| Task | GET | `/api/v1/task/{taskId}/actionRequired` | `ITasks.GetActionRequiredAsync` | `TasksTests.GetActionRequiredAsync_MapsOrganizationFlags` |
+| Task | PUT | `/api/v1/task/{taskId}/actionRequired/{orgId}` | `ITasks.SetActionRequiredAsync` | `TasksTests.SetActionRequiredAsync_PutsToOrganization` |
 | Task Log | GET | `/api/v1/log/{caseId}/attachment/{attachmentId}` (deprecated) | | |
 | Task Log | DELETE | `/api/v1/log/{logId}` | | |
 | Task Log | PATCH | `/api/v1/log/{logId}` | | |

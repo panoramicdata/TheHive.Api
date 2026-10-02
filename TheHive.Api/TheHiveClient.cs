@@ -34,6 +34,7 @@ public sealed class TheHiveClient : IDisposable
 		Cases = RestService.For<ICases>(_httpClient, Settings);
 		Alerts = RestService.For<IAlerts>(_httpClient, Settings);
 		Comments = RestService.For<IComments>(_httpClient, Settings);
+		Tasks = RestService.For<ITasks>(_httpClient, Settings);
 	}
 
 	/// <summary>Case operations.</summary>
@@ -44,6 +45,9 @@ public sealed class TheHiveClient : IDisposable
 
 	/// <summary>Comment operations.</summary>
 	public IComments Comments { get; }
+
+	/// <summary>Task operations.</summary>
+	public ITasks Tasks { get; }
 
 	internal HttpClient HttpClient => _httpClient;
 
