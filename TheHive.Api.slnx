@@ -1,4 +1,5 @@
 <Solution>
 	<Project Path="TheHive.Api/TheHive.Api.csproj" />
 	<Project Path="TheHive.Api.Test/TheHive.Api.Test.csproj" />
+	<Project Path="TheHive.Api.Test.Integration/TheHive.Api.Test.Integration.csproj" />
 </Solution>

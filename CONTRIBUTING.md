@@ -26,6 +26,7 @@ Thank you for your interest in contributing to this project!
 - Use xUnit v3 for all tests
 - Use AwesomeAssertions for fluent assertions
 - Ensure all existing tests pass before submitting a PR
+- Live integration tests (skipped without user-secrets) are described in [TheHive.Api.Test.Integration/README.md](TheHive.Api.Test.Integration/README.md)
 
 ## License
 
