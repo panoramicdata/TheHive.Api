@@ -125,9 +125,9 @@ Plan groups: Alerts, Cases, CaseTemplates, Tasks, TaskLogs, Observables, Comment
 | Alert Feeder | PUT | `/api/v1/connector/alert-feeder/{alertFeederName}` | `IAlertFeeders.UpdateAsync` | `AlertFeedersTests.UpdateAsync_PutsBodyAndMapsTheFeeder` |
 | Alert Feeder | POST | `/api/v1/connector/alert-feeder/run/{alertFeederName}` | `IAlertFeeders.RunAsync` | `AlertFeedersTests.RunAsync_PostsWithoutBody_AndSendsDryRunLowercase` |
 | Alert Feeder | POST | `/api/v1/connector/alert-feeder/test` (verify: response returned as raw text) | `IAlertFeeders.TestAsync` | `AlertFeedersTests.TestAsync_PostsBody_AndReturnsTheRawResponseText` |
-| AlertStatus | POST | `/api/v1/alertStatus` | | |
-| AlertStatus | DELETE | `/api/v1/alertStatus/{id}` | | |
-| AlertStatus | PATCH | `/api/v1/alertStatus/{id}` | | |
+| AlertStatus | POST | `/api/v1/alertStatus` | `IAlertStatuses.CreateAsync` | `AlertStatusesTests.CreateAsync_PostsBodyAndMapsEveryField`, `AlertStatusesTests.CreateAsync_RequiredOnly_OmitsOptionals_And_AbsentOptionalsMapToDefaults`, `AlertStatusesTests.AlertStatus_Defaults_AreEmptyNotNull` |
+| AlertStatus | DELETE | `/api/v1/alertStatus/{id}` | `IAlertStatuses.DeleteAsync` | `AlertStatusesTests.DeleteAsync_SendsDelete`, `AlertStatusesTests.DeleteAsync_StillAssigned_ThrowsTheHiveApiException` |
+| AlertStatus | PATCH | `/api/v1/alertStatus/{id}` | `IAlertStatuses.UpdateAsync` | `AlertStatusesTests.UpdateAsync_PatchesEveryField`, `AlertStatusesTests.UpdateAsync_ExplicitNulls_SendNullToClear`, `AlertStatusesTests.UpdateAsync_Empty_SendsEmptyObject` |
 | Att&ck | POST | `/api/v1/catalog` | `IPatterns.CreateCatalogAsync` | `PatternsTests.CreateCatalogAsync_PostsBodyAndMapsEveryField`, `PatternsTests.CreateCatalogAsync_NameOnly_OmitsOptionals_And_AbsentOptionalsMapToDefaults`, `PatternsTests.Catalog_And_Pattern_Defaults_AreEmptyNotNull` |
 | Att&ck | DELETE | `/api/v1/catalog/{catalogId}` | `IPatterns.DeleteCatalogAsync` | `PatternsTests.DeleteCatalogAsync_SendsDelete` |
 | Att&ck | PATCH | `/api/v1/catalog/{catalogId}` | `IPatterns.UpdateCatalogAsync` | `PatternsTests.UpdateCatalogAsync_PatchesNameAndExplicitNulls`, `PatternsTests.UpdateCatalogAsync_SetsValues_And_EmptyRequestSendsEmptyObject` |

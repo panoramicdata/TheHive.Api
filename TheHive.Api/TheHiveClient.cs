@@ -63,6 +63,7 @@ public sealed class TheHiveClient : IDisposable
 		CaseReports = RestService.For<ICaseReports>(_httpClient, Settings);
 		Query = RestService.For<IQuery>(_httpClient, Settings);
 		Describe = RestService.For<IDescribe>(_httpClient, Settings);
+		AlertStatuses = RestService.For<IAlertStatuses>(_httpClient, Settings);
 		Patterns = RestService.For<IPatterns>(_httpClient, Settings);
 		Procedures = RestService.For<IProcedures>(_httpClient, Settings);
 	}
@@ -156,6 +157,9 @@ public sealed class TheHiveClient : IDisposable
 
 	/// <summary>Entity model metadata: the fields of each model that queries can filter, sort and aggregate on.</summary>
 	public IDescribe Describe { get; }
+
+	/// <summary>Configurable alert status operations.</summary>
+	public IAlertStatuses AlertStatuses { get; }
 
 	/// <summary>Attack technique (MITRE ATT&amp;CK pattern) and catalog operations.</summary>
 	public IPatterns Patterns { get; }
