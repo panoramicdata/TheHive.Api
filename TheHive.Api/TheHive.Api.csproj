@@ -1,0 +1,39 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFramework>net10.0</TargetFramework>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<NeutralResourcesLanguage>en</NeutralResourcesLanguage>
+
+		<PackageId>TheHive.Api</PackageId>
+		<Owners>Panoramic Data Limited</Owners>
+		<PackageProjectUrl>https://github.com/panoramicdata/TheHive.Api</PackageProjectUrl>
+		<RepositoryUrl>https://github.com/panoramicdata/TheHive.Api</RepositoryUrl>
+		<RepositoryType>git</RepositoryType>
+		<PackageLicenseExpression>MIT</PackageLicenseExpression>
+		<PackageIcon>Logo.png</PackageIcon>
+		<Description>.NET 10 client for the TheHive 5 REST API.</Description>
+		<PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+		<IncludeSymbols>true</IncludeSymbols>
+		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
+		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+		<PackageTags>TheHive;StrangeBee;SOAR;IncidentResponse;API;Client;PanoramicData</PackageTags>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
+		<PackageReference Include="Refit" />
+		<PackageReference Include="Nerdbank.GitVersioning" PrivateAssets="all" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<InternalsVisibleTo Include="TheHive.Api.Test" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<None Include="Logo.png" Pack="true" PackagePath="" />
+		<None Include="..\README.md" Link="README.md" Pack="true" PackagePath="" />
+	</ItemGroup>
+
+</Project>

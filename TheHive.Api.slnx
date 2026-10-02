@@ -1,0 +1,4 @@
+<Solution>
+	<Project Path="TheHive.Api/TheHive.Api.csproj" />
+	<Project Path="TheHive.Api.Test/TheHive.Api.Test.csproj" />
+</Solution>
