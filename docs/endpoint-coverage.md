@@ -254,10 +254,10 @@ Plan groups: Alerts, Cases, CaseTemplates, Tasks, TaskLogs, Observables, Comment
 | License | PUT | `/api/v1/license/{licenseId}/activate` | | |
 | License | GET | `/api/v1/license/challenge` | | |
 | License | GET | `/api/v1/license/current` | | |
-| MISP | GET | `/api/v1/connector/misp/_syncAlerts` | | |
-| MISP | POST | `/api/v1/connector/misp/case/import` | | |
-| MISP | POST | `/api/v1/connector/misp/export/{caseId}/{mispName}` | | |
-| MISP | GET | `/api/v1/connector/misp/status` | | |
+| MISP | GET | `/api/v1/connector/misp/_syncAlerts` | `IMisp.SyncAlertsAsync` | `MispTests.SyncAlertsAsync_SendsGetWithoutBody` |
+| MISP | POST | `/api/v1/connector/misp/case/import` | `IMisp.ImportCaseAsync` | `MispTests.ImportCaseAsync_UploadsJsonAndFileParts_AndMapsTheCase` |
+| MISP | POST | `/api/v1/connector/misp/export/{caseId}/{mispName}` | `IMisp.ExportCaseAsync` | `MispTests.ExportCaseAsync_PostsWithEscapedSegments` |
+| MISP | GET | `/api/v1/connector/misp/status` | `IMisp.GetStatusAsync` | `MispTests.GetStatusAsync_Gets_AndReturnsTheRawJson` |
 | Observable | POST | `/api/v1/alert/{alertId}/observable` | `IObservables.CreateInAlertAsync` | `ObservablesTests.CreateInAlertAsync_PostsBodyAndMapsObservables` |
 | Observable | POST | `/api/v1/case/{caseId}/observable` | `IObservables.CreateInCaseAsync` | `ObservablesTests.CreateInCaseAsync_PostsBodyAndMapsEveryField` |
 | Observable | PATCH | `/api/v1/observable/_bulk` | `IObservables.BulkUpdateAsync` | `ObservablesTests.BulkUpdateAsync_PatchesIdsFirstThenFields` |

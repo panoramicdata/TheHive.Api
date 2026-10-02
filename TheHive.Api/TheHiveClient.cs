@@ -51,6 +51,7 @@ public sealed class TheHiveClient : IDisposable
 		Tags = RestService.For<ITags>(_httpClient, Settings);
 		Taxonomies = RestService.For<ITaxonomies>(_httpClient, Settings);
 		Cortex = RestService.For<ICortex>(_httpClient, Settings);
+		Misp = RestService.For<IMisp>(_httpClient, Settings);
 	}
 
 	/// <summary>Case operations.</summary>
@@ -106,6 +107,9 @@ public sealed class TheHiveClient : IDisposable
 
 	/// <summary>Cortex connector operations: analyzers, jobs, analyzer templates and responder actions.</summary>
 	public ICortex Cortex { get; }
+
+	/// <summary>MISP connector operations: status, event synchronization, and case import and export.</summary>
+	public IMisp Misp { get; }
 
 	internal HttpClient HttpClient => _httpClient;
 

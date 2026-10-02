@@ -15,7 +15,6 @@ Describe
 Email Intake
 Function
 License
-MISP
 Page
 PageTemplate
 Query and Export
