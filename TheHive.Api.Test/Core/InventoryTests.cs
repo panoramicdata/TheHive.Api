@@ -1,5 +1,7 @@
 using System.Reflection;
 using System.Text.RegularExpressions;
+using Refit;
+using TheHive.Api.Interfaces;
 
 namespace TheHive.Api.Test.Core;
 
@@ -87,6 +89,88 @@ public partial class InventoryTests
 		}
 
 		AssertNone(offending, "each reference must resolve");
+	}
+
+	[Fact]
+	public void ClientMethods_MatchTheRowVerbAndPath()
+	{
+		var assembly = typeof(TheHiveClient).Assembly;
+		var offending = new List<string>();
+		foreach (var row in Rows.Where(r => r.ClientMethod.Length > 0))
+		{
+			foreach (var (typeName, methodName) in Tokens(row.ClientMethod).Select(Split))
+			{
+				var methods = assembly.GetType($"{InterfaceNamespace}.{typeName}")?.GetMethods().Where(m => m.Name == methodName) ?? [];
+				offending.AddRange(methods.Select(m => CompareRoute(row, m)).OfType<string>());
+			}
+		}
+
+		AssertNone(offending, "each Client method's Refit verb and path must match its row");
+	}
+
+	[Fact]
+	public void CompareRoute_MatchingVerbAndPath_ReturnsNull() =>
+		CompareRoute(
+			new Row(1, "Case", "POST", "`/api/v1/case/_merge/{ids}` (verify: a note)", "", ""),
+			typeof(ICases).GetMethod(nameof(ICases.MergeAsync))!)
+			.Should().BeNull();
+
+	[Fact]
+	public void CompareRoute_WrongVerb_ReportsTheRow()
+	{
+		var row = new Row(9, "Case", "GET", "`/api/v1/case/{idOrName}`", "", "");
+
+		var message = CompareRoute(row, typeof(ICases).GetMethod(nameof(ICases.DeleteAsync))!);
+
+		message.Should().Be("line 9: Case GET `/api/v1/case/{idOrName}`: ICases.DeleteAsync is DELETE api/v1/case/{idOrName}, expected GET api/v1/case/{idOrName}");
+	}
+
+	[Fact]
+	public void CompareRoute_WrongPath_ReportsTheRow()
+	{
+		var row = new Row(9, "Case", "GET", "`/api/v1/case/{caseId}`", "", "");
+
+		var message = CompareRoute(row, typeof(ICases).GetMethod(nameof(ICases.GetAsync))!);
+
+		message.Should().Be("line 9: Case GET `/api/v1/case/{caseId}`: ICases.GetAsync is GET api/v1/case/{idOrName}, expected GET api/v1/case/{caseId}");
+	}
+
+	[Fact]
+	public void CompareRoute_NoRefitAttribute_ReportsTheRow()
+	{
+		var row = new Row(9, "Case", "GET", "`/api/v1/case`", "", "");
+
+		var message = CompareRoute(row, typeof(object).GetMethod(nameof(ToString))!);
+
+		message.Should().Be("line 9: Case GET `/api/v1/case`: Object.ToString has no Refit HTTP method attribute");
+	}
+
+	[Fact]
+	public void PendingTags_AreNotFullyImplemented()
+	{
+		var finished = PendingTags.Where(tag => Rows.Where(r => r.Group == tag && !r.IsDeprecated).All(r => r.IsComplete));
+
+		AssertNone(finished, "a tag whose non-deprecated rows are all filled must be removed from docs/pending-tags.txt");
+	}
+
+	/// <summary>Compares a row's verb and path (the first backticked token of the Path cell, notes ignored) with the Refit attribute on <paramref name="method"/>.</summary>
+	/// <param name="row">The inventory row.</param>
+	/// <param name="method">The interface method the row names.</param>
+	/// <returns><see langword="null"/> when they match; otherwise a message naming the row.</returns>
+	public static string? CompareRoute(Row row, MethodInfo method)
+	{
+		var name = $"{method.DeclaringType!.Name}.{method.Name}";
+		var attribute = method.GetCustomAttribute<HttpMethodAttribute>();
+		if (attribute is null)
+		{
+			return $"{row}: {name} has no Refit HTTP method attribute";
+		}
+
+		var expectedPath = Tokens(row.Path).FirstOrDefault()?.TrimStart('/') ?? string.Empty;
+		var actualVerb = attribute.Method.Method;
+		return actualVerb == row.Method && attribute.Path == expectedPath
+			? null
+			: $"{row}: {name} is {actualVerb} {attribute.Path}, expected {row.Method} {expectedPath}";
 	}
 
 	[Fact]

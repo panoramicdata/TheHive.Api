@@ -19,6 +19,12 @@ public class OptionalTests
 		public required string Name { get; set; }
 	}
 
+	public sealed class JsonStrict
+	{
+		[System.Text.Json.Serialization.JsonRequired]
+		public string? Name { get; set; }
+	}
+
 	[Fact]
 	public void Unset_HasNoValue()
 	{
@@ -98,6 +104,51 @@ public class OptionalTests
 	}
 
 	[Fact]
+	public void Equals_ComparesSetStateAndValue()
+	{
+		Optional<string?> unset = Optional<string?>.Unset;
+		Optional<string?> setNull = null;
+		Optional<string?> setX = "x";
+
+		unset.Equals(Optional<string?>.Unset).Should().BeTrue();
+		setX.Equals(Optional.Of<string?>("x")).Should().BeTrue();
+		unset.Equals(setNull).Should().BeFalse();
+		setX.Equals(Optional.Of<string?>("y")).Should().BeFalse();
+		(setX == Optional.Of<string?>("x")).Should().BeTrue();
+		(setX != setNull).Should().BeTrue();
+		(setX != Optional.Of<string?>("x")).Should().BeFalse();
+	}
+
+	[Fact]
+	public void EqualsObject_RequiresSameOptionalType()
+	{
+		object boxed = Optional.Of(1);
+
+		Optional.Of(1).Equals(boxed).Should().BeTrue();
+		Optional.Of(1).Equals((object)1).Should().BeFalse();
+		Optional.Of(1).Equals(null).Should().BeFalse();
+	}
+
+	[Fact]
+	public void GetHashCode_IsEqualForEqualValues() =>
+		Optional.Of<string?>("x").GetHashCode().Should().Be(Optional.Of<string?>("x").GetHashCode());
+
+	[Theory]
+	[InlineData(false, null, "Unset")]
+	[InlineData(true, null, "Set(null)")]
+	[InlineData(true, "x", "Set(x)")]
+	public void ToString_DescribesState(bool set, string? value, string expected)
+	{
+		var optional = set ? Optional.Of(value) : Optional<string?>.Unset;
+
+		optional.ToString().Should().Be(expected);
+	}
+
+	[Fact]
 	public void Deserialize_MissingRequiredMember_IsTolerated() =>
 		JsonSerializer.Deserialize<Strict>("{}", TheHiveJson.Options)!.Name.Should().BeNull();
+
+	[Fact]
+	public void Deserialize_MissingJsonRequiredMember_IsTolerated() =>
+		JsonSerializer.Deserialize<JsonStrict>("{}", TheHiveJson.Options)!.Name.Should().BeNull();
 }

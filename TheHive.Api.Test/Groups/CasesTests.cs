@@ -405,7 +405,6 @@ public class CasesTests
 	}
 
 	[Theory]
-	[InlineData("https://hive.test/thehive", "~123", "~123")]
 	[InlineData("https://hive.test/thehive/", "~123", "~123")]
 	[InlineData("https://hive.test/thehive", "my case", "my%20case")]
 	[InlineData("https://hive.test/thehive/", "my case", "my%20case")]

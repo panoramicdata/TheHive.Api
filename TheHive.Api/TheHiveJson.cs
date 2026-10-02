@@ -10,6 +10,12 @@ namespace TheHive.Api;
 public static class TheHiveJson
 {
 	/// <summary>The options used by the <see cref="TheHiveClient"/>.</summary>
+	/// <remarks>
+	/// When reading, these options ignore <c>required</c> members (both the C# <c>required</c> modifier and
+	/// <see cref="JsonRequiredAttribute"/>), so a response that leaves such a member out still deserializes; <c>required</c>
+	/// only guards the construction of request objects. When writing, an unset <see cref="Optional{T}"/> property is omitted
+	/// (a set <see langword="null"/> is written as JSON <c>null</c>), and other <see langword="null"/> properties are omitted.
+	/// </remarks>
 	public static JsonSerializerOptions Options { get; } = Create();
 
 	private static JsonSerializerOptions Create()
