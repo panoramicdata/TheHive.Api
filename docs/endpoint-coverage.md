@@ -323,13 +323,13 @@ Plan groups: Alerts, Cases, CaseTemplates, Tasks, TaskLogs, Observables, Comment
 | Task | GET | `/api/v1/task/{taskId}/actionRequired` | `ITasks.GetActionRequiredAsync` | `TasksTests.GetActionRequiredAsync_MapsOrganizationFlags` |
 | Task | PUT | `/api/v1/task/{taskId}/actionRequired/{orgId}` | `ITasks.SetActionRequiredAsync` | `TasksTests.SetActionRequiredAsync_PutsToOrganization` |
 | Task Log | GET | `/api/v1/log/{caseId}/attachment/{attachmentId}` (deprecated) | | |
-| Task Log | DELETE | `/api/v1/log/{logId}` | | |
-| Task Log | PATCH | `/api/v1/log/{logId}` | | |
+| Task Log | DELETE | `/api/v1/log/{logId}` | `ITaskLogs.DeleteAsync` | `TaskLogsTests.DeleteAsync_SendsDelete` |
+| Task Log | PATCH | `/api/v1/log/{logId}` | `ITaskLogs.UpdateAsync` | `TaskLogsTests.UpdateAsync_PatchesMessageAndPin` |
 | Task Log | GET | `/api/v1/log/{logId}/attachment/{attachmentId}/download` (deprecated) | | |
-| Task Log | POST | `/api/v1/log/{logId}/attachments` | | |
-| Task Log | DELETE | `/api/v1/log/{logId}/attachments/{attachmentId}` | | |
-| Task Log | GET | `/api/v1/observable/{observableId}/attachment/{attachmentId}` | | |
-| Task Log | POST | `/api/v1/task/{taskId}/log` | | |
+| Task Log | POST | `/api/v1/log/{logId}/attachments` | `ITaskLogs.AddAttachmentsAsync` | `TaskLogsTests.AddAttachmentsAsync_UploadsEachFileAsAnAttachmentsPart` |
+| Task Log | DELETE | `/api/v1/log/{logId}/attachments/{attachmentId}` | `ITaskLogs.DeleteAttachmentAsync` | `TaskLogsTests.DeleteAttachmentAsync_SendsDelete` |
+| Task Log | GET | `/api/v1/observable/{observableId}/attachment/{attachmentId}` | `ITaskLogs.GetObservableAttachmentAsync` | `TaskLogsTests.GetObservableAttachmentAsync_ReturnsExactBytes_WithoutConditionalHeaderByDefault` |
+| Task Log | POST | `/api/v1/task/{taskId}/log` | `ITaskLogs.CreateAsync` | `TaskLogsTests.CreateAsync_PostsBodyAndMapsEveryField` |
 | Taxonomy | POST | `/api/v1/taxonomy` | | |
 | Taxonomy | DELETE | `/api/v1/taxonomy/{taxonomyId}` | | |
 | Taxonomy | GET | `/api/v1/taxonomy/{taxonomyId}` | | |
