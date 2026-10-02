@@ -41,6 +41,7 @@ public sealed class TheHiveClient : IDisposable
 		Observables = RestService.For<IObservables>(_httpClient, Settings);
 		ObservableTypes = RestService.For<IObservableTypes>(_httpClient, Settings);
 		CaseTemplates = RestService.For<ICaseTemplates>(_httpClient, Settings);
+		CustomFields = RestService.For<ICustomFields>(_httpClient, Settings);
 	}
 
 	/// <summary>Case operations.</summary>
@@ -66,6 +67,9 @@ public sealed class TheHiveClient : IDisposable
 
 	/// <summary>Case template operations.</summary>
 	public ICaseTemplates CaseTemplates { get; }
+
+	/// <summary>Custom field operations.</summary>
+	public ICustomFields CustomFields { get; }
 
 	internal HttpClient HttpClient => _httpClient;
 

@@ -216,10 +216,10 @@ Plan groups: Alerts, Cases, CaseTemplates, Tasks, TaskLogs, Observables, Comment
 | Cortex | GET | `/api/v1/connector/cortex/responders/{entityType}` | | |
 | Cortex | GET | `/api/v1/responder-execution/{scope}/{rootId}` | | |
 | Cortex | GET | `/api/v1/responder-execution/{scope}/{rootId}/count` | | |
-| CustomField | GET | `/api/v1/customField` | | |
-| CustomField | POST | `/api/v1/customField` | | |
-| CustomField | DELETE | `/api/v1/customField/{customFieldId}` | | |
-| CustomField | PATCH | `/api/v1/customField/{customFieldId}` | | |
+| CustomField | GET | `/api/v1/customField` | `ICustomFields.ListAsync` | `CustomFieldsTests.ListAsync_GetsAndMapsEveryField` |
+| CustomField | POST | `/api/v1/customField` | `ICustomFields.CreateAsync` | `CustomFieldsTests.CreateAsync_PostsBodyAndMapsEveryField` |
+| CustomField | DELETE | `/api/v1/customField/{customFieldId}` | `ICustomFields.DeleteAsync` | `CustomFieldsTests.DeleteAsync_Force_SendsLowercaseBoolean` |
+| CustomField | PATCH | `/api/v1/customField/{customFieldId}` | `ICustomFields.UpdateAsync` | `CustomFieldsTests.UpdateAsync_PatchesEveryProperty` |
 | Dashboard | POST | `/api/v1/dashboard` | | |
 | Dashboard | DELETE | `/api/v1/dashboard/{dashboardId}` | | |
 | Dashboard | GET | `/api/v1/dashboard/{dashboardId}` | | |
