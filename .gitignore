@@ -373,3 +373,7 @@ FodyWeavers.xsd
 .github\instructions\codacy.instructions.md
 
 .superpowers/
+
+# Coverage output
+coverage.cobertura.xml
+TestResults/
