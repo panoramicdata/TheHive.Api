@@ -348,13 +348,13 @@ Plan groups: Alerts, Cases, CaseTemplates, Tasks, TaskLogs, Observables, Comment
 | Timeline | POST | `/api/v1/case/{caseId}/customEvent` | `ITimeline.CreateCustomEventAsync` | `TimelineTests.CreateCustomEventAsync_PostsBodyAndMapsEveryField`, `TimelineTests.CreateCustomEventAsync_RequiredOnly_OmitsOptionals_And_AbsentOptionalsMapToDefaults`, `TimelineTests.CustomEvent_Defaults_AreEmptyNotNull` |
 | Timeline | DELETE | `/api/v1/customEvent/{eventId}` | `ITimeline.DeleteCustomEventAsync` | `TimelineTests.DeleteCustomEventAsync_SendsDelete`, `TimelineTests.DeleteCustomEventAsync_NotFound_ThrowsTheHiveApiException` |
 | Timeline | PATCH | `/api/v1/customEvent/{eventId}` | `ITimeline.UpdateCustomEventAsync` | `TimelineTests.UpdateCustomEventAsync_PatchesEveryProperty`, `TimelineTests.UpdateCustomEventAsync_NullEndDateAndDescription_SendExplicitNulls`, `TimelineTests.UpdateCustomEventAsync_Empty_SendsEmptyObject` |
-| TTP | POST | `/api/v1/alert/{alertId}/procedure` | | |
-| TTP | POST | `/api/v1/alert/{alertId}/procedures` | | |
-| TTP | POST | `/api/v1/case/{caseId}/procedure` | | |
-| TTP | POST | `/api/v1/case/{caseId}/procedures` | | |
-| TTP | DELETE | `/api/v1/procedure/{procedureId}` | | |
-| TTP | PATCH | `/api/v1/procedure/{procedureId}` | | |
-| TTP | POST | `/api/v1/procedure/delete/_bulk` | | |
+| TTP | POST | `/api/v1/alert/{alertId}/procedure` | `IProcedures.CreateForAlertAsync` | `ProceduresTests.CreateForAlertAsync_PostsBodyAndMapsEveryField` |
+| TTP | POST | `/api/v1/alert/{alertId}/procedures` | `IProcedures.CreateManyForAlertAsync` | `ProceduresTests.CreateManyForAlertAsync_PostsProceduresArray_AndMapsList` |
+| TTP | POST | `/api/v1/case/{caseId}/procedure` | `IProcedures.CreateForCaseAsync` | `ProceduresTests.CreateForCaseAsync_PostsRequiredFieldsOnly_AndMapsAbsentOptionals`, `ProceduresTests.CreateForCaseAsync_UnknownPattern_ThrowsTheHiveApiException` |
+| TTP | POST | `/api/v1/case/{caseId}/procedures` | `IProcedures.CreateManyForCaseAsync` | `ProceduresTests.CreateManyForCaseAsync_PostsProceduresArray_AndMapsList` |
+| TTP | DELETE | `/api/v1/procedure/{procedureId}` | `IProcedures.DeleteAsync` | `ProceduresTests.DeleteAsync_SendsDelete` |
+| TTP | PATCH | `/api/v1/procedure/{procedureId}` | `IProcedures.UpdateAsync` | `ProceduresTests.UpdateAsync_PatchesEveryField`, `ProceduresTests.UpdateAsync_Empty_SendsEmptyObject` |
+| TTP | POST | `/api/v1/procedure/delete/_bulk` | `IProcedures.BulkDeleteAsync` | `ProceduresTests.BulkDeleteAsync_PostsIds` |
 | User | POST | `/api/v1/user` | `IUsers.CreateAsync` | `UsersTests.CreateAsync_PostsBodyAndMapsEveryField` |
 | User | DELETE | `/api/v1/user/{userId}` (deprecated) | | |
 | User | GET | `/api/v1/user/{userId}` | `IUsers.GetAsync` | `UsersTests.GetAsync_FullUser_MapsEveryField` |

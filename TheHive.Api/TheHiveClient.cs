@@ -63,6 +63,7 @@ public sealed class TheHiveClient : IDisposable
 		CaseReports = RestService.For<ICaseReports>(_httpClient, Settings);
 		Query = RestService.For<IQuery>(_httpClient, Settings);
 		Describe = RestService.For<IDescribe>(_httpClient, Settings);
+		Procedures = RestService.For<IProcedures>(_httpClient, Settings);
 	}
 
 	/// <summary>Case operations.</summary>
@@ -154,6 +155,9 @@ public sealed class TheHiveClient : IDisposable
 
 	/// <summary>Entity model metadata: the fields of each model that queries can filter, sort and aggregate on.</summary>
 	public IDescribe Describe { get; }
+
+	/// <summary>Procedure (TTP) operations: ATT&amp;CK techniques linked to cases and alerts.</summary>
+	public IProcedures Procedures { get; }
 
 	internal HttpClient HttpClient => _httpClient;
 
