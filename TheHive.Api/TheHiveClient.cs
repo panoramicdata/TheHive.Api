@@ -45,6 +45,7 @@ public sealed class TheHiveClient : IDisposable
 		Dashboards = RestService.For<IDashboards>(_httpClient, Settings);
 		Profiles = RestService.For<IProfiles>(_httpClient, Settings);
 		Permissions = RestService.For<IPermissions>(_httpClient, Settings);
+		Organisations = RestService.For<IOrganisations>(_httpClient, Settings);
 	}
 
 	/// <summary>Case operations.</summary>
@@ -82,6 +83,9 @@ public sealed class TheHiveClient : IDisposable
 
 	/// <summary>Permission operations.</summary>
 	public IPermissions Permissions { get; }
+
+	/// <summary>Organization operations, including sharing links and organization-level files.</summary>
+	public IOrganisations Organisations { get; }
 
 	internal HttpClient HttpClient => _httpClient;
 

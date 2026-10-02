@@ -17,7 +17,6 @@ Email Intake
 Function
 License
 MISP
-Organization
 Page
 PageTemplate
 Query and Export
