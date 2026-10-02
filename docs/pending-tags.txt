@@ -4,7 +4,6 @@ Admin
 Audit
 Authentication
 Branding
-CaseStatus
 Config
 License
 Status

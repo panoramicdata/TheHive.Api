@@ -193,9 +193,9 @@ Plan groups: Alerts, Cases, CaseTemplates, Tasks, TaskLogs, Observables, Comment
 | Case Report Template | DELETE | `/api/v1/caseReportTemplate/{templateId}/attachment/{attachmentId}` | `ICaseReportTemplates.DeleteAttachmentAsync` | `CaseReportTemplatesTests.DeleteAttachmentAsync_SendsDelete` |
 | Case Report Template | GET | `/api/v1/caseReportTemplate/{templateId}/attachment/{attachmentId}` | `ICaseReportTemplates.GetAttachmentAsync` | `CaseReportTemplatesTests.GetAttachmentAsync_ReturnsExactBytes_WithoutConditionalHeaderByDefault`, `CaseReportTemplatesTests.GetAttachmentAsync_NotModified_SendsIfNoneMatchAndThrows` |
 | Case Report Template | GET | `/api/v1/caseReportTemplate/{templateId}/attachment/{attachmentId}/download` | `ICaseReportTemplates.DownloadAttachmentAsync` | `CaseReportTemplatesTests.DownloadAttachmentAsync_ReturnsExactBytesAndFileName` |
-| CaseStatus | POST | `/api/v1/caseStatus` | | |
-| CaseStatus | DELETE | `/api/v1/caseStatus/{id}` | | |
-| CaseStatus | PATCH | `/api/v1/caseStatus/{id}` | | |
+| CaseStatus | POST | `/api/v1/caseStatus` | `ICaseStatuses.CreateAsync` | `CaseStatusesTests.CreateAsync_PostsBodyAndMapsEveryField`, `CaseStatusesTests.CreateAsync_RequiredOnly_OmitsOptionals_And_AbsentOptionalsMapToDefaults`, `CaseStatusesTests.CaseStatus_Defaults_AreEmptyNotNull` |
+| CaseStatus | DELETE | `/api/v1/caseStatus/{id}` | `ICaseStatuses.DeleteAsync` | `CaseStatusesTests.DeleteAsync_SendsDelete`, `CaseStatusesTests.DeleteAsync_StillAssigned_ThrowsTheHiveApiException` |
+| CaseStatus | PATCH | `/api/v1/caseStatus/{id}` | `ICaseStatuses.UpdateAsync` | `CaseStatusesTests.UpdateAsync_PatchesEveryField`, `CaseStatusesTests.UpdateAsync_ExplicitNulls_SendNullToClear`, `CaseStatusesTests.UpdateAsync_Empty_SendsEmptyObject` |
 | CaseTemplate | POST | `/api/v1/caseTemplate` | `ICaseTemplates.CreateAsync` | `CaseTemplatesTests.CreateAsync_PostsBodyAndMapsEveryField` |
 | CaseTemplate | DELETE | `/api/v1/caseTemplate/{caseTemplateNameOrId}` | `ICaseTemplates.DeleteAsync` | `CaseTemplatesTests.DeleteAsync_SendsDelete` |
 | CaseTemplate | GET | `/api/v1/caseTemplate/{caseTemplateNameOrId}` | `ICaseTemplates.GetAsync` | `CaseTemplatesTests.GetAsync_FullTemplate_MapsEveryField` |
