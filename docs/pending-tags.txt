@@ -6,7 +6,6 @@ Att&ck
 Audit
 Authentication
 Branding
-Case Report
 CaseStatus
 Config
 Describe

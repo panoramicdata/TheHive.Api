@@ -7,7 +7,7 @@ namespace TheHive.Api.Interfaces;
 /// <summary>
 /// Operations on case report templates: the layouts (widgets, header, footer) used to generate case reports, and the attachments
 /// their <c>Image</c> widgets use. To list templates use the query API with <c>listCaseReportTemplate</c>. Requires a Platinum licence;
-/// writes require <c>manageCaseReportTemplate</c>. Generating reports is on <c>ICaseReports</c>.
+/// writes require <c>manageCaseReportTemplate</c>. Generating reports is on <see cref="ICaseReports"/>.
 /// </summary>
 public interface ICaseReportTemplates
 {
