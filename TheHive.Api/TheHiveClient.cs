@@ -49,6 +49,7 @@ public sealed class TheHiveClient : IDisposable
 		Users = RestService.For<IUsers>(_httpClient, Settings);
 		Shares = RestService.For<IShares>(_httpClient, Settings);
 		Tags = RestService.For<ITags>(_httpClient, Settings);
+		Taxonomies = RestService.For<ITaxonomies>(_httpClient, Settings);
 	}
 
 	/// <summary>Case operations.</summary>
@@ -98,6 +99,9 @@ public sealed class TheHiveClient : IDisposable
 
 	/// <summary>Tag operations.</summary>
 	public ITags Tags { get; }
+
+	/// <summary>Taxonomy operations.</summary>
+	public ITaxonomies Taxonomies { get; }
 
 	internal HttpClient HttpClient => _httpClient;
 

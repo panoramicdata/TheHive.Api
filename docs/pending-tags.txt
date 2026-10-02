@@ -21,7 +21,6 @@ Page
 PageTemplate
 Query and Export
 Status
-Taxonomy
 Timeline
 TTP
 Views
