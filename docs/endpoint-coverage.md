@@ -240,14 +240,14 @@ Plan groups: Alerts, Cases, CaseTemplates, Tasks, TaskLogs, Observables, Comment
 | Email Intake | POST | `/api/v1/connector/email-intake/folders` | | |
 | Email Intake | GET | `/api/v1/connector/email-intake/providers` | | |
 | Email Intake | POST | `/api/v1/connector/email-intake/sync` | | |
-| Function | POST | `/api/v1/function` | | |
-| Function | GET | `/api/v1/function/_context/documentation` | | |
-| Function | POST | `/api/v1/function/_test` | | |
-| Function | POST | `/api/v1/function/{function}` | | |
-| Function | POST | `/api/v1/function/{function}/{objectType}/{objectIdOrName}` | | |
-| Function | DELETE | `/api/v1/function/{functionId}` | | |
-| Function | GET | `/api/v1/function/{functionId}` | | |
-| Function | PATCH | `/api/v1/function/{functionId}` | | |
+| Function | POST | `/api/v1/function` | `IFunctions.CreateAsync` | `FunctionsTests.CreateAsync_PostsBodyAndMapsEveryField` |
+| Function | GET | `/api/v1/function/_context/documentation` | `IFunctions.GetContextDocumentationAsync` | `FunctionsTests.GetContextDocumentationAsync_Gets_AndMapsEveryField` |
+| Function | POST | `/api/v1/function/_test` | `IFunctions.TestAsync` | `FunctionsTests.TestAsync_PostsBodyWithDryRun_AndMapsTheResult` |
+| Function | POST | `/api/v1/function/{function}` | `IFunctions.InvokeAsync` | `FunctionsTests.InvokeAsync_PostsTheInputPayload_WithDryRunFalseLowercase` |
+| Function | POST | `/api/v1/function/{function}/{objectType}/{objectIdOrName}` | `IFunctions.InvokeOnObjectAsync` | `FunctionsTests.InvokeOnObjectAsync_PostsWithoutBody_AndSendsFlagsLowercase` |
+| Function | DELETE | `/api/v1/function/{functionId}` | `IFunctions.DeleteAsync` | `FunctionsTests.DeleteAsync_SendsDelete` |
+| Function | GET | `/api/v1/function/{functionId}` | `IFunctions.GetAsync` | `FunctionsTests.GetAsync_Gets` |
+| Function | PATCH | `/api/v1/function/{functionId}` | `IFunctions.UpdateAsync` | `FunctionsTests.UpdateAsync_PatchesOnlyTheSetFields` |
 | License | GET | `/api/v1/license` | | |
 | License | POST | `/api/v1/license` | | |
 | License | GET | `/api/v1/license/{licenseId}` | | |

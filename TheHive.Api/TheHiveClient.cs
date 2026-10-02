@@ -52,6 +52,7 @@ public sealed class TheHiveClient : IDisposable
 		Taxonomies = RestService.For<ITaxonomies>(_httpClient, Settings);
 		Cortex = RestService.For<ICortex>(_httpClient, Settings);
 		Misp = RestService.For<IMisp>(_httpClient, Settings);
+		Functions = RestService.For<IFunctions>(_httpClient, Settings);
 	}
 
 	/// <summary>Case operations.</summary>
@@ -110,6 +111,9 @@ public sealed class TheHiveClient : IDisposable
 
 	/// <summary>MISP connector operations: status, event synchronization, and case import and export.</summary>
 	public IMisp Misp { get; }
+
+	/// <summary>Function operations: JavaScript functions that process data and call TheHive API.</summary>
+	public IFunctions Functions { get; }
 
 	internal HttpClient HttpClient => _httpClient;
 

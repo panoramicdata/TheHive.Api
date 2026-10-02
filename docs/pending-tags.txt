@@ -13,7 +13,6 @@ CaseStatus
 Config
 Describe
 Email Intake
-Function
 License
 Page
 PageTemplate
