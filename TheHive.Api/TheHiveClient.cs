@@ -54,6 +54,7 @@ public sealed class TheHiveClient : IDisposable
 		Misp = RestService.For<IMisp>(_httpClient, Settings);
 		Functions = RestService.For<IFunctions>(_httpClient, Settings);
 		AlertFeeders = RestService.For<IAlertFeeders>(_httpClient, Settings);
+		EmailIntake = RestService.For<IEmailIntake>(_httpClient, Settings);
 	}
 
 	/// <summary>Case operations.</summary>
@@ -118,6 +119,9 @@ public sealed class TheHiveClient : IDisposable
 
 	/// <summary>Alert feeder operations: scheduled HTTP retrieval of data converted into alerts.</summary>
 	public IAlertFeeders AlertFeeders { get; }
+
+	/// <summary>Email intake operations: mailbox connections that turn emails into alerts.</summary>
+	public IEmailIntake EmailIntake { get; }
 
 	internal HttpClient HttpClient => _httpClient;
 
