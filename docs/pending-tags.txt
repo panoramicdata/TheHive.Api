@@ -1,2 +1,3 @@
 # Spec tags (the Group column of docs/endpoint-coverage.md) whose operations are not implemented yet.
 # InventoryTests tolerates empty rows only for these tags. Remove a tag when its group lands.
+# All groups have landed (batch 8): this list is intentionally empty and must stay that way unless a new spec tag is added to the table.
