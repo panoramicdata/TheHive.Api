@@ -1,11 +1,9 @@
 # TheHive.Api
 
-<!-- TODO(owner): replace PLACEHOLDER in both Codacy badge URLs with the Codacy project id (and, for coverage, enable coverage reporting in Codacy) once the repository is added to Codacy. -->
+<!-- TODO(owner): add Codacy grade/coverage badges once the repo has a Codacy project id -->
 [![NuGet](https://img.shields.io/nuget/v/TheHive.Api.svg)](https://www.nuget.org/packages/TheHive.Api)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![.NET](https://img.shields.io/badge/.NET-10.0-512BD4.svg)](https://dotnet.microsoft.com/)
-[![Codacy Badge](https://app.codacy.com/project/badge/Grade/PLACEHOLDER)](https://app.codacy.com/gh/panoramicdata/TheHive.Api/dashboard)
-[![Codacy Coverage](https://app.codacy.com/project/badge/Coverage/PLACEHOLDER)](https://app.codacy.com/gh/panoramicdata/TheHive.Api/dashboard)
 
 A strongly typed .NET 10 client for the [TheHive 5](https://strangebee.com/thehive/) REST API (StrangeBee), published by Panoramic Data Limited.
 
@@ -165,7 +163,7 @@ Notes: operations tagged `Share` in the spec (cases, tasks, observables) are on 
 
 All of this is implemented in one `DelegatingHandler` and configured through `TheHiveClientOptions`:
 
-- **Retries** (`MaxRetries`, default 3; `RetryBaseDelay`, default 1 s, doubled on each retry; `Retry-After` is honoured when present).
+- **Retries** (`MaxRetries`, default 3; `RetryBaseDelay`, default 1 s, must not be negative, zero means no waiting; doubled on each retry; `Retry-After` is honoured when present). Every wait, back-off or `Retry-After`, is capped at `MaxRetryDelay` (default 30 s, must be greater than zero), so growth cannot overflow and a huge `Retry-After` cannot stall a caller. The options are read once when the client is constructed; changing the options object later has no effect.
   - 429 and 503 are retried for every verb, including `POST` and `PATCH`, because the server did not process the request.
   - Other 5xx responses are retried only for idempotent verbs (`GET`, `HEAD`, `PUT`, `DELETE`, `OPTIONS`, `TRACE`), never `POST` or `PATCH`.
   - A request whose body cannot be replayed (a stream or multipart upload, a case import) is **never retried**, so an upload is never sent twice; its first error response is raised as `TheHiveApiException`.
@@ -187,6 +185,9 @@ All of this is implemented in one `DelegatingHandler` and configured through `Th
 - Operations marked `(verify)` in [docs/endpoint-coverage.md](docs/endpoint-coverage.md) rest on untyped or example-derived spec content and have not all been confirmed against a live server.
 - Enumerations are tolerant: a value this client does not know reads as `Unknown`. Writing a read model back sends `Unknown`, so do not round-trip read models into create or update requests blindly.
 - The 8 deprecated operations are not implemented.
+- The `_type` property is named differently by type: when a schema also has its own `type` property, `_type` maps to `EntityType` and `type` to `Type` (for example `Alert.EntityType`); otherwise `_type` maps to `Type` (for example `Case.Type`). The rule is in the Implementation notes of [docs/endpoint-coverage.md](docs/endpoint-coverage.md).
+- Some models have `required` members (for example `Access`, `OrganisationLink` and several report, feeder and mailbox nested types). They rely on `TheHiveJson.Options` ignoring `required` when reading, so anyone deserialising these types with their own `JsonSerializerOptions` must use `TheHiveJson.Options` (it is read-only; copy it with `new JsonSerializerOptions(TheHiveJson.Options)` to customise).
+- `POST` and `PATCH` are retried only on 429 and 503. If a proxy answers 503 after the server already committed a create, the retry can create a duplicate. Set `MaxRetries = 0` to disable retries.
 
 ## Testing and quality
 
