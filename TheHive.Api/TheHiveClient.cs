@@ -59,6 +59,7 @@ public sealed class TheHiveClient : IDisposable
 		PageTemplates = RestService.For<IPageTemplates>(_httpClient, Settings);
 		Timeline = RestService.For<ITimeline>(_httpClient, Settings);
 		Views = RestService.For<IViews>(_httpClient, Settings);
+		CaseReportTemplates = RestService.For<ICaseReportTemplates>(_httpClient, Settings);
 	}
 
 	/// <summary>Case operations.</summary>
@@ -138,6 +139,9 @@ public sealed class TheHiveClient : IDisposable
 
 	/// <summary>Saved list view operations.</summary>
 	public IViews Views { get; }
+
+	/// <summary>Case report template operations, including their image attachments.</summary>
+	public ICaseReportTemplates CaseReportTemplates { get; }
 
 	internal HttpClient HttpClient => _httpClient;
 

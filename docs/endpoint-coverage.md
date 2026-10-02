@@ -179,15 +179,15 @@ Plan groups: Alerts, Cases, CaseTemplates, Tasks, TaskLogs, Observables, Comment
 | Case Report | GET | `/api/v1/caseReport/{reportId}/view` | | |
 | Case Report | GET | `/api/v1/caseReport/render` | | |
 | Case Report | POST | `/api/v1/caseReport/render` | | |
-| Case Report Template | POST | `/api/v1/caseReportTemplate` | | |
-| Case Report Template | GET | `/api/v1/caseReportTemplate/_info` | | |
-| Case Report Template | DELETE | `/api/v1/caseReportTemplate/{idOrName}` | | |
-| Case Report Template | PATCH | `/api/v1/caseReportTemplate/{idOrName}` | | |
-| Case Report Template | GET | `/api/v1/caseReportTemplate/{templateId}` | | |
-| Case Report Template | POST | `/api/v1/caseReportTemplate/{templateId}/attachment` | | |
-| Case Report Template | DELETE | `/api/v1/caseReportTemplate/{templateId}/attachment/{attachmentId}` | | |
-| Case Report Template | GET | `/api/v1/caseReportTemplate/{templateId}/attachment/{attachmentId}` | | |
-| Case Report Template | GET | `/api/v1/caseReportTemplate/{templateId}/attachment/{attachmentId}/download` | | |
+| Case Report Template | POST | `/api/v1/caseReportTemplate` | `ICaseReportTemplates.CreateAsync` | `CaseReportTemplatesTests.CreateAsync_PostsBodyAndMapsEveryField`, `CaseReportTemplatesTests.CreateAsync_RequiredOnly_OmitsOptionals_And_AbsentOptionalsMapToDefaults`, `CaseReportTemplatesTests.Models_Defaults_AreEmptyNotNull`, `CaseReportTemplatesTests.WidgetKinds_AreTheSpecValues` |
+| Case Report Template | GET | `/api/v1/caseReportTemplate/_info` | `ICaseReportTemplates.GetOptionsAsync` | `CaseReportTemplatesTests.GetOptionsAsync_MapsEveryList` |
+| Case Report Template | DELETE | `/api/v1/caseReportTemplate/{idOrName}` | `ICaseReportTemplates.DeleteAsync` | `CaseReportTemplatesTests.DeleteAsync_SendsDelete` |
+| Case Report Template | PATCH | `/api/v1/caseReportTemplate/{idOrName}` | `ICaseReportTemplates.UpdateAsync` | `CaseReportTemplatesTests.UpdateAsync_PatchesEveryProperty`, `CaseReportTemplatesTests.UpdateAsync_Empty_SendsEmptyObject` |
+| Case Report Template | GET | `/api/v1/caseReportTemplate/{templateId}` | `ICaseReportTemplates.GetAsync` | `CaseReportTemplatesTests.GetAsync_FullTemplate_MapsEveryField_And_UnmodelledWidgetMembersRoundTrip`, `CaseReportTemplatesTests.GetAsync_NotFound_ThrowsTheHiveApiException` |
+| Case Report Template | POST | `/api/v1/caseReportTemplate/{templateId}/attachment` | `ICaseReportTemplates.AddAttachmentsAsync` | `CaseReportTemplatesTests.AddAttachmentsAsync_UploadsEachFileAsAnAttachmentsPart`, `CaseReportTemplatesTests.AddAttachmentsAsync_WithoutCanRename_SendsOnlyFiles` |
+| Case Report Template | DELETE | `/api/v1/caseReportTemplate/{templateId}/attachment/{attachmentId}` | `ICaseReportTemplates.DeleteAttachmentAsync` | `CaseReportTemplatesTests.DeleteAttachmentAsync_SendsDelete` |
+| Case Report Template | GET | `/api/v1/caseReportTemplate/{templateId}/attachment/{attachmentId}` | `ICaseReportTemplates.GetAttachmentAsync` | `CaseReportTemplatesTests.GetAttachmentAsync_ReturnsExactBytes_WithoutConditionalHeaderByDefault`, `CaseReportTemplatesTests.GetAttachmentAsync_NotModified_SendsIfNoneMatchAndThrows` |
+| Case Report Template | GET | `/api/v1/caseReportTemplate/{templateId}/attachment/{attachmentId}/download` | `ICaseReportTemplates.DownloadAttachmentAsync` | `CaseReportTemplatesTests.DownloadAttachmentAsync_ReturnsExactBytesAndFileName` |
 | CaseStatus | POST | `/api/v1/caseStatus` | | |
 | CaseStatus | DELETE | `/api/v1/caseStatus/{id}` | | |
 | CaseStatus | PATCH | `/api/v1/caseStatus/{id}` | | |

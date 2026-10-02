@@ -7,7 +7,6 @@ Audit
 Authentication
 Branding
 Case Report
-Case Report Template
 CaseStatus
 Config
 Describe
