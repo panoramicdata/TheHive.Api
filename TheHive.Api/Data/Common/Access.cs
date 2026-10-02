@@ -5,9 +5,9 @@ namespace TheHive.Api.Data.Common;
 /// <summary>Access control settings (the spec's polymorphic <c>Access</c> schema, flattened).</summary>
 public sealed class Access
 {
-	/// <summary>The access mode.</summary>
+	/// <summary>The access mode. Required when building a request; reads as <see cref="AccessKind.Unknown"/> if a response omits it.</summary>
 	[JsonPropertyName("_kind")]
-	public AccessKind Kind { get; set; }
+	public required AccessKind Kind { get; set; }
 
 	/// <summary>The user logins (email addresses) granted access; only used by <see cref="AccessKind.ExternalAccessKind"/> and <see cref="AccessKind.UserAccessKind"/>.</summary>
 	[JsonPropertyName("users")]

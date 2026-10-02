@@ -11,13 +11,16 @@
 The Cases group is the worked template; copy it for every later group.
 
 - **Spec first.** Paths, verbs, parameter names and bodies come from `docs/openapi/thehive-docs.yaml`, not the plan. Grep for the path, then read the request/response schemas it references.
-- **Models** go in `TheHive.Api/Data/{Group}/` (namespace `TheHive.Api.Data.{Group}`), one type per file: the output entity (e.g. `Case`), `{Entity}CreateRequest`, `{Entity}UpdateRequest`. Cover every property of the spec schema with `[JsonPropertyName("wireName")]` and XML docs. Required output strings default to `string.Empty`, collections to `[]`; optional values are nullable. Request properties are nullable (nulls are omitted by `TheHiveJson.Options`) except the schema's required ones, which use `required`.
+- **Models** go in `TheHive.Api/Data/{Group}/` (namespace `TheHive.Api.Data.{Group}`), one type per file: the output entity (e.g. `Case`), `{Entity}CreateRequest`, `{Entity}UpdateRequest`. Cover every property of the spec schema with `[JsonPropertyName("wireName")]` and XML docs. Required output strings default to `string.Empty`, collections to `[]`; optional values are nullable. Request properties are nullable (nulls are omitted by `TheHiveJson.Options`) except the schema's required ones, which use `required`. C# `required` only applies when constructing an object. `TheHiveJson.Options` clears `IsRequired`, so a response that leaves out such a member still deserializes.
+- **Naming:** `{Entity}CreateRequest` / `{Entity}UpdateRequest` are reserved for an endpoint's **top-level** request body. A schema nested inside a body is named for what it is, e.g. `ShareSettings` (the spec's `InputShare`, nested in `CaseCreateRequest.SharingParameters`), `CustomFieldInput`. Entity types that would clash with BCL names are prefixed, e.g. `CaseTaskCreateRequest` / `CaseTaskStatus`, not `Task*`.
+- **Clearing a field: `Optional<T>`.** Every update model uses `Optional<T>` (in `Data/Common/`) for each field the spec says can be cleared by sending `null` ("Send `null` to unset/unassign/clear"). Use a nullable `T`, e.g. `Optional<string?>` or `Optional<DateTimeOffset?>`. If the property is left unset it is omitted (a `TheHiveJson` type-info modifier handles this for every `Optional<T>`, so no attribute is needed). Assigning `null` sends `"field":null`, and assigning a value sends the value through the normal converters. Other update fields stay plain nullable and are omitted when null.
 - **Types:** epoch-millisecond integers become `DateTimeOffset`/`DateTimeOffset?`; durations in ms stay `long`; string enums become tolerant enums with `Unknown = 0` first (use `[JsonStringEnumMemberName("wire")]` when the wire name is not the C# name, e.g. `autoShare`); integer "enums" (severity, TLP, PAP) stay `int` with named constants in `Data/Common/Severity.cs`, `Tlp.cs`, `Pap.cs`. Configurable values (case status names) stay `string`.
-- **Shared value types** live in `Data/Common/` (`Access`, `AccessKind`, `CustomFieldValue`, `CustomFieldInput`, `SharingRule`, ...). Reuse them; do not duplicate.
-- **Interface** in `TheHive.Api/Interfaces/I{Group}.cs`. Refit attribute paths are relative, with no leading slash (`[Get("api/v1/case/{idOrName}")]`), and parameter names match the spec's path names. Every method takes `CancellationToken cancellationToken = default`.
+- **Shared value types** live in `Data/Common/` (`Access`, `AccessKind`, `CustomFieldValue`, `CustomFieldInput`, `SharingRule`, `Optional<T>`, ...). Reuse them; do not duplicate.
+- **Interface** in `TheHive.Api/Interfaces/I{Group}.cs`. Refit attribute paths are relative, with no leading slash (`[Get("api/v1/case/{idOrName}")]`), and parameter names match the spec's path names. Every method takes `CancellationToken cancellationToken = default`. The client uses Refit's `UrlResolutionMode.Rfc3986`, which is what lets relative paths append to a path-prefixed BaseUrl.
+- **Path values are escaped as a single segment** (`Uri.EscapeDataString`). `my case` becomes `my%20case`, `a/b` becomes `a%2Fb`, `a#b` becomes `a%23b`, `a?b` becomes `a%3Fb`, and `~` is not escaped (pinned by `CasesTests.GetAsync_EscapesIdOrNameAsOneSegment`). So a name containing `/` stays one segment, provided the server or proxy does not decode `%2F`. The dot segments `.` and `..` are **not** guarded on the client; ids and names are validated by the server. A comma-separated list in one path parameter (merge `{ids}`) is sent as `%2C`.
 - **Client property:** `public I{Group} {Group} { get; }` on `TheHiveClient`, assigned in the constructor with `RestService.For<I{Group}>(_httpClient, Settings);`.
 - **Tests** in `TheHive.Api.Test/Groups/{Group}Tests.cs` using `StubHandler` and `TestClient.Create`: for each method assert verb, path and body, and map a full JSON sample (every property). Pass `TestContext.Current.CancellationToken`. Keep 100% line and branch coverage.
-- **This table:** fill in the Client method and Test columns for each implemented row.
+- **This table:** for each implemented row, fill in the Client method column as `` `I{Group}.{Method}` `` and the Test column as `` `{Class}.{TestMethod}` `` (several are allowed, comma-separated, each in backticks). Fill both or neither. `InventoryTests` resolves both by reflection, and checks that every method of every interface in `TheHive.Api.Interfaces` is listed and that no deprecated row is implemented. `docs/pending-tags.txt` lists the Group values whose rows may still be empty. **Remove the group's tag from that file when it lands**, and the test then requires every non-deprecated row of the group to be filled. Notes on a row (such as `(verify)`) go in the Path column, after the path.
 
 ## Summary by spec tag
 
@@ -132,7 +135,7 @@ Plan groups: Alerts, Cases, CaseTemplates, Tasks, TaskLogs, Observables, Comment
 | Case | PATCH | `/api/v1/case/_bulk` | | |
 | Case | POST | `/api/v1/case/_bulk/access` | | |
 | Case | POST | `/api/v1/case/_bulk/caseTemplate` | | |
-| Case | POST | `/api/v1/case/_merge/{ids}` | `ICases.MergeAsync` | `CasesTests.MergeAsync_PostsToMergePathAndMapsNewCase` |
+| Case | POST | `/api/v1/case/_merge/{ids}` (verify: comma-separated `{ids}` is assumed, not stated by the spec) | `ICases.MergeAsync` | `CasesTests.MergeAsync_PostsToMergePathAndMapsNewCase` |
 | Case | POST | `/api/v1/case/{caseId}/access` | | |
 | Case | DELETE | `/api/v1/case/{caseId}/alert/{alertId}` | | |
 | Case | DELETE | `/api/v1/case/{caseId}/attachment/{attachmentId}` | | |
@@ -151,8 +154,8 @@ Plan groups: Alerts, Cases, CaseTemplates, Tasks, TaskLogs, Observables, Comment
 | Case | GET | `/api/v1/case/{caseId}/similar/{alertOrCaseId}/observables` | | |
 | Case (+Timeline) | GET | `/api/v1/case/{caseId}/timeline` | | |
 | Case | DELETE | `/api/v1/case/{idOrName}` | `ICases.DeleteAsync` | `CasesTests.DeleteAsync_SendsDelete` |
-| Case | GET | `/api/v1/case/{idOrName}` | `ICases.GetAsync` | `CasesTests.GetAsync_MapsEveryCaseField`, `CasesTests.GetAsync_UnknownStage_And_AbsentOptionals`, `CasesTests.GetAsync_NotFound_ThrowsTheHiveApiException`, `CasesTests.GetAsync_PathPrefixedBaseUrl_KeepsPrefix` |
-| Case | PATCH | `/api/v1/case/{idOrName}` | `ICases.UpdateAsync` | `CasesTests.UpdateAsync_PatchesOnlySetFields`, `CasesTests.UpdateAsync_SerializesEveryFieldWithWireNames` |
+| Case | GET | `/api/v1/case/{idOrName}` | `ICases.GetAsync` | `CasesTests.GetAsync_MapsEveryCaseField`, `CasesTests.GetAsync_UnknownStage_And_AbsentOptionals`, `CasesTests.GetAsync_NotFound_ThrowsTheHiveApiException`, `CasesTests.GetAsync_PathPrefixedBaseUrl_KeepsPrefix`, `CasesTests.GetAsync_EscapesIdOrNameAsOneSegment`, `CasesTests.GetAsync_AccessWithoutKind_ReadsUnknown` |
+| Case | PATCH | `/api/v1/case/{idOrName}` | `ICases.UpdateAsync` | `CasesTests.UpdateAsync_PatchesOnlySetFields`, `CasesTests.UpdateAsync_SerializesEveryFieldWithWireNames`, `CasesTests.UpdateAsync_ExplicitNull_SendsNullToUnset` |
 | Case | DELETE | `/api/v1/case/customField/{cfId}` | | |
 | Case | POST | `/api/v1/case/import` | | |
 | Case | GET | `/api/v1/case/link/types` | | |

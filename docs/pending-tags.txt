@@ -1,0 +1,48 @@
+# Spec tags (the Group column of docs/endpoint-coverage.md) whose operations are not implemented yet.
+# InventoryTests tolerates empty rows only for these tags. Remove a tag when its group lands.
+# Case: 5 of 25 implementable operations done (create, get, update, delete, merge); the rest come in a later batch.
+Admin
+Alert
+Alert Feeder
+AlertStatus
+Att&ck
+Audit
+Authentication
+Branding
+Case
+Case (+Timeline)
+Case Report
+Case Report Template
+CaseStatus
+CaseTemplate
+Comment
+Config
+Cortex
+CustomField
+Dashboard
+Describe
+Email Intake
+Function
+License
+MISP
+Observable
+Observable Type
+Organization
+Page
+PageTemplate
+Permission
+Profile
+Query and Export
+Share
+Share (+Case)
+Share (+Observable)
+Share (+Task)
+Status
+Tag
+Task
+Task Log
+Taxonomy
+Timeline
+TTP
+User
+Views

@@ -105,7 +105,7 @@ public sealed class Case
 
 	/// <summary>The access control settings.</summary>
 	[JsonPropertyName("access")]
-	public Access Access { get; set; } = new();
+	public Access Access { get; set; } = new() { Kind = AccessKind.Unknown };
 
 	/// <summary>The custom field values.</summary>
 	[JsonPropertyName("customFields")]

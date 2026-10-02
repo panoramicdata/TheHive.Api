@@ -140,9 +140,30 @@ public class CasesTests
 		item.TlpLabel.Should().BeEmpty();
 		item.PapLabel.Should().BeEmpty();
 		item.Status.Should().BeEmpty();
-		item.Access.Should().NotBeNull();
+		item.Access.Kind.Should().Be(AccessKind.Unknown);
 		item.ExtraData.Should().BeEmpty();
-		new CustomFieldValue().Name.Should().BeEmpty();
+	}
+
+	[Fact]
+	public void CustomFieldValue_Defaults_AreEmptyNotNull()
+	{
+		var value = new CustomFieldValue();
+
+		value.Id.Should().BeEmpty();
+		value.Name.Should().BeEmpty();
+		value.Type.Should().BeEmpty();
+	}
+
+	[Fact]
+	public async Task GetAsync_AccessWithoutKind_ReadsUnknown()
+	{
+		var stub = new StubHandler();
+		stub.Enqueue(HttpStatusCode.OK, MinimalCaseJson.Replace("""{"_kind":"OrganisationAccessKind"}""", "{}"));
+		using var client = TestClient.Create(stub);
+
+		var result = await client.Cases.GetAsync("~123", TestContext.Current.CancellationToken);
+
+		result.Access.Kind.Should().Be(AccessKind.Unknown);
 	}
 
 	[Fact]
@@ -205,7 +226,7 @@ public class CasesTests
 			Pages = [new PageCreateRequest { Title = "Notes", Content = "c", Order = 0, Category = "Investigation" }],
 			SharingParameters =
 			[
-				new ShareCreateRequest
+				new ShareSettings
 				{
 					Organisation = "Org",
 					Share = true,
@@ -295,6 +316,40 @@ public class CasesTests
 			"""{"title":"t","description":"d","severity":1,"startDate":10,"endDate":20,"tags":["a"],"flag":false,"tlp":0,"pap":2,"status":"InProgress","summary":"s","assignee":"sami@example.com","impactStatus":"NotApplicable","customFields":[{"name":"severity","value":3}],"taskRule":"autoShare","observableRule":"manual","addTags":["ransomware"],"removeTags":["old"]}""");
 	}
 
+	[Theory]
+	[InlineData("endDate")]
+	[InlineData("summary")]
+	[InlineData("assignee")]
+	[InlineData("impactStatus")]
+	public async Task UpdateAsync_ExplicitNull_SendsNullToUnset(string field)
+	{
+		var stub = new StubHandler();
+		stub.Enqueue(HttpStatusCode.NoContent, "");
+		using var client = TestClient.Create(stub);
+		var request = field switch
+		{
+			"endDate" => new CaseUpdateRequest { EndDate = null },
+			"summary" => new CaseUpdateRequest { Summary = null },
+			"assignee" => new CaseUpdateRequest { Assignee = null },
+			_ => new CaseUpdateRequest { ImpactStatus = null }
+		};
+
+		await client.Cases.UpdateAsync("~123", request, TestContext.Current.CancellationToken);
+
+		stub.Calls[0].Body.Should().Be($$"""{"{{field}}":null}""");
+	}
+
+	[Fact]
+	public void CaseUpdateRequest_ClearableFields_DefaultToUnset()
+	{
+		var request = new CaseUpdateRequest();
+
+		request.EndDate.HasValue.Should().BeFalse();
+		request.Summary.HasValue.Should().BeFalse();
+		request.Assignee.HasValue.Should().BeFalse();
+		request.ImpactStatus.HasValue.Should().BeFalse();
+	}
+
 	[Fact]
 	public async Task DeleteAsync_SendsDelete()
 	{
@@ -319,7 +374,7 @@ public class CasesTests
 		var result = await client.Cases.MergeAsync("~1,~2", TestContext.Current.CancellationToken);
 
 		stub.Calls[0].Method.Should().Be(HttpMethod.Post);
-		Uri.UnescapeDataString(stub.Calls[0].Uri.AbsolutePath).Should().Be("/api/v1/case/_merge/~1,~2");
+		stub.Calls[0].Uri.AbsolutePath.Should().Be("/api/v1/case/_merge/~1%2C~2");
 		result.Id.Should().Be("~123");
 	}
 
@@ -347,5 +402,27 @@ public class CasesTests
 		await client.Cases.GetAsync("~123", TestContext.Current.CancellationToken);
 
 		stub.Calls[0].Uri.ToString().Should().Be("https://hive.test/thehive/api/v1/case/~123");
+	}
+
+	[Theory]
+	[InlineData("https://hive.test/thehive", "~123", "~123")]
+	[InlineData("https://hive.test/thehive/", "~123", "~123")]
+	[InlineData("https://hive.test/thehive", "my case", "my%20case")]
+	[InlineData("https://hive.test/thehive/", "my case", "my%20case")]
+	[InlineData("https://hive.test/thehive", "a/b", "a%2Fb")]
+	[InlineData("https://hive.test/thehive/", "a/b", "a%2Fb")]
+	[InlineData("https://hive.test/thehive", "a#b", "a%23b")]
+	[InlineData("https://hive.test/thehive/", "a#b", "a%23b")]
+	[InlineData("https://hive.test/thehive", "a?b", "a%3Fb")]
+	[InlineData("https://hive.test/thehive/", "a?b", "a%3Fb")]
+	public async Task GetAsync_EscapesIdOrNameAsOneSegment(string baseUrl, string idOrName, string expectedSegment)
+	{
+		var stub = new StubHandler();
+		stub.Enqueue(HttpStatusCode.OK, MinimalCaseJson);
+		using var client = TestClient.Create(stub, o => o.BaseUrl = baseUrl);
+
+		await client.Cases.GetAsync(idOrName, TestContext.Current.CancellationToken);
+
+		stub.Calls[0].Uri.AbsoluteUri.Should().Be($"https://hive.test/thehive/api/v1/case/{expectedSegment}");
 	}
 }

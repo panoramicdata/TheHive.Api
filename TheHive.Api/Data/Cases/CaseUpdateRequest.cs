@@ -3,7 +3,7 @@ using TheHive.Api.Data.Common;
 
 namespace TheHive.Api.Data.Cases;
 
-/// <summary>The body of an update-case request (the spec's <c>InputUpdateCase</c>). Only set properties are sent; the rest keep their values.</summary>
+/// <summary>The body of an update-case request (the spec's <c>InputUpdateCase</c>). Only set properties are sent; the rest keep their values. Set an <see cref="Optional{T}"/> property to <see langword="null"/> to clear that field.</summary>
 public sealed class CaseUpdateRequest
 {
 	/// <summary>The new title (1 to 512 characters).</summary>
@@ -22,9 +22,9 @@ public sealed class CaseUpdateRequest
 	[JsonPropertyName("startDate")]
 	public DateTimeOffset? StartDate { get; set; }
 
-	/// <summary>The new incident end date.</summary>
+	/// <summary>The new incident end date; set to <see langword="null"/> to clear it.</summary>
 	[JsonPropertyName("endDate")]
-	public DateTimeOffset? EndDate { get; set; }
+	public Optional<DateTimeOffset?> EndDate { get; set; }
 
 	/// <summary>Replaces all current tags with this set.</summary>
 	[JsonPropertyName("tags")]
@@ -46,17 +46,17 @@ public sealed class CaseUpdateRequest
 	[JsonPropertyName("status")]
 	public string? Status { get; set; }
 
-	/// <summary>The new investigation summary.</summary>
+	/// <summary>The new investigation summary; set to <see langword="null"/> to clear it.</summary>
 	[JsonPropertyName("summary")]
-	public string? Summary { get; set; }
+	public Optional<string?> Summary { get; set; }
 
-	/// <summary>The login of the user to assign.</summary>
+	/// <summary>The login of the user to assign; set to <see langword="null"/> to unassign.</summary>
 	[JsonPropertyName("assignee")]
-	public string? Assignee { get; set; }
+	public Optional<string?> Assignee { get; set; }
 
-	/// <summary>The impact verdict, relevant when closing with the <c>TruePositive</c> status.</summary>
+	/// <summary>The impact verdict, relevant when closing with the <c>TruePositive</c> status; set to <see langword="null"/> to clear it.</summary>
 	[JsonPropertyName("impactStatus")]
-	public ImpactStatus? ImpactStatus { get; set; }
+	public Optional<ImpactStatus?> ImpactStatus { get; set; }
 
 	/// <summary>The custom field values; in this array form, custom fields not listed are deleted.</summary>
 	[JsonPropertyName("customFields")]

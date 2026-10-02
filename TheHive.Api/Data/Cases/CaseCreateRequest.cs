@@ -79,7 +79,7 @@ public sealed class CaseCreateRequest
 
 	/// <summary>Per-organization sharing settings that override the organization-level sharing rules.</summary>
 	[JsonPropertyName("sharingParameters")]
-	public List<ShareCreateRequest>? SharingParameters { get; set; }
+	public List<ShareSettings>? SharingParameters { get; set; }
 
 	/// <summary>The task-sharing rule for the owner organization.</summary>
 	[JsonPropertyName("taskRule")]

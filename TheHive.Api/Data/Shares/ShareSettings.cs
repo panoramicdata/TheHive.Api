@@ -3,8 +3,11 @@ using TheHive.Api.Data.Common;
 
 namespace TheHive.Api.Data.Shares;
 
-/// <summary>Sharing settings for one linked organization (the spec's <c>InputShare</c>). Unset properties are omitted.</summary>
-public sealed class ShareCreateRequest
+/// <summary>
+/// The per-organisation share entry nested in create requests, such as <c>CaseCreateRequest.SharingParameters</c>
+/// (the spec's <c>InputShare</c>). Unset properties are omitted.
+/// </summary>
+public sealed class ShareSettings
 {
 	/// <summary>The name or ID of a linked organization.</summary>
 	[JsonPropertyName("organisation")]

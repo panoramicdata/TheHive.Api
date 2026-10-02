@@ -48,6 +48,7 @@ public class TolerantEnumConverterTests
 	[InlineData("\"autoShare\"", Rule.AutoShare)]
 	[InlineData("\"MANUAL\"", Rule.Manual)]
 	[InlineData("\"sometimes\"", Rule.Unknown)]
+	[InlineData("\"1\"", Rule.Unknown)]
 	public void Read_MemberNameAttribute_UsesWireName(string json, Rule expected) =>
 		JsonSerializer.Deserialize<Rule>(json, Options).Should().Be(expected);
 
