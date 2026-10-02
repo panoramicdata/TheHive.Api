@@ -313,9 +313,9 @@ Plan groups: Alerts, Cases, CaseTemplates, Tasks, TaskLogs, Observables, Comment
 | Share (+Task) | POST | `/api/v1/task/{taskId}/shares` | `IShares.ShareTaskAsync` | `SharesTests.ShareTaskAsync_PostsOrganisations` |
 | Status | GET | `/api/v1/status` | | |
 | Status | GET | `/api/v1/status/public` | | |
-| Tag | DELETE | `/api/v1/tag/{tagId}` | | |
-| Tag | GET | `/api/v1/tag/{tagId}` | | |
-| Tag | PATCH | `/api/v1/tag/{tagId}` | | |
+| Tag | DELETE | `/api/v1/tag/{tagId}` | `ITags.DeleteAsync` | `TagsTests.DeleteAsync_SendsDelete` |
+| Tag | GET | `/api/v1/tag/{tagId}` | `ITags.GetAsync` | `TagsTests.GetAsync_FullTag_MapsEveryField` |
+| Tag | PATCH | `/api/v1/tag/{tagId}` | `ITags.UpdateAsync` | `TagsTests.UpdateAsync_PatchesEveryProperty` |
 | Task | POST | `/api/v1/case/{caseId}/task` | `ITasks.CreateAsync` | `TasksTests.CreateAsync_PostsBodyAndMapsEveryField` |
 | Task | PATCH | `/api/v1/task/_bulk` | `ITasks.BulkUpdateAsync` | `TasksTests.BulkUpdateAsync_PatchesIdsFirstThenFields` |
 | Task | DELETE | `/api/v1/task/{taskId}` | `ITasks.DeleteAsync` | `TasksTests.DeleteAsync_SendsDelete` |

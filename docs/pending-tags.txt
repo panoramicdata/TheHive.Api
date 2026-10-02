@@ -21,7 +21,6 @@ Page
 PageTemplate
 Query and Export
 Status
-Tag
 Taxonomy
 Timeline
 TTP
