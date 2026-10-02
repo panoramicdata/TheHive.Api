@@ -9,7 +9,7 @@ public interface IObservables
 	/// <summary>Adds one or more observables to a case (requires <c>manageObservable</c>).</summary>
 	/// <param name="caseId">The case ID preceded by <c>~</c>, or the case number.</param>
 	/// <param name="request">The observable to create; one observable is created per value in <c>Data</c>.
-	/// Only the JSON form is modelled: for a file observable, reference an attachment already stored in TheHive. That needs an existing attachment ID from the organization attachment upload (<c>POST /api/v1/attachment</c>, implemented in a later batch); until then only data observables can be created through this client.</param>
+	/// Only the JSON form is modelled: for a file observable, reference an attachment already stored in TheHive. That needs an existing attachment ID from the organization attachment upload (<c>POST /api/v1/attachment</c>, see <see cref="IOrganisations.UploadAttachmentsAsync"/>).</param>
 	/// <param name="dataType">The observable type, used by the server only when <c>request.DataType</c> is missing; omitted when <see langword="null"/>.</param>
 	/// <param name="cancellationToken">A cancellation token.</param>
 	/// <returns>The created observables.</returns>
@@ -23,7 +23,7 @@ public interface IObservables
 	/// <summary>Adds one or more observables to an alert (requires <c>manageObservable</c>).</summary>
 	/// <param name="alertId">The alert ID preceded by <c>~</c>.</param>
 	/// <param name="request">The observable to create; one observable is created per value in <c>Data</c>.
-	/// Only the JSON form is modelled: for a file observable, reference an attachment already stored in TheHive. That needs an existing attachment ID from the organization attachment upload (<c>POST /api/v1/attachment</c>, implemented in a later batch); until then only data observables can be created through this client.</param>
+	/// Only the JSON form is modelled: for a file observable, reference an attachment already stored in TheHive. That needs an existing attachment ID from the organization attachment upload (<c>POST /api/v1/attachment</c>, see <see cref="IOrganisations.UploadAttachmentsAsync"/>).</param>
 	/// <param name="dataType">The observable type, used by the server only when <c>request.DataType</c> is missing; omitted when <see langword="null"/>.</param>
 	/// <param name="cancellationToken">A cancellation token.</param>
 	/// <returns>The created observables.</returns>
