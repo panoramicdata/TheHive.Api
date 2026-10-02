@@ -4,6 +4,7 @@ using TheHive.Api.Data.Common;
 namespace TheHive.Api.Data.Cases;
 
 /// <summary>The body of an update-case request (the spec's <c>InputUpdateCase</c>). Only set properties are sent; the rest keep their values. Set an <see cref="Optional{T}"/> property to <see langword="null"/> to clear that field.</summary>
+/// <remarks><see cref="CaseBulkUpdateRequest"/> derives from this class; passing a bulk request to <c>ICases.UpdateAsync</c> would also send its <c>ids</c>.</remarks>
 public class CaseUpdateRequest
 {
 	/// <summary>The new title (1 to 512 characters).</summary>

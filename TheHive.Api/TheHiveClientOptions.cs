@@ -15,18 +15,25 @@ public class TheHiveClientOptions
 	public string? Organisation { get; set; }
 
 	/// <summary>
-	/// HTTP timeout per attempt. It does not include retry back-off or <c>Retry-After</c> waits.
+	/// HTTP timeout per attempt, covering sending the request body and receiving the response headers (so large uploads
+	/// need a larger value). It does not include retry back-off or <c>Retry-After</c> waits, nor reading a downloaded body
+	/// after the headers arrive; pass a cancellation token to <c>ReadAs*Async</c> to bound that.
 	/// An attempt that exceeds it raises a <see cref="TimeoutException"/>; caller cancellation still raises <see cref="OperationCanceledException"/>.
 	/// </summary>
 	public TimeSpan Timeout { get; set; } = TimeSpan.FromSeconds(100);
 
-	/// <summary>Maximum retries for 429 and 5xx responses.</summary>
+	/// <summary>
+	/// Maximum retries of a transient failure. Any verb is retried on 429 and 503; other 5xx responses are retried only for
+	/// idempotent verbs (GET, HEAD, PUT, DELETE, OPTIONS, TRACE), never POST or PATCH. Requests with a stream or multipart body
+	/// (file uploads, case import) are never retried, so an upload is never sent twice; their first error response is raised as
+	/// <see cref="TheHiveApiException"/>.
+	/// </summary>
 	public int MaxRetries { get; set; } = 3;
 
 	/// <summary>Initial back-off, doubled on each retry.</summary>
 	public TimeSpan RetryBaseDelay { get; set; } = TimeSpan.FromSeconds(1);
 
-	/// <summary>Optional logger. The API key is never logged.</summary>
+	/// <summary>Optional logger. The API key and request query strings (which may hold secrets such as an export password) are never logged.</summary>
 	public ILogger? Logger { get; set; }
 
 	internal void Validate()

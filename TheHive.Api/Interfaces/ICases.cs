@@ -144,7 +144,8 @@ public interface ICases
 	[Delete("api/v1/case/customField/{cfId}")]
 	Task DeleteCustomFieldAsync(string cfId, CancellationToken cancellationToken = default);
 
-	/// <summary>Uploads one or more files to a case as attachments.</summary>
+	/// <summary>Uploads one or more files to a case as attachments. The spec requires at least one file; an empty list gets a 400 from the server.</summary>
+	/// <remarks>Uploads are never retried (see <see cref="TheHiveClientOptions.MaxRetries"/>), so a file is never stored twice; the per-attempt <see cref="TheHiveClientOptions.Timeout"/> covers sending the files, so raise it for large uploads.</remarks>
 	/// <param name="caseId">The case ID preceded by <c>~</c>, or the case number.</param>
 	/// <param name="attachments">The files, each sent as a multipart part named <c>attachments</c>. Build each with a file name and,
 	/// ideally, a content type, for example <c>new StreamPart(stream, "report.pdf", "application/pdf")</c>; leave the part name unset.</param>
@@ -182,6 +183,10 @@ public interface ICases
 	/// The archive. Read it with <see cref="HttpContent.ReadAsStreamAsync(CancellationToken)"/>; the suggested file name is in
 	/// <c>Headers.ContentDisposition.FileName</c>. The caller owns the content and must dispose it.
 	/// </returns>
+	/// <remarks>
+	/// <see cref="TheHiveClientOptions.Timeout"/> bounds only the time until the response headers arrive, not reading the body:
+	/// pass a <see cref="CancellationToken"/> to <c>ReadAs*Async</c> (or the stream reads) so a stalled download cannot hang.
+	/// </remarks>
 	[Get("api/v1/case/{caseId}/export")]
 	Task<HttpContent> ExportAsync(string caseId, [Query] string password, CancellationToken cancellationToken = default);
 

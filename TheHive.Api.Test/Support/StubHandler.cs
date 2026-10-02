@@ -14,6 +14,9 @@ internal sealed record RecordedCall(HttpMethod Method, Uri Uri, string? Body, Ht
 	/// <summary>The request Content-Type media type, or <see langword="null"/> without a body.</summary>
 	public string? ContentType { get; init; }
 
+	/// <summary>The raw bytes of a non-multipart body, or <see langword="null"/>.</summary>
+	public byte[]? BodyBytes { get; init; }
+
 	/// <summary>The parts of a multipart body, in order; empty for other bodies.</summary>
 	public IReadOnlyList<RecordedPart> Parts { get; init; } = [];
 }
@@ -47,8 +50,11 @@ internal sealed class StubHandler : HttpMessageHandler
 
 	protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
 	{
+		// Each body is read exactly once, as a real transport would, so non-seekable streams work.
+		// A multipart body is recorded part by part (Body and BodyBytes stay null); any other body as bytes and UTF-8 text.
 		var content = request.Content;
 		var parts = new List<RecordedPart>();
+		byte[]? bytes = null;
 		if (content is MultipartContent multipart)
 		{
 			foreach (var part in multipart)
@@ -61,11 +67,16 @@ internal sealed class StubHandler : HttpMessageHandler
 					await part.ReadAsByteArrayAsync(cancellationToken)));
 			}
 		}
+		else if (content is not null)
+		{
+			bytes = await content.ReadAsByteArrayAsync(cancellationToken);
+		}
 
-		var body = content is null ? null : await content.ReadAsStringAsync(cancellationToken);
+		var body = bytes is null ? null : System.Text.Encoding.UTF8.GetString(bytes);
 		Calls.Add(new RecordedCall(request.Method, request.RequestUri!, body, request.Headers)
 		{
 			ContentType = content?.Headers.ContentType?.MediaType,
+			BodyBytes = bytes,
 			Parts = parts
 		});
 		return _responses.Dequeue()();
