@@ -12,7 +12,6 @@ Case Report Template
 CaseStatus
 Config
 Cortex
-Dashboard
 Describe
 Email Intake
 Function

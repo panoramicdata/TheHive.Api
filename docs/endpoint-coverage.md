@@ -220,11 +220,11 @@ Plan groups: Alerts, Cases, CaseTemplates, Tasks, TaskLogs, Observables, Comment
 | CustomField | POST | `/api/v1/customField` | `ICustomFields.CreateAsync` | `CustomFieldsTests.CreateAsync_PostsBodyAndMapsEveryField` |
 | CustomField | DELETE | `/api/v1/customField/{customFieldId}` | `ICustomFields.DeleteAsync` | `CustomFieldsTests.DeleteAsync_Force_SendsLowercaseBoolean` |
 | CustomField | PATCH | `/api/v1/customField/{customFieldId}` | `ICustomFields.UpdateAsync` | `CustomFieldsTests.UpdateAsync_PatchesEveryProperty` |
-| Dashboard | POST | `/api/v1/dashboard` | | |
-| Dashboard | DELETE | `/api/v1/dashboard/{dashboardId}` | | |
-| Dashboard | GET | `/api/v1/dashboard/{dashboardId}` | | |
-| Dashboard | PATCH | `/api/v1/dashboard/{dashboardId}` | | |
-| Dashboard | POST | `/api/v1/dashboard/{dashboardId}/owner` | | |
+| Dashboard | POST | `/api/v1/dashboard` | `IDashboards.CreateAsync` | `DashboardsTests.CreateAsync_PostsBodyAndMapsEveryField` |
+| Dashboard | DELETE | `/api/v1/dashboard/{dashboardId}` | `IDashboards.DeleteAsync` | `DashboardsTests.DeleteAsync_SendsDelete` |
+| Dashboard | GET | `/api/v1/dashboard/{dashboardId}` | `IDashboards.GetAsync` | `DashboardsTests.GetAsync_FullDashboard_MapsEveryField` |
+| Dashboard | PATCH | `/api/v1/dashboard/{dashboardId}` | `IDashboards.UpdateAsync` | `DashboardsTests.UpdateAsync_PatchesEveryProperty` |
+| Dashboard | POST | `/api/v1/dashboard/{dashboardId}/owner` | `IDashboards.ChangeOwnerAsync` | `DashboardsTests.ChangeOwnerAsync_PostsUser` |
 | Describe | GET | `/api/v1/describe/_all` | | |
 | Describe | GET | `/api/v1/describe/{model}` | | |
 | Email Intake | POST | `/api/v1/connector/email-intake/config` | | |
