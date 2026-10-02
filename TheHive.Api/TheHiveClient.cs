@@ -47,6 +47,7 @@ public sealed class TheHiveClient : IDisposable
 		Permissions = RestService.For<IPermissions>(_httpClient, Settings);
 		Organisations = RestService.For<IOrganisations>(_httpClient, Settings);
 		Users = RestService.For<IUsers>(_httpClient, Settings);
+		Shares = RestService.For<IShares>(_httpClient, Settings);
 	}
 
 	/// <summary>Case operations.</summary>
@@ -90,6 +91,9 @@ public sealed class TheHiveClient : IDisposable
 
 	/// <summary>User account operations.</summary>
 	public IUsers Users { get; }
+
+	/// <summary>Case, task and observable sharing operations.</summary>
+	public IShares Shares { get; }
 
 	internal HttpClient HttpClient => _httpClient;
 

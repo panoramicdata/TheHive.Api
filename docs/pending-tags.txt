@@ -20,10 +20,6 @@ MISP
 Page
 PageTemplate
 Query and Export
-Share
-Share (+Case)
-Share (+Observable)
-Share (+Task)
 Status
 Tag
 Taxonomy

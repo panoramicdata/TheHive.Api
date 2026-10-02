@@ -298,19 +298,19 @@ Plan groups: Alerts, Cases, CaseTemplates, Tasks, TaskLogs, Observables, Comment
 | Query and Export | GET | `/api/v1/export` | | |
 | Query and Export | GET | `/api/v1/export/_fields` | | |
 | Query and Export | POST | `/api/v1/query` | | |
-| Share (+Case) | DELETE | `/api/v1/case/{caseId}/shares` | | |
-| Share (+Case) | GET | `/api/v1/case/{caseId}/shares` | | |
-| Share (+Case) | POST | `/api/v1/case/{caseId}/shares` | | |
-| Share (+Case) | PUT | `/api/v1/case/{caseId}/shares` | | |
-| Share (+Case) | DELETE | `/api/v1/case/share/{shareId}` | | |
-| Share | PATCH | `/api/v1/case/share/{shareId}` | | |
-| Share | DELETE | `/api/v1/case/shares` | | |
-| Share (+Observable) | DELETE | `/api/v1/observable/{observableId}/shares` | | |
-| Share (+Observable) | GET | `/api/v1/observable/{observableId}/shares` | | |
-| Share (+Observable) | POST | `/api/v1/observable/{observableId}/shares` | | |
-| Share (+Task) | DELETE | `/api/v1/task/{taskId}/shares` | | |
-| Share (+Task) | GET | `/api/v1/task/{taskId}/shares` | | |
-| Share (+Task) | POST | `/api/v1/task/{taskId}/shares` | | |
+| Share (+Case) | DELETE | `/api/v1/case/{caseId}/shares` | `IShares.UnshareCaseAsync` | `SharesTests.UnshareCaseAsync_SendsDeleteWithBody` |
+| Share (+Case) | GET | `/api/v1/case/{caseId}/shares` | `IShares.ListByCaseAsync` | `SharesTests.ListByCaseAsync_GetsAndMapsEveryField` |
+| Share (+Case) | POST | `/api/v1/case/{caseId}/shares` | `IShares.ShareCaseAsync` | `SharesTests.ShareCaseAsync_PostsSharesAndMapsResult` |
+| Share (+Case) | PUT | `/api/v1/case/{caseId}/shares` | `IShares.SetCaseSharesAsync` | `SharesTests.SetCaseSharesAsync_PutsSharesAndMapsResult` |
+| Share (+Case) | DELETE | `/api/v1/case/share/{shareId}` | `IShares.DeleteAsync` | `SharesTests.DeleteAsync_SendsDelete` |
+| Share | PATCH | `/api/v1/case/share/{shareId}` | `IShares.UpdateAsync` | `SharesTests.UpdateAsync_PatchesProfile` |
+| Share | DELETE | `/api/v1/case/shares` | `IShares.DeleteManyAsync` | `SharesTests.DeleteManyAsync_SendsDeleteWithIds` |
+| Share (+Observable) | DELETE | `/api/v1/observable/{observableId}/shares` | `IShares.UnshareObservableAsync` | `SharesTests.UnshareObservableAsync_SendsDeleteWithBody` |
+| Share (+Observable) | GET | `/api/v1/observable/{observableId}/shares` | `IShares.ListByObservableAsync` | `SharesTests.ListByObservableAsync_GetsAndMapsEveryField` |
+| Share (+Observable) | POST | `/api/v1/observable/{observableId}/shares` | `IShares.ShareObservableAsync` | `SharesTests.ShareObservableAsync_PostsOrganisations` |
+| Share (+Task) | DELETE | `/api/v1/task/{taskId}/shares` | `IShares.UnshareTaskAsync` | `SharesTests.UnshareTaskAsync_SendsDeleteWithBody` |
+| Share (+Task) | GET | `/api/v1/task/{taskId}/shares` | `IShares.ListByTaskAsync` | `SharesTests.ListByTaskAsync_GetsAndMapsEveryField` |
+| Share (+Task) | POST | `/api/v1/task/{taskId}/shares` | `IShares.ShareTaskAsync` | `SharesTests.ShareTaskAsync_PostsOrganisations` |
 | Status | GET | `/api/v1/status` | | |
 | Status | GET | `/api/v1/status/public` | | |
 | Tag | DELETE | `/api/v1/tag/{tagId}` | | |
