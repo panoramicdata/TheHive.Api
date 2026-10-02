@@ -135,7 +135,7 @@ Plan groups: Alerts, Cases, CaseTemplates, Tasks, TaskLogs, Observables, Comment
 | Att&ck | GET | `/api/v1/pattern/{patternId}` | `IPatterns.GetAsync` | `PatternsTests.GetAsync_MapsEveryPatternField`, `PatternsTests.GetAsync_AbsentOptionals_MapToDefaults`, `PatternsTests.GetAsync_NotFound_ThrowsTheHiveApiException` |
 | Att&ck | GET | `/api/v1/pattern/case/{caseId}` | `IPatterns.ListForCaseAsync` | `PatternsTests.ListForCaseAsync_MapsList` |
 | Att&ck | POST | `/api/v1/pattern/import/attack` | `IPatterns.ImportAsync`, `IPatterns.ImportFileAsync` | `PatternsTests.ImportAsync_PostsUrlBody_AndMaps201Result`, `PatternsTests.ImportAsync_PartialSuccess207_IsReturnedWithErrors`, `PatternsTests.ImportFileAsync_UploadsJsonAndFileParts` |
-| Audit | GET | `/api/v1/flow` | | |
+| Audit | GET | `/api/v1/flow` | `IAudit.GetFlowAsync` | `AuditTests.GetFlowAsync_WithoutArguments_SendsNoQuery_AndMapsEveryField`, `AuditTests.GetFlowAsync_AbsentOptionals_MapToDefaults`, `AuditTests.GetFlowAsync_SendsRootIdAndCount`, `AuditTests.Defaults_AreEmptyNotNull`, `AuditTests.GetFlowAsync_NotFound_ThrowsTheHiveApiException` |
 | Authentication | GET | `/api/v1/auth/local/passwordPolicy` | | |
 | Authentication | GET | `/api/v1/auth/totp/get` | | |
 | Authentication | POST | `/api/v1/auth/totp/set` | | |
