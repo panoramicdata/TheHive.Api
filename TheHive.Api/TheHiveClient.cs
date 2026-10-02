@@ -63,6 +63,7 @@ public sealed class TheHiveClient : IDisposable
 		CaseReports = RestService.For<ICaseReports>(_httpClient, Settings);
 		Query = RestService.For<IQuery>(_httpClient, Settings);
 		Describe = RestService.For<IDescribe>(_httpClient, Settings);
+		License = RestService.For<ILicense>(_httpClient, Settings);
 		Audit = RestService.For<IAudit>(_httpClient, Settings);
 		Admin = RestService.For<IAdmin>(_httpClient, Settings);
 		CaseStatuses = RestService.For<ICaseStatuses>(_httpClient, Settings);
@@ -160,6 +161,9 @@ public sealed class TheHiveClient : IDisposable
 
 	/// <summary>Entity model metadata: the fields of each model that queries can filter, sort and aggregate on.</summary>
 	public IDescribe Describe { get; }
+
+	/// <summary>License operations: list, add, activate, challenge and current status.</summary>
+	public ILicense License { get; }
 
 	/// <summary>Audit trail operations.</summary>
 	public IAudit Audit { get; }

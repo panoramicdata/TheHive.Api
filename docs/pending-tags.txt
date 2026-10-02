@@ -3,5 +3,4 @@
 Authentication
 Branding
 Config
-License
 Status

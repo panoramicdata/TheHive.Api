@@ -254,12 +254,12 @@ Plan groups: Alerts, Cases, CaseTemplates, Tasks, TaskLogs, Observables, Comment
 | Function | DELETE | `/api/v1/function/{functionId}` | `IFunctions.DeleteAsync` | `FunctionsTests.DeleteAsync_SendsDelete` |
 | Function | GET | `/api/v1/function/{functionId}` | `IFunctions.GetAsync` | `FunctionsTests.GetAsync_Gets` |
 | Function | PATCH | `/api/v1/function/{functionId}` | `IFunctions.UpdateAsync` | `FunctionsTests.UpdateAsync_PatchesOnlyTheSetFields` |
-| License | GET | `/api/v1/license` | | |
-| License | POST | `/api/v1/license` | | |
-| License | GET | `/api/v1/license/{licenseId}` | | |
-| License | PUT | `/api/v1/license/{licenseId}/activate` | | |
-| License | GET | `/api/v1/license/challenge` | | |
-| License | GET | `/api/v1/license/current` | | |
+| License | GET | `/api/v1/license` | `ILicense.ListAsync` | `LicenseTests.ListAsync_MapsEveryField`, `LicenseTests.ListAsync_EmptyObjectNil_IsAnEmptyList`, `LicenseTests.LicenseList_Serializes_AsAnArray` |
+| License | POST | `/api/v1/license` (verify: the 200 activation-error payload is undocumented and returned as raw JSON) | `ILicense.AddAsync` | `LicenseTests.AddAsync_PostsTheKeyInTheBody_And204IsNull`, `LicenseTests.AddAsync_ActivationErrorWith200_IsReturnedAsRawJson` |
+| License | GET | `/api/v1/license/{licenseId}` | `ILicense.GetAsync` | `LicenseTests.GetAsync_MapsEveryField`, `LicenseTests.License_Defaults_AreEmptyNotNull`, `LicenseTests.GetAsync_Forbidden_ThrowsTheHiveApiException` |
+| License | PUT | `/api/v1/license/{licenseId}/activate` | `ILicense.ActivateAsync` | `LicenseTests.ActivateAsync_PutsWithoutBody` |
+| License | GET | `/api/v1/license/challenge` | `ILicense.GetChallengeAsync` | `LicenseTests.GetChallengeAsync_ReturnsPlainText` |
+| License | GET | `/api/v1/license/current` | `ILicense.GetCurrentAsync` | `LicenseTests.GetCurrentAsync_ValidLicense_MapsLicenseOnly`, `LicenseTests.GetCurrentAsync_FailedValidation_MapsErrorAndFallback`, `LicenseTests.GetCurrentAsync_NoLicense_MapsNotFoundAndFallback` |
 | MISP | GET | `/api/v1/connector/misp/_syncAlerts` | `IMisp.SyncAlertsAsync` | `MispTests.SyncAlertsAsync_SendsGetWithoutBody` |
 | MISP | POST | `/api/v1/connector/misp/case/import` | `IMisp.ImportCaseAsync` | `MispTests.ImportCaseAsync_UploadsJsonAndFileParts_AndMapsTheCase` |
 | MISP | POST | `/api/v1/connector/misp/export/{caseId}/{mispName}` | `IMisp.ExportCaseAsync` | `MispTests.ExportCaseAsync_PostsWithEscapedSegments` |
