@@ -54,6 +54,7 @@ The long-form conventions (uploads, downloads, DELETE with a body, connectors an
 3. Add new rows to the table (and to the "Summary by spec tag" table); mark newly deprecated operations `(deprecated)`; remove rows for operations the spec dropped (and the corresponding client methods).
 4. Implement the new operations following the Cases group as the worked template, with tests, until `InventoryTests` is green.
 5. Update the spec version in the document header and in the README, and verify against a live server where possible.
+6. Bump `version.json` to the new TheHive major.minor (for example `"5.9"`) in the same change. The package version follows the targeted TheHive version (see "Versioning" in the README and [PUBLISHING.md](PUBLISHING.md)); do not bump it for any other reason.
 
 ## Testing
 

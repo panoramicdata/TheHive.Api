@@ -6,7 +6,9 @@ Releases are cut by pushing a version tag. The CI workflow (`.github/workflows/c
 
 ## Versioning
 
-[Nerdbank.GitVersioning](https://github.com/dotnet/Nerdbank.GitVersioning) (NBGV) computes the version from `version.json` (currently `"version": "1.0"`) and the Git height, so a release built from `main` is `1.0.<height>`. `version.json` marks `main` and tags of the form `N.N.N` as public releases (no `-g<hash>` suffix). To change the major or minor version, edit `version.json` and commit it. NBGV is referenced by the project (`Nerdbank.GitVersioning` package), so no `nbgv` global tool is needed.
+[Nerdbank.GitVersioning](https://github.com/dotnet/Nerdbank.GitVersioning) (NBGV) computes the version from `version.json` (currently `"version": "5.8"`) and the Git height, so a release built from `main` is `5.8.<height>`; other branches get a `-g<hash>` suffix. `version.json` marks `main` and tags of the form `N.N.N` as public releases (no `-g<hash>` suffix). NBGV is referenced by the project (`Nerdbank.GitVersioning` package), so no `nbgv` global tool is needed.
+
+Major.minor is the TheHive API version the client targets (`5.8` = spec v5.8.0), not a SemVer signal for this client: a breaking change to the client before the next TheHive version ships as a patch bump. Change `version.json` only when the client moves to a new TheHive version (for example to `5.9`), in the same change that replaces the vendored spec (`docs/openapi/thehive-docs.yaml`) and regenerates `docs/endpoint-coverage.md` (see "Updating for a new spec version" in [CONTRIBUTING.md](CONTRIBUTING.md)).
 
 ## First-time setup (once, by the owner)
 
@@ -35,7 +37,7 @@ The script stops with an error unless every condition holds:
 4. NBGV can compute a version (it builds `TheHive.Api/TheHive.Api.csproj` with `-t:GetBuildVersion`).
 5. The tag does not already exist.
 
-It then creates the tag (for example `1.0.7`, no `v` prefix) on the current commit and pushes it. That tag triggers CI (`tags: ['[0-9]*.[0-9]*.[0-9]*']`), whose `publish` job downloads the `.nupkg` and `.snupkg` built by the `build` job, logs in through `NuGet/login`, and runs `dotnet nuget push ... --skip-duplicate`. Watch the run on the repository's Actions tab. The package normally appears on NuGet.org within minutes, and symbols are published with it.
+It then creates the tag (for example `5.8.7`, no `v` prefix) on the current commit and pushes it. That tag triggers CI (`tags: ['[0-9]*.[0-9]*.[0-9]*']`), whose `publish` job downloads the `.nupkg` and `.snupkg` built by the `build` job, logs in through `NuGet/login`, and runs `dotnet nuget push ... --skip-duplicate`. Watch the run on the repository's Actions tab. The package normally appears on NuGet.org within minutes, and symbols are published with it.
 
 Before tagging, run the checks locally:
 
@@ -55,9 +57,9 @@ Inspect the `.nupkg` (it is a zip): it must contain `README.md`, `Logo.png`, `li
 | `Working tree is not clean` | Commit or stash. Untracked files count. |
 | `Publishing is only supported from the 'main' branch` | Merge to `main` through a pull request, then check out `main`. |
 | `Local branch is not up to date with origin/main` | `git pull` (or push your commits) and rerun. |
-| `Tag '1.0.N' already exists` | Make a new commit so the Git height advances, or bump `version.json`. |
+| `Tag '5.8.N' already exists` | Make a new commit so the Git height advances. Bump `version.json` only when moving to a new TheHive version. |
 | `Failed to determine version` | Restore and build the project once (`dotnet build TheHive.Api/TheHive.Api.csproj`); make sure `version.json` is valid JSON and the repository is not a shallow clone. |
-| The tag was pushed but no CI run started | The tag must look like `1.0.7`; a `v1.0.7` tag does not match the trigger. |
+| The tag was pushed but no CI run started | The tag must look like `5.8.7`; a `v5.8.7` tag does not match the trigger. |
 | `publish` job fails at NuGet login (401/403) | The trusted publishing policy is missing or does not match the owner, repository, workflow file name (`ci.yml`) or the `user` profile name; or `id-token: write` was removed. |
 | `409 Conflict` / version already exists | `--skip-duplicate` makes the push a no-op; bump the version and tag again. |
 | Run succeeded but the package is not listed | Indexing can lag by several minutes; check the package's **Manage** page for validation status. |

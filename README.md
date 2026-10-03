@@ -23,6 +23,10 @@ Requires .NET 10.
 
 The client is generated from the TheHive **v5.8.0** OpenAPI specification (`docs/openapi/thehive-docs.yaml`, OpenAPI 3.1.0) and has been verified against a live TheHive **5.8.0** instance. Operations that are newer than the server you run, or that need a licence tier your server lacks, are answered by the server with an error (raised as `TheHiveApiException`).
 
+## Versioning
+
+The package's major.minor follows the TheHive API version the client targets: `5.8` means the v5.8.0 specification. The patch number is the Git height assigned by [Nerdbank.GitVersioning](https://github.com/dotnet/Nerdbank.GitVersioning) (`5.8.<height>`). Breaking changes to this client made before it targets the next TheHive release therefore ship as patch bumps: the package version does not follow SemVer for the client's own API, so read the release notes before upgrading.
+
 ## Quick start
 
 Create a client. `BaseUrl` and `ApiKey` are required; `Organisation` is optional and sent as the `X-Organisation` header.
