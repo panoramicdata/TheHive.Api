@@ -41,9 +41,11 @@ public class TheHiveClientOptions
 
 	internal void Validate()
 	{
-		if (!Uri.TryCreate(BaseUrl, UriKind.Absolute, out _))
+		// Absolute alone is not enough: on Linux a rooted path such as "/relative/path" parses as a file:// URI.
+		if (!Uri.TryCreate(BaseUrl, UriKind.Absolute, out var baseUri)
+			|| (baseUri.Scheme != Uri.UriSchemeHttp && baseUri.Scheme != Uri.UriSchemeHttps))
 		{
-			throw new ArgumentException("BaseUrl must be an absolute URL.", nameof(BaseUrl));
+			throw new ArgumentException("BaseUrl must be an absolute http or https URL.", nameof(BaseUrl));
 		}
 
 		ArgumentException.ThrowIfNullOrWhiteSpace(ApiKey);
