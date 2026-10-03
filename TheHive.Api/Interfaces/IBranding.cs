@@ -1,3 +1,4 @@
+using System.ComponentModel;
 using Refit;
 using TheHive.Api.Data.Branding;
 
@@ -25,8 +26,9 @@ public interface IBranding
 	/// <returns>The resulting branding settings.</returns>
 	/// <exception cref="ArgumentNullException"><paramref name="request"/> is <see langword="null"/>.</exception>
 	/// <remarks>
-	/// Refit cannot turn one object into several multipart parts, so this method unpacks <paramref name="request"/> into the Refit method
-	/// <see cref="SetMultipartAsync"/>, which is internal so that callers see only this signature.
+	/// This is the method to call. It is implemented on the interface and sends the request through the raw multipart transport
+	/// <see cref="SetMultipartAsync"/>. A class implementing <see cref="IBranding"/> only has to provide that method; a mocking library may
+	/// intercept this method itself (NSubstitute does), so set this method up directly on a mock.
 	/// </remarks>
 	Task<BrandingSettings> SetAsync(BrandingUpdateRequest request, CancellationToken cancellationToken = default)
 	{
@@ -34,16 +36,21 @@ public interface IBranding
 		return SetMultipartAsync(request.Title, request.LoginLogo, request.MenuLogo, request.Favicon, cancellationToken);
 	}
 
-	/// <summary>The Refit method behind <see cref="SetAsync"/>: one form field or part per argument, a <see langword="null"/> one left out.</summary>
+	/// <summary>
+	/// The raw multipart transport used by <see cref="SetAsync(BrandingUpdateRequest, CancellationToken)"/>: one form field or part per argument, a
+	/// <see langword="null"/> one left out. Call <see cref="SetAsync(BrandingUpdateRequest, CancellationToken)"/> instead; this method exists because Refit
+	/// cannot turn one object into several multipart parts.
+	/// </summary>
 	/// <param name="title">The <c>title</c> form field.</param>
 	/// <param name="loginLogo">The <c>loginLogo</c> part.</param>
 	/// <param name="menuLogo">The <c>menuLogo</c> part.</param>
 	/// <param name="favicon">The <c>favicon</c> part.</param>
 	/// <param name="cancellationToken">A cancellation token.</param>
 	/// <returns>The resulting branding settings.</returns>
+	[EditorBrowsable(EditorBrowsableState.Never)]
 	[Multipart]
 	[Post("api/v1/branding")]
-	internal Task<BrandingSettings> SetMultipartAsync(
+	Task<BrandingSettings> SetMultipartAsync(
 		[AliasAs("title")] string? title,
 		[AliasAs("loginLogo")] MultipartItem? loginLogo,
 		[AliasAs("menuLogo")] MultipartItem? menuLogo,
