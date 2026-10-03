@@ -35,3 +35,4 @@ if ($failures -gt 0) {
 	exit 1
 }
 Write-Host 'All Check-Coverage self-tests passed.'
+exit 0
