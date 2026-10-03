@@ -44,17 +44,15 @@ public interface IFunctions
 	/// <param name="function">The function ID preceded by <c>~</c>, or the function name.</param>
 	/// <param name="objectType"><c>case</c> or <c>alert</c>; it must match the function's type.</param>
 	/// <param name="objectIdOrName">The object ID preceded by <c>~</c>, the case number for a case, or the alert reference (<c>type;source;sourceRef</c>) for an alert.</param>
-	/// <param name="dryRun"><see langword="true"/> to run without persisting any changes; omit for the server default (<see langword="false"/>).</param>
-	/// <param name="sync"><see langword="true"/> to wait for the function and return its result; omit or <see langword="false"/> to run in the background.</param>
+	/// <param name="options">The <c>dryRun</c> and <c>sync</c> flags; a <see langword="null"/> options object or flag is left out of the query string.</param>
 	/// <param name="cancellationToken">A cancellation token.</param>
-	/// <returns>The result when run synchronously; an empty result (see <see cref="FunctionInvocationResult"/>) for a background run.</returns>
+	/// <returns>The result when run synchronously (<see cref="FunctionInvocationOptions.Sync"/>); an empty result (see <see cref="FunctionInvocationResult"/>) for a background run.</returns>
 	[Post("api/v1/function/{function}/{objectType}/{objectIdOrName}")]
 	Task<FunctionInvocationResult> InvokeOnObjectAsync(
 		string function,
 		string objectType,
 		string objectIdOrName,
-		[Query] bool? dryRun = null,
-		[Query] bool? sync = null,
+		[Query] FunctionInvocationOptions? options = null,
 		CancellationToken cancellationToken = default);
 
 	/// <summary>Deletes a function. Requires <c>manageFunction/create</c>.</summary>

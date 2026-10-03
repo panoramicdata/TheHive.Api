@@ -197,7 +197,7 @@ public class FunctionsTests
 		var stub = Stub(HttpStatusCode.OK, InvocationJson);
 		using var client = TestClient.Create(stub);
 
-		var result = await client.Functions.InvokeOnObjectAsync("~84123", "alert", "type;source;ref", true, true, TestContext.Current.CancellationToken);
+		var result = await client.Functions.InvokeOnObjectAsync("~84123", "alert", "type;source;ref", new FunctionInvocationOptions { DryRun = true, Sync = true }, TestContext.Current.CancellationToken);
 
 		stub.Calls[0].Method.Should().Be(HttpMethod.Post);
 		stub.Calls[0].Uri.AbsolutePath.Should().Be("/api/v1/function/~84123/alert/type%3Bsource%3Bref");
@@ -220,6 +220,28 @@ public class FunctionsTests
 		result.DurationMillis.Should().Be(0);
 		result.Stdout.Should().BeEmpty();
 		result.Stderr.Should().BeEmpty();
+	}
+
+	[Fact]
+	public async Task InvokeOnObjectAsync_OptionsObject_SendsMixedFlagsLowercase()
+	{
+		var stub = Stub(HttpStatusCode.OK, "{}");
+		using var client = TestClient.Create(stub);
+
+		await client.Functions.InvokeOnObjectAsync("f", "case", "7", new FunctionInvocationOptions { DryRun = true, Sync = false }, TestContext.Current.CancellationToken);
+
+		stub.Calls[0].Uri.Query.Should().Be("?dryRun=true&sync=false");
+	}
+
+	[Fact]
+	public async Task InvokeOnObjectAsync_PartialOptions_LeavesOutTheNullFlag()
+	{
+		var stub = Stub(HttpStatusCode.OK, "{}");
+		using var client = TestClient.Create(stub);
+
+		await client.Functions.InvokeOnObjectAsync("f", "case", "7", new FunctionInvocationOptions { Sync = false }, TestContext.Current.CancellationToken);
+
+		stub.Calls[0].Uri.Query.Should().Be("?sync=false");
 	}
 
 	[Fact]
