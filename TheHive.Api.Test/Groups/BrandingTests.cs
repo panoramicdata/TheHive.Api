@@ -67,10 +67,13 @@ public class BrandingTests
 		byte[] icon = [0x89, 0x50, 0x4E, 0x47, 0x03];
 
 		var result = await client.Branding.SetAsync(
-			"TheOrganization",
-			new ByteArrayPart(login, "login.png", "image/png"),
-			new ByteArrayPart(menu, "menu.jpg", "image/jpeg"),
-			new ByteArrayPart(icon, "favicon.png", "image/png"),
+			new BrandingUpdateRequest
+			{
+				Title = "TheOrganization",
+				LoginLogo = new ByteArrayPart(login, "login.png", "image/png"),
+				MenuLogo = new ByteArrayPart(menu, "menu.jpg", "image/jpeg"),
+				Favicon = new ByteArrayPart(icon, "favicon.png", "image/png")
+			},
 			TestContext.Current.CancellationToken);
 
 		var call = stub.Calls[0];
@@ -100,7 +103,7 @@ public class BrandingTests
 		var stub = Stub(HttpStatusCode.OK, FullBrandingJson);
 		using var client = TestClient.Create(stub);
 
-		await client.Branding.SetAsync("New title", cancellationToken: TestContext.Current.CancellationToken);
+		await client.Branding.SetAsync(new BrandingUpdateRequest { Title = "New title" }, TestContext.Current.CancellationToken);
 
 		var part = stub.Calls[0].Parts.Should().ContainSingle().Subject;
 		part.Name.Should().Be("title");
@@ -113,7 +116,7 @@ public class BrandingTests
 		var stub = Stub(HttpStatusCode.OK, FullBrandingJson);
 		using var client = TestClient.Create(stub);
 
-		await client.Branding.SetAsync(favicon: new ByteArrayPart([1, 2, 3], "f.png", "image/png"), cancellationToken: TestContext.Current.CancellationToken);
+		await client.Branding.SetAsync(new BrandingUpdateRequest { Favicon = new ByteArrayPart([1, 2, 3], "f.png", "image/png") }, TestContext.Current.CancellationToken);
 
 		var part = stub.Calls[0].Parts.Should().ContainSingle().Subject;
 		part.Name.Should().Be("favicon");
@@ -127,7 +130,7 @@ public class BrandingTests
 		using var client = TestClient.Create(stub);
 		using var stream = new NonSeekableStream([7, 8, 9]);
 
-		await client.Branding.SetAsync(loginLogo: new StreamPart(stream, "l.png", "image/png"), cancellationToken: TestContext.Current.CancellationToken);
+		await client.Branding.SetAsync(new BrandingUpdateRequest { LoginLogo = new StreamPart(stream, "l.png", "image/png") }, TestContext.Current.CancellationToken);
 
 		stub.Calls.Should().ContainSingle();
 		stub.Calls[0].Parts.Should().ContainSingle().Which.Bytes.Should().Equal(7, 8, 9);
@@ -202,9 +205,34 @@ public class BrandingTests
 		var stub = Stub(HttpStatusCode.Forbidden, """{"type":"AuthorizationError","message":"Platinum licence required"}""");
 		using var client = TestClient.Create(stub);
 
-		var act = () => client.Branding.SetAsync("t", cancellationToken: TestContext.Current.CancellationToken);
+		var act = () => client.Branding.SetAsync(new BrandingUpdateRequest { Title = "t" }, TestContext.Current.CancellationToken);
 
 		(await act.Should().ThrowAsync<TheHiveApiException>())
 			.Which.Should().Match<TheHiveApiException>(e => e.StatusCode == HttpStatusCode.Forbidden && e.ErrorType == "AuthorizationError");
+	}
+
+	[Fact]
+	public async Task SetAsync_NullRequest_ThrowsWithoutSending()
+	{
+		var stub = Stub(HttpStatusCode.OK, FullBrandingJson);
+		using var client = TestClient.Create(stub);
+
+		var act = () => client.Branding.SetAsync(null!, TestContext.Current.CancellationToken);
+
+		(await act.Should().ThrowAsync<ArgumentNullException>()).Which.ParamName.Should().Be("request");
+		stub.Calls.Should().BeEmpty();
+	}
+
+	[Fact]
+	public async Task SetAsync_EmptyRequest_SendsAMultipartBodyWithoutParts()
+	{
+		var stub = Stub(HttpStatusCode.OK, FullBrandingJson);
+		using var client = TestClient.Create(stub);
+
+		await client.Branding.SetAsync(new BrandingUpdateRequest(), TestContext.Current.CancellationToken);
+
+		stub.Calls[0].Method.Should().Be(HttpMethod.Post);
+		stub.Calls[0].ContentType.Should().Be("multipart/form-data");
+		stub.Calls[0].Parts.Should().BeEmpty();
 	}
 }

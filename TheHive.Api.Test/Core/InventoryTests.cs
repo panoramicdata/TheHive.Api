@@ -11,6 +11,9 @@ public partial class InventoryTests
 	private const string Header = "| Group | Method | Path | Client method | Test |";
 	private const string InterfaceNamespace = "TheHive.Api.Interfaces";
 
+	/// <summary>Public and internal instance members, so an internal Refit twin of a wrapper method (<c>IBranding.SetMultipartAsync</c>) must be listed and checked too.</summary>
+	private const BindingFlags InterfaceMembers = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;
+
 	private static readonly string RepoRoot = FindRepoRoot();
 	private static readonly IReadOnlyList<Row> Rows = ParseRows();
 	private static readonly IReadOnlySet<string> PendingTags = ReadPendingTags();
@@ -81,7 +84,7 @@ public partial class InventoryTests
 			{
 				var (typeName, methodName) = Split(reference);
 				var type = assembly.GetType($"{InterfaceNamespace}.{typeName}");
-				if (type is null || !type.IsInterface || type.GetMethods().All(m => m.Name != methodName))
+				if (type is null || !type.IsInterface || type.GetMethods(InterfaceMembers).All(m => m.Name != methodName))
 				{
 					offending.Add($"{row}: {reference} not found");
 				}
@@ -98,14 +101,51 @@ public partial class InventoryTests
 		var offending = new List<string>();
 		foreach (var row in Rows.Where(r => r.ClientMethod.Length > 0))
 		{
-			foreach (var (typeName, methodName) in Tokens(row.ClientMethod).Select(Split))
-			{
-				var methods = assembly.GetType($"{InterfaceNamespace}.{typeName}")?.GetMethods().Where(m => m.Name == methodName) ?? [];
-				offending.AddRange(methods.Select(m => CompareRoute(row, m)).OfType<string>());
-			}
+			var methods = Tokens(row.ClientMethod)
+				.Select(Split)
+				.SelectMany(r => assembly.GetType($"{InterfaceNamespace}.{r.Type}")?.GetMethods(InterfaceMembers).Where(m => m.Name == r.Method) ?? [])
+				.ToList();
+			offending.AddRange(CompareRow(row, methods));
 		}
 
 		AssertNone(offending, "each Client method's Refit verb and path must match its row");
+	}
+
+	[Fact]
+	public void CompareRow_WrapperWithItsRefitTwin_ReportsNothing() =>
+		CompareRow(
+			new Row(1, "Branding", "POST", "`/api/v1/branding`", "", ""),
+			[typeof(IBranding).GetMethod(nameof(IBranding.SetAsync))!, typeof(IBranding).GetMethod("SetMultipartAsync", InterfaceMembers)!])
+			.Should().BeEmpty();
+
+	[Fact]
+	public void CompareRow_WrapperWithoutATwin_ReportsTheWrapper()
+	{
+		var row = new Row(9, "Branding", "POST", "`/api/v1/branding`", "", "");
+
+		var messages = CompareRow(row, [typeof(IBranding).GetMethod(nameof(IBranding.SetAsync))!]);
+
+		messages.Should().Equal("line 9: Branding POST `/api/v1/branding`: IBranding.SetAsync has no Refit HTTP method attribute");
+	}
+
+	[Fact]
+	public void CompareRow_WrapperWithAWrongTwin_ReportsTheTwin()
+	{
+		var row = new Row(9, "Branding", "GET", "`/api/v1/branding`", "", "");
+
+		var messages = CompareRow(row, [typeof(IBranding).GetMethod(nameof(IBranding.SetAsync))!, typeof(IBranding).GetMethod("SetMultipartAsync", InterfaceMembers)!]);
+
+		messages.Should().Equal("line 9: Branding GET `/api/v1/branding`: IBranding.SetMultipartAsync is POST api/v1/branding, expected GET api/v1/branding");
+	}
+
+	[Fact]
+	public void CompareRow_AbstractMethodWithoutRefitAttribute_IsNotAWrapper()
+	{
+		var row = new Row(9, "Case", "GET", "`/api/v1/case`", "", "");
+
+		var messages = CompareRow(row, [typeof(IDisposable).GetMethod(nameof(IDisposable.Dispose))!, typeof(ICases).GetMethod(nameof(ICases.GetAsync))!]);
+
+		messages.Should().HaveCount(2).And.Contain("line 9: Case GET `/api/v1/case`: IDisposable.Dispose has no Refit HTTP method attribute");
 	}
 
 	[Fact]
@@ -151,6 +191,32 @@ public partial class InventoryTests
 		var finished = PendingTags.Where(tag => Rows.Where(r => r.Group == tag && !r.IsDeprecated).All(r => r.IsComplete));
 
 		AssertNone(finished, "a tag whose non-deprecated rows are all filled must be removed from docs/pending-tags.txt");
+	}
+
+	/// <summary>
+	/// Checks every method a row names. A method with a Refit attribute is compared with <see cref="CompareRoute"/>. A method without one is
+	/// accepted only when it is a default-implemented interface method (a wrapper that takes a request object, such as <c>IBranding.SetAsync</c>)
+	/// and the same row also names a Refit-attributed method of the same interface (its raw twin, such as the internal
+	/// <c>IBranding.SetMultipartAsync</c>), which is then compared as usual; anything else is reported.
+	/// </summary>
+	/// <param name="row">The inventory row.</param>
+	/// <param name="methods">The interface methods the row names.</param>
+	/// <returns>One message per mismatch; empty when they all match.</returns>
+	public static List<string> CompareRow(Row row, IReadOnlyList<MethodInfo> methods)
+	{
+		var messages = new List<string>();
+		foreach (var method in methods)
+		{
+			var isWrapper = method.GetCustomAttribute<HttpMethodAttribute>() is null
+				&& !method.IsAbstract
+				&& methods.Any(m => m.DeclaringType == method.DeclaringType && m.GetCustomAttribute<HttpMethodAttribute>() is not null);
+			if (!isWrapper && CompareRoute(row, method) is { } message)
+			{
+				messages.Add(message);
+			}
+		}
+
+		return messages;
 	}
 
 	/// <summary>Compares a row's verb and path (the first backticked token of the Path cell, notes ignored) with the Refit attribute on <paramref name="method"/>.</summary>
@@ -211,7 +277,7 @@ public partial class InventoryTests
 			.Where(t => t.IsInterface && t.Namespace == InterfaceNamespace);
 
 		var missing = interfaces
-			.SelectMany(t => t.GetMethods().Select(m => $"{t.Name}.{m.Name}"))
+			.SelectMany(t => t.GetMethods(InterfaceMembers).Select(m => $"{t.Name}.{m.Name}"))
 			.Where(name => !listed.Contains(name));
 
 		AssertNone(missing, "every interface method must appear in a Client method cell of docs/endpoint-coverage.md");
