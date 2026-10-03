@@ -66,7 +66,7 @@ public interface ICaseReports
 	Task<HttpContent> ViewAsync(string reportId, CancellationToken cancellationToken = default);
 
 	/// <summary>Renders a preview of a case report from a saved template without saving it. Use <see cref="RenderAsync"/> for an inline definition.</summary>
-	/// <param name="query">The format, template and optional case and element limit (<c>format</c>, <c>caseReportTemplateId</c>, <c>caseId</c>, <c>maxElements</c>); pass a non-null query.</param>
+	/// <param name="query">The format, template and optional case and element limit (<c>format</c>, <c>caseReportTemplateId</c>, <c>caseId</c>, <c>maxElements</c>). Pass a non-null query: a <see langword="null"/> one is not rejected by the client, it sends no query parameters and the server rejects the request.</param>
 	/// <param name="cancellationToken">A cancellation token.</param>
 	/// <returns>The rendered output. The caller owns the content and must dispose it.</returns>
 	[Get("api/v1/caseReport/render")]
