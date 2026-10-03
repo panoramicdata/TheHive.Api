@@ -449,10 +449,13 @@ public class CortexTests
 		var actions = await client.Cortex.ListActionsAsync(
 			"case",
 			"~276824",
-			"""{"_eq":{"_field":"status","_value":"Success"}}""",
-			"""[{"field":"responderId","direction":"asc"}]""",
-			0,
-			30,
+			new CortexActionsQuery
+			{
+				Filter = """{"_eq":{"_field":"status","_value":"Success"}}""",
+				Sort = """[{"field":"responderId","direction":"asc"}]""",
+				PageFrom = 0,
+				PageTo = 30
+			},
 			TestContext.Current.CancellationToken);
 
 		stub.Calls[0].Method.Should().Be(HttpMethod.Get);
@@ -473,6 +476,28 @@ public class CortexTests
 		stub.Calls[0].Uri.AbsolutePath.Should().Be("/api/v1/responder-execution/alert/~9");
 		stub.Calls[0].Uri.Query.Should().BeEmpty();
 		actions.Should().BeEmpty();
+	}
+
+	[Fact]
+	public async Task ListActionsAsync_EmptyQueryObject_SendsNoQuery()
+	{
+		var stub = Stub(HttpStatusCode.OK, "[]");
+		using var client = TestClient.Create(stub);
+
+		await client.Cortex.ListActionsAsync("alert", "~9", new CortexActionsQuery(), TestContext.Current.CancellationToken);
+
+		stub.Calls[0].Uri.Query.Should().BeEmpty();
+	}
+
+	[Fact]
+	public async Task ListActionsAsync_PartialQueryObject_SendsOnlyTheSetValues()
+	{
+		var stub = Stub(HttpStatusCode.OK, "[]");
+		using var client = TestClient.Create(stub);
+
+		await client.Cortex.ListActionsAsync("case", "7", new CortexActionsQuery { PageTo = 300 }, TestContext.Current.CancellationToken);
+
+		stub.Calls[0].Uri.Query.Should().Be("?pageTo=300");
 	}
 
 	[Fact]

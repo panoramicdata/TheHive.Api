@@ -113,26 +113,16 @@ public interface ICortex
 	/// <summary>Lists the responder executions (actions) linked to a case and its tasks, observables and task logs, or to an alert and its observables. Runs from before this endpoint existed are not returned.</summary>
 	/// <param name="scope"><c>case</c> or <c>alert</c>.</param>
 	/// <param name="rootId">The case ID preceded by <c>~</c> or the case number when <paramref name="scope"/> is <c>case</c>, or the alert ID preceded by <c>~</c>.</param>
-	/// <param name="filter">A filter as JSON text, in the syntax of the <c>filter</c> operation of the query API without its <c>_name</c>, for example <c>{"_eq":{"_field":"status","_value":"Success"}}</c>. The spec declares this parameter as JSON-encoded content; it is URL-encoded as one query value.</param>
-	/// <param name="sort">Sort criteria as JSON text, in the syntax of the <c>_fields</c> value of the query API's <c>sort</c> operation, for example <c>[{"field":"responderId","direction":"asc"}]</c>.</param>
-	/// <param name="pageFrom">The 0-based index of the first result (default 0).</param>
-	/// <param name="pageTo">The exclusive index of the last result (default <paramref name="pageFrom"/> + 30; the range cannot exceed 300).</param>
+	/// <param name="query">The filter, sort and page (<c>filter</c>, <c>sort</c>, <c>pageFrom</c>, <c>pageTo</c>); a <see langword="null"/> query or property is left out of the query string.</param>
 	/// <param name="cancellationToken">A cancellation token.</param>
 	/// <returns>The actions; the response carries no total, use <see cref="CountActionsAsync"/>.</returns>
 	[Get("api/v1/responder-execution/{scope}/{rootId}")]
-	Task<List<CortexAction>> ListActionsAsync(
-		string scope,
-		string rootId,
-		[Query] string? filter = null,
-		[Query] string? sort = null,
-		[Query] int? pageFrom = null,
-		[Query] int? pageTo = null,
-		CancellationToken cancellationToken = default);
+	Task<List<CortexAction>> ListActionsAsync(string scope, string rootId, [Query] CortexActionsQuery? query = null, CancellationToken cancellationToken = default);
 
 	/// <summary>Counts the responder executions (actions) linked to a case or an alert, matching an optional filter.</summary>
 	/// <param name="scope"><c>case</c> or <c>alert</c>.</param>
 	/// <param name="rootId">The case ID preceded by <c>~</c> or the case number when <paramref name="scope"/> is <c>case</c>, or the alert ID preceded by <c>~</c>.</param>
-	/// <param name="filter">A filter as JSON text, as for <see cref="ListActionsAsync"/>.</param>
+	/// <param name="filter">A filter as JSON text, as for <see cref="CortexActionsQuery.Filter"/>.</param>
 	/// <param name="cancellationToken">A cancellation token.</param>
 	/// <returns>The number of matching actions.</returns>
 	[Get("api/v1/responder-execution/{scope}/{rootId}/count")]
