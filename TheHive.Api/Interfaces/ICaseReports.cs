@@ -66,19 +66,11 @@ public interface ICaseReports
 	Task<HttpContent> ViewAsync(string reportId, CancellationToken cancellationToken = default);
 
 	/// <summary>Renders a preview of a case report from a saved template without saving it. Use <see cref="RenderAsync"/> for an inline definition.</summary>
-	/// <param name="format">The output format, one of <c>html</c>, <c>markdown</c> or <c>word</c> (a string here because Refit writes enums by name, not by wire value).</param>
-	/// <param name="caseReportTemplateId">The ID (preceded by <c>~</c>) of the saved template.</param>
-	/// <param name="caseId">The ID (preceded by <c>~</c>) of the case whose data fills the report; omitted when <see langword="null"/>, in which case the server uses fake data.</param>
-	/// <param name="maxElements">The maximum number of elements per widget; omitted when <see langword="null"/>.</param>
+	/// <param name="query">The format, template and optional case and element limit (<c>format</c>, <c>caseReportTemplateId</c>, <c>caseId</c>, <c>maxElements</c>); pass a non-null query.</param>
 	/// <param name="cancellationToken">A cancellation token.</param>
 	/// <returns>The rendered output. The caller owns the content and must dispose it.</returns>
 	[Get("api/v1/caseReport/render")]
-	Task<HttpContent> RenderTemplateAsync(
-		[Query] string format,
-		[Query] string caseReportTemplateId,
-		[Query] string? caseId = null,
-		[Query] int? maxElements = null,
-		CancellationToken cancellationToken = default);
+	Task<HttpContent> RenderTemplateAsync([Query] CaseReportRenderQuery query, CancellationToken cancellationToken = default);
 
 	/// <summary>Renders a preview of a case report from a saved template or an inline definition, without saving it.</summary>
 	/// <param name="request">What to render.</param>

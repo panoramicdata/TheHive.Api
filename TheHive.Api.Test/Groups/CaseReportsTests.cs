@@ -1,4 +1,5 @@
 using System.Net;
+using System.Text.Json;
 using Refit;
 using TheHive.Api.Data.CaseReports;
 using TheHive.Api.Data.CaseReportTemplates;
@@ -184,7 +185,9 @@ public class CaseReportsTests
 		stub.EnqueueFile(bytes, "text/html", "preview.html");
 		using var client = TestClient.Create(stub);
 
-		using var content = await client.CaseReports.RenderTemplateAsync("html", "~84512", "~59643", 5, TestContext.Current.CancellationToken);
+		using var content = await client.CaseReports.RenderTemplateAsync(
+			new CaseReportRenderQuery { Format = CaseReportFormats.Html, CaseReportTemplateId = "~84512", CaseId = "~59643", MaxElements = 5 },
+			TestContext.Current.CancellationToken);
 
 		stub.Calls[0].Method.Should().Be(HttpMethod.Get);
 		stub.Calls[0].Uri.AbsolutePath.Should().Be("/api/v1/caseReport/render");
@@ -200,10 +203,19 @@ public class CaseReportsTests
 		stub.EnqueueFile([1], "text/markdown", "preview.md");
 		using var client = TestClient.Create(stub);
 
-		using var content = await client.CaseReports.RenderTemplateAsync("markdown", "~84512", cancellationToken: TestContext.Current.CancellationToken);
+		using var content = await client.CaseReports.RenderTemplateAsync(
+			new CaseReportRenderQuery { Format = CaseReportFormats.Markdown, CaseReportTemplateId = "~84512" },
+			TestContext.Current.CancellationToken);
 
 		stub.Calls[0].Uri.Query.Should().Be("?format=markdown&caseReportTemplateId=~84512");
 	}
+
+	[Theory]
+	[InlineData(CaseReportFormats.Html, CaseReportFormat.Html)]
+	[InlineData(CaseReportFormats.Markdown, CaseReportFormat.Markdown)]
+	[InlineData(CaseReportFormats.Word, CaseReportFormat.Word)]
+	public void CaseReportFormats_MatchTheEnumWireValues(string constant, CaseReportFormat format) =>
+		JsonSerializer.Serialize(format, TheHiveJson.Options).Should().Be($"\"{constant}\"");
 
 	[Fact]
 	public async Task RenderAsync_PostsInlineDefinition_And_ReturnsBytes()
