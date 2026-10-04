@@ -27,15 +27,20 @@ The client is generated from the TheHive **v5.8.0** OpenAPI specification (`docs
 
 The package's major.minor follows the TheHive API version the client targets: `5.8` means the v5.8.0 specification. The patch number is the Git height assigned by [Nerdbank.GitVersioning](https://github.com/dotnet/Nerdbank.GitVersioning) (`5.8.<height>`). Breaking changes to this client made before it targets the next TheHive release therefore ship as patch bumps: the package version does not follow SemVer for the client's own API, so read the release notes before upgrading.
 
+### Breaking changes
+
+- **Since the first package after 5.8.14**: every method takes a required `CancellationToken` as its last parameter (pass `CancellationToken.None` if you do not need cancellation), and operations with optional query, header or multipart parameters take an options object instead (for example `IStatus.GetAsync(new PlatformStatusQuery { Verbose = true }, cancellationToken)`, `IUsers.GetAvatarAsync(userId, file, new ConditionalDownloadOptions { IfNoneMatch = etag }, cancellationToken)` or `ICases.AddAttachmentsAsync(caseId, files, new AttachmentUploadOptions { CanRename = true }, cancellationToken)`); pass `new()` when you have no options. The query helpers take a `QueryRunOptions` for the optional query `name`, and `QueryBuilder.Sort(field)` / `Sort(field, direction)` are overloads. The requests on the wire are unchanged.
+
 ## Quick start
 
-Create a client. `BaseUrl` and `ApiKey` are required; `Organisation` is optional and sent as the `X-Organisation` header.
+Create a client. `BaseUrl` and `ApiKey` are required; `Organisation` is optional and sent as the `X-Organisation` header. Every method takes a required `CancellationToken`; the examples use `CancellationToken.None`, but pass your host's token (for example `HttpContext.RequestAborted` or a `CancellationTokenSource`) in real code.
 
 ```csharp
 using System.Net;
 using TheHive.Api;
 using TheHive.Api.Data.Cases;
 using TheHive.Api.Data.Common;
+using TheHive.Api.Data.Query;
 using TheHive.Api.Querying;
 
 using var client = new TheHiveClient(new TheHiveClientOptions
@@ -44,6 +49,7 @@ using var client = new TheHiveClient(new TheHiveClientOptions
 	ApiKey = Environment.GetEnvironmentVariable("THEHIVE_API_KEY")!,
 	Organisation = Environment.GetEnvironmentVariable("THEHIVE_ORGANISATION")
 });
+var cancellationToken = CancellationToken.None;
 ```
 
 Create a case:
@@ -56,7 +62,7 @@ var created = await client.Cases.CreateAsync(new CaseCreateRequest
 	Severity = Severity.High,
 	Tlp = Tlp.Amber,
 	Tags = ["siem", "login"]
-});
+}, cancellationToken);
 Console.WriteLine($"Created case {created.Id} (#{created.Number})");
 ```
 
@@ -67,7 +73,7 @@ var query = QueryBuilder.ListCases()
 	.FilterLike("title", "login")
 	.Sort("_createdAt", SortDirection.Descending)
 	.Page(0, 15);
-var cases = await client.Query.RunAsync<Case>(query);
+var cases = await client.Query.RunAsync<Case>(query, new QueryRunOptions(), cancellationToken);
 foreach (var item in cases)
 {
 	Console.WriteLine($"{item.Id}: {item.Title}");
@@ -82,16 +88,16 @@ await client.Cases.UpdateAsync(created.Id, new CaseUpdateRequest
 	Title = "Suspicious login (confirmed)",       // plain property: sent only when not null
 	Summary = new Optional<string?>("Triaged."),  // set a value
 	Assignee = new Optional<string?>(null)        // clear the assignee (sends "assignee": null)
-});
+}, cancellationToken);
 ```
 
 Download a case export (a THAR archive; a Gold or Platinum licence is needed). The caller owns and disposes the returned content:
 
 ```csharp
-using var export = await client.Cases.ExportAsync(created.Id, password: "choose-a-password");
+using var export = await client.Cases.ExportAsync(created.Id, "choose-a-password", cancellationToken);
 await using var file = File.Create("case-export.thar");
-await using var source = await export.ReadAsStreamAsync();
-await source.CopyToAsync(file);
+await using var source = await export.ReadAsStreamAsync(cancellationToken);
+await source.CopyToAsync(file, cancellationToken);
 Console.WriteLine($"Suggested name: {export.Headers.ContentDisposition?.FileName}");
 ```
 
@@ -100,7 +106,7 @@ Every non-success response is raised as `TheHiveApiException`, carrying the stat
 ```csharp
 try
 {
-	await client.Cases.GetAsync("~does-not-exist");
+	await client.Cases.GetAsync("~does-not-exist", cancellationToken);
 }
 catch (TheHiveApiException ex) when (ex.StatusCode == HttpStatusCode.NotFound)
 {
