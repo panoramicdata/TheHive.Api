@@ -11,12 +11,13 @@ public class NoOptionalParametersTests
 	[Fact]
 	public void PublicApi_HasNoOptionalParameters()
 	{
-		const BindingFlags flags = BindingFlags.Public | BindingFlags.Instance | BindingFlags.Static | BindingFlags.DeclaredOnly;
+		const BindingFlags flags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static | BindingFlags.DeclaredOnly;
 
 		var types = typeof(TheHiveClient).Assembly.GetExportedTypes();
 
 		var optional = types
 			.SelectMany(t => t.GetMethods(flags).Cast<MethodBase>().Concat(t.GetConstructors(flags))
+				.Where(m => IsVisibleOutsideTheAssembly(t, m))
 				.SelectMany(m => m.GetParameters()
 					.Where(p => p.IsOptional || p.HasDefaultValue)
 					.Select(p => $"{t.FullName}.{m.Name}({p.Name})")))
@@ -28,4 +29,8 @@ public class NoOptionalParametersTests
 			optional.Count,
 			string.Join(", ", optional));
 	}
+
+	/// <summary>Public members, and protected (or protected internal) members of a type that can be derived from outside the assembly.</summary>
+	private static bool IsVisibleOutsideTheAssembly(Type type, MethodBase method)
+		=> method.IsPublic || (!type.IsSealed && (method.IsFamily || method.IsFamilyOrAssembly));
 }

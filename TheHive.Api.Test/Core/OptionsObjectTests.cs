@@ -62,4 +62,46 @@ public class OptionsObjectTests
 		(await act.Should().ThrowAsync<ArgumentNullException>()).Which.ParamName.Should().Be("options");
 		stub.Calls.Should().BeEmpty();
 	}
+
+	// A null [Query] options object on a Refit-generated method is sent as an empty one (no query string). These pin that
+	// Refit behaviour, one per kind of request (GET, DELETE, POST with a body), so a Refit upgrade that changes it is noticed.
+
+	[Fact]
+	public async Task NullQueryObject_OnAGet_SendsNoQueryString()
+	{
+		var stub = new StubHandler();
+		stub.Enqueue(HttpStatusCode.OK);
+		using var client = TestClient.Create(stub);
+
+		await client.Status.GetAsync(null!, TestContext.Current.CancellationToken);
+
+		stub.Calls[0].Method.Should().Be(HttpMethod.Get);
+		stub.Calls[0].Uri.PathAndQuery.Should().Be("/api/v1/status");
+	}
+
+	[Fact]
+	public async Task NullQueryObject_OnADelete_SendsNoQueryString()
+	{
+		var stub = new StubHandler();
+		stub.Enqueue(HttpStatusCode.NoContent);
+		using var client = TestClient.Create(stub);
+
+		await client.Users.DeleteAsync("~1", null!, TestContext.Current.CancellationToken);
+
+		stub.Calls[0].Method.Should().Be(HttpMethod.Delete);
+		stub.Calls[0].Uri.PathAndQuery.Should().Be("/api/v1/user/~1/force");
+	}
+
+	[Fact]
+	public async Task NullQueryObject_OnAPostWithABody_SendsNoQueryString()
+	{
+		var stub = new StubHandler();
+		stub.Enqueue(HttpStatusCode.OK);
+		using var client = TestClient.Create(stub);
+
+		await client.Functions.TestAsync(new Data.Functions.FunctionTestRequest { Definition = "x" }, null!, TestContext.Current.CancellationToken);
+
+		stub.Calls[0].Method.Should().Be(HttpMethod.Post);
+		stub.Calls[0].Uri.PathAndQuery.Should().Be("/api/v1/function/_test");
+	}
 }
