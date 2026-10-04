@@ -15,18 +15,18 @@ public interface IAlertStatuses
 	/// <param name="cancellationToken">A cancellation token.</param>
 	/// <returns>The created status.</returns>
 	[Post("api/v1/alertStatus")]
-	Task<AlertStatus> CreateAsync([Body] AlertStatusCreateRequest request, CancellationToken cancellationToken = default);
+	Task<AlertStatus> CreateAsync([Body] AlertStatusCreateRequest request, CancellationToken cancellationToken);
 
 	/// <summary>Deletes an alert status; predefined statuses and statuses still assigned to alerts cannot be deleted (hide them instead).</summary>
 	/// <param name="id">The status ID preceded by <c>~</c>, or the status value.</param>
 	/// <param name="cancellationToken">A cancellation token.</param>
 	[Delete("api/v1/alertStatus/{id}")]
-	Task DeleteAsync(string id, CancellationToken cancellationToken = default);
+	Task DeleteAsync(string id, CancellationToken cancellationToken);
 
 	/// <summary>Updates the order, description, colour or visibility of an alert status.</summary>
 	/// <param name="id">The status ID preceded by <c>~</c>, or the status value.</param>
 	/// <param name="request">The properties to change.</param>
 	/// <param name="cancellationToken">A cancellation token.</param>
 	[Patch("api/v1/alertStatus/{id}")]
-	Task UpdateAsync(string id, [Body] AlertStatusUpdateRequest request, CancellationToken cancellationToken = default);
+	Task UpdateAsync(string id, [Body] AlertStatusUpdateRequest request, CancellationToken cancellationToken);
 }

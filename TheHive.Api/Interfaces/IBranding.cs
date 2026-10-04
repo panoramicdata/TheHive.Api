@@ -16,7 +16,7 @@ public interface IBranding
 	/// <param name="cancellationToken">A cancellation token.</param>
 	/// <returns>The branding settings.</returns>
 	[Get("api/v1/branding")]
-	Task<BrandingSettings> GetAsync(CancellationToken cancellationToken = default);
+	Task<BrandingSettings> GetAsync(CancellationToken cancellationToken);
 
 	/// <summary>
 	/// Sets the browser tab title and the login logo, navigation bar logo and favicon (a multipart <c>POST api/v1/branding</c>). Every property of
@@ -31,7 +31,7 @@ public interface IBranding
 	/// <see cref="SetMultipartAsync"/>. A class implementing <see cref="IBranding"/> only has to provide that method; a mocking library may
 	/// intercept this method itself (NSubstitute does), so set this method up directly on a mock.
 	/// </remarks>
-	Task<BrandingSettings> SetAsync(BrandingUpdateRequest request, CancellationToken cancellationToken = default)
+	Task<BrandingSettings> SetAsync(BrandingUpdateRequest request, CancellationToken cancellationToken)
 	{
 		ArgumentNullException.ThrowIfNull(request);
 		return SetMultipartAsync(request.Title, request.LoginLogo, request.MenuLogo, request.Favicon, cancellationToken);
@@ -62,7 +62,7 @@ public interface IBranding
 	/// <param name="kind">The asset: one of the <see cref="BrandingAssetKinds"/> constants (<c>loginLogo</c>, <c>menuLogo</c>, <c>favicon</c>).</param>
 	/// <param name="cancellationToken">A cancellation token.</param>
 	[Delete("api/v1/branding/assets/{kind}")]
-	Task DeleteAssetAsync(string kind, CancellationToken cancellationToken = default);
+	Task DeleteAssetAsync(string kind, CancellationToken cancellationToken);
 
 	/// <summary>Downloads a branding image.</summary>
 	/// <param name="kind">The asset: one of the <see cref="BrandingAssetKinds"/> constants (<c>loginLogo</c>, <c>menuLogo</c>, <c>favicon</c>).</param>
@@ -83,7 +83,7 @@ public interface IBranding
 	Task<HttpContent> GetAssetAsync(
 		string kind,
 		ConditionalDownloadOptions options,
-		CancellationToken cancellationToken = default)
+		CancellationToken cancellationToken)
 	{
 		ArgumentNullException.ThrowIfNull(options);
 		return GetAssetWithHeadersAsync(kind, options.IfNoneMatch, cancellationToken);

@@ -16,13 +16,13 @@ public interface IFunctions
 	/// <param name="cancellationToken">A cancellation token.</param>
 	/// <returns>The created function.</returns>
 	[Post("api/v1/function")]
-	Task<Function> CreateAsync([Body] FunctionCreateRequest request, CancellationToken cancellationToken = default);
+	Task<Function> CreateAsync([Body] FunctionCreateRequest request, CancellationToken cancellationToken);
 
 	/// <summary>Lists the fields and methods available on the <c>context</c> object passed to function code.</summary>
 	/// <param name="cancellationToken">A cancellation token.</param>
 	/// <returns>The context documentation.</returns>
 	[Get("api/v1/function/_context/documentation")]
-	Task<FunctionContextDocumentation> GetContextDocumentationAsync(CancellationToken cancellationToken = default);
+	Task<FunctionContextDocumentation> GetContextDocumentationAsync(CancellationToken cancellationToken);
 
 	/// <summary>Tests function code without saving it and returns the same output as invoking a saved function. Requires <c>manageFunction/create</c>.</summary>
 	/// <param name="request">The code, configuration and input to run.</param>
@@ -30,7 +30,7 @@ public interface IFunctions
 	/// <param name="cancellationToken">A cancellation token.</param>
 	/// <returns>The returned value, duration, stdout and stderr.</returns>
 	[Post("api/v1/function/_test")]
-	Task<FunctionInvocationResult> TestAsync([Body] FunctionTestRequest request, [Query] DryRunOptions options, CancellationToken cancellationToken = default);
+	Task<FunctionInvocationResult> TestAsync([Body] FunctionTestRequest request, [Query] DryRunOptions options, CancellationToken cancellationToken);
 
 	/// <summary>Invokes a function, optionally passing a JSON payload as input. Requires <c>manageFunction/invoke</c>.</summary>
 	/// <param name="function">The function ID preceded by <c>~</c>, or the function name.</param>
@@ -39,7 +39,7 @@ public interface IFunctions
 	/// <param name="cancellationToken">A cancellation token.</param>
 	/// <returns>The returned value, duration, stdout and stderr.</returns>
 	[Post("api/v1/function/{function}")]
-	Task<FunctionInvocationResult> InvokeAsync(string function, [Body] object? input, [Query] DryRunOptions options, CancellationToken cancellationToken = default);
+	Task<FunctionInvocationResult> InvokeAsync(string function, [Body] object? input, [Query] DryRunOptions options, CancellationToken cancellationToken);
 
 	/// <summary>Invokes a function of type <c>action:case</c> or <c>action:alert</c> on a case or alert, passing the object as input. Requires <c>manageFunction/invoke</c>.</summary>
 	/// <param name="function">The function ID preceded by <c>~</c>, or the function name.</param>
@@ -54,25 +54,25 @@ public interface IFunctions
 		string objectType,
 		string objectIdOrName,
 		[Query] FunctionInvocationOptions options,
-		CancellationToken cancellationToken = default);
+		CancellationToken cancellationToken);
 
 	/// <summary>Deletes a function. Requires <c>manageFunction/create</c>.</summary>
 	/// <param name="functionId">The function ID preceded by <c>~</c>, or the function name.</param>
 	/// <param name="cancellationToken">A cancellation token.</param>
 	[Delete("api/v1/function/{functionId}")]
-	Task DeleteAsync(string functionId, CancellationToken cancellationToken = default);
+	Task DeleteAsync(string functionId, CancellationToken cancellationToken);
 
 	/// <summary>Gets a function.</summary>
 	/// <param name="functionId">The function ID preceded by <c>~</c>, or the function name.</param>
 	/// <param name="cancellationToken">A cancellation token.</param>
 	/// <returns>The function.</returns>
 	[Get("api/v1/function/{functionId}")]
-	Task<Function> GetAsync(string functionId, CancellationToken cancellationToken = default);
+	Task<Function> GetAsync(string functionId, CancellationToken cancellationToken);
 
 	/// <summary>Updates one or more fields of a function. Requires <c>manageFunction/create</c>.</summary>
 	/// <param name="functionId">The function ID preceded by <c>~</c>, or the function name.</param>
 	/// <param name="request">The fields to change.</param>
 	/// <param name="cancellationToken">A cancellation token.</param>
 	[Patch("api/v1/function/{functionId}")]
-	Task UpdateAsync(string functionId, [Body] FunctionUpdateRequest request, CancellationToken cancellationToken = default);
+	Task UpdateAsync(string functionId, [Body] FunctionUpdateRequest request, CancellationToken cancellationToken);
 }

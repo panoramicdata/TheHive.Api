@@ -22,7 +22,7 @@ public interface IQuery
 	/// <c>page</c> step asks for one), also a one-item array for <c>getXxx</c> queries on TheHive 5.8.0, or a bare number for a <c>count</c> query.
 	/// </returns>
 	[Post("api/v1/query")]
-	Task<JsonElement> RunAsync([Body] QueryRequest request, [Query] QueryRunOptions options, CancellationToken cancellationToken = default);
+	Task<JsonElement> RunAsync([Body] QueryRequest request, [Query] QueryRunOptions options, CancellationToken cancellationToken);
 
 	/// <summary>
 	/// UNCHECKED: runs a query and returns the raw response <b>without checking its status</b>. This is the only kind of member
@@ -42,7 +42,7 @@ public interface IQuery
 	Task<HttpResponseMessage> RunUncheckedAsync(
 		[Body] QueryRequest request,
 		[Query] QueryRunOptions options,
-		CancellationToken cancellationToken = default);
+		CancellationToken cancellationToken);
 
 	/// <summary>
 	/// Runs a query and downloads the results as a file (an unstable route: breaking changes can happen in future releases).
@@ -60,11 +60,11 @@ public interface IQuery
 	/// per-attempt timeout does not cover reading the body.
 	/// </returns>
 	[Get("api/v1/export")]
-	Task<HttpContent> ExportAsync([Query] string query, [Query] string options, CancellationToken cancellationToken = default);
+	Task<HttpContent> ExportAsync([Query] string query, [Query] string options, CancellationToken cancellationToken);
 
 	/// <summary>Lists the fields available for CSV export, by model (an unstable route).</summary>
 	/// <param name="cancellationToken">A cancellation token.</param>
 	/// <returns>The exportable fields of each model.</returns>
 	[Get("api/v1/export/_fields")]
-	Task<ExportFieldsMapping> GetExportFieldsAsync(CancellationToken cancellationToken = default);
+	Task<ExportFieldsMapping> GetExportFieldsAsync(CancellationToken cancellationToken);
 }

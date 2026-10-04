@@ -11,32 +11,32 @@ public interface ICaseTemplates
 	/// <param name="cancellationToken">A cancellation token.</param>
 	/// <returns>The created template.</returns>
 	[Post("api/v1/caseTemplate")]
-	Task<CaseTemplate> CreateAsync([Body] CaseTemplateCreateRequest request, CancellationToken cancellationToken = default);
+	Task<CaseTemplate> CreateAsync([Body] CaseTemplateCreateRequest request, CancellationToken cancellationToken);
 
 	/// <summary>Deletes a case template; cases already created from it are not affected.</summary>
 	/// <param name="caseTemplateNameOrId">The template ID preceded by <c>~</c>, or its name.</param>
 	/// <param name="cancellationToken">A cancellation token.</param>
 	[Delete("api/v1/caseTemplate/{caseTemplateNameOrId}")]
-	Task DeleteAsync(string caseTemplateNameOrId, CancellationToken cancellationToken = default);
+	Task DeleteAsync(string caseTemplateNameOrId, CancellationToken cancellationToken);
 
 	/// <summary>Gets a case template.</summary>
 	/// <param name="caseTemplateNameOrId">The template ID preceded by <c>~</c>, or its name.</param>
 	/// <param name="cancellationToken">A cancellation token.</param>
 	/// <returns>The template.</returns>
 	[Get("api/v1/caseTemplate/{caseTemplateNameOrId}")]
-	Task<CaseTemplate> GetAsync(string caseTemplateNameOrId, CancellationToken cancellationToken = default);
+	Task<CaseTemplate> GetAsync(string caseTemplateNameOrId, CancellationToken cancellationToken);
 
 	/// <summary>Updates a case template; only the properties set on the request change.</summary>
 	/// <param name="caseTemplateNameOrId">The template ID preceded by <c>~</c>, or its name.</param>
 	/// <param name="request">The properties to change.</param>
 	/// <param name="cancellationToken">A cancellation token.</param>
 	[Patch("api/v1/caseTemplate/{caseTemplateNameOrId}")]
-	Task UpdateAsync(string caseTemplateNameOrId, [Body] CaseTemplateUpdateRequest request, CancellationToken cancellationToken = default);
+	Task UpdateAsync(string caseTemplateNameOrId, [Body] CaseTemplateUpdateRequest request, CancellationToken cancellationToken);
 
 	/// <summary>Replaces the full list of page templates linked to a case template.</summary>
 	/// <param name="caseTemplateNameOrId">The template ID preceded by <c>~</c>, or its name.</param>
 	/// <param name="request">The page template IDs to link; an empty list removes all links.</param>
 	/// <param name="cancellationToken">A cancellation token.</param>
 	[Put("api/v1/caseTemplate/{caseTemplateNameOrId}/pageTemplate/link")]
-	Task LinkPageTemplatesAsync(string caseTemplateNameOrId, [Body] CaseTemplatePageLinkRequest request, CancellationToken cancellationToken = default);
+	Task LinkPageTemplatesAsync(string caseTemplateNameOrId, [Body] CaseTemplatePageLinkRequest request, CancellationToken cancellationToken);
 }

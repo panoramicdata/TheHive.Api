@@ -15,18 +15,18 @@ public interface ITags
 	/// <param name="cancellationToken">A cancellation token.</param>
 	/// <returns>The tag.</returns>
 	[Get("api/v1/tag/{tagId}")]
-	Task<Tag> GetAsync(string tagId, CancellationToken cancellationToken = default);
+	Task<Tag> GetAsync(string tagId, CancellationToken cancellationToken);
 
 	/// <summary>Updates a custom tag everywhere it is used in the organization (requires <c>manageTag</c>); only the properties set on the request change.</summary>
 	/// <param name="tagId">The tag ID preceded by <c>~</c>, or the tag name.</param>
 	/// <param name="request">The properties to change.</param>
 	/// <param name="cancellationToken">A cancellation token.</param>
 	[Patch("api/v1/tag/{tagId}")]
-	Task UpdateAsync(string tagId, [Body] TagUpdateRequest request, CancellationToken cancellationToken = default);
+	Task UpdateAsync(string tagId, [Body] TagUpdateRequest request, CancellationToken cancellationToken);
 
 	/// <summary>Deletes a custom tag, removing it from all cases, alerts and observables in the organization (requires <c>manageTag</c>).</summary>
 	/// <param name="tagId">The tag ID preceded by <c>~</c>, or the tag name.</param>
 	/// <param name="cancellationToken">A cancellation token.</param>
 	[Delete("api/v1/tag/{tagId}")]
-	Task DeleteAsync(string tagId, CancellationToken cancellationToken = default);
+	Task DeleteAsync(string tagId, CancellationToken cancellationToken);
 }

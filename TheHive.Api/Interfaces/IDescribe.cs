@@ -13,12 +13,12 @@ public interface IDescribe
 	/// <param name="cancellationToken">A cancellation token.</param>
 	/// <returns>The descriptions keyed by model name, for example <c>case</c>.</returns>
 	[Get("api/v1/describe/_all")]
-	Task<Dictionary<string, EntityDescription>> GetAllAsync(CancellationToken cancellationToken = default);
+	Task<Dictionary<string, EntityDescription>> GetAllAsync(CancellationToken cancellationToken);
 
 	/// <summary>Describes one entity model.</summary>
 	/// <param name="model">The model name, for example <c>case</c>, <c>alert</c>, <c>task</c>, <c>observable</c> or <c>user</c>.</param>
 	/// <param name="cancellationToken">A cancellation token.</param>
 	/// <returns>The model's description.</returns>
 	[Get("api/v1/describe/{model}")]
-	Task<EntityDescription> GetAsync(string model, CancellationToken cancellationToken = default);
+	Task<EntityDescription> GetAsync(string model, CancellationToken cancellationToken);
 }

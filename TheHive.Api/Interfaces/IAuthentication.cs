@@ -16,7 +16,7 @@ public interface IAuthentication
 	/// <param name="cancellationToken">A cancellation token.</param>
 	/// <returns>The policy; a rule that is not configured is <see langword="null"/>.</returns>
 	[Get("api/v1/auth/local/passwordPolicy")]
-	Task<PasswordPolicy> GetPasswordPolicyAsync(CancellationToken cancellationToken = default);
+	Task<PasswordPolicy> GetPasswordPolicyAsync(CancellationToken cancellationToken);
 
 	/// <summary>
 	/// Generates a new TOTP secret and <c>otpauth</c> URI to set up multifactor authentication on your account. Multifactor authentication must not already
@@ -25,18 +25,18 @@ public interface IAuthentication
 	/// <param name="cancellationToken">A cancellation token.</param>
 	/// <returns>The secret and URI. SECRET.</returns>
 	[Get("api/v1/auth/totp/get")]
-	Task<TotpSecret> GetTotpSecretAsync(CancellationToken cancellationToken = default);
+	Task<TotpSecret> GetTotpSecretAsync(CancellationToken cancellationToken);
 
 	/// <summary>Activates multifactor authentication by confirming the secret from <see cref="GetTotpSecretAsync"/> with the current authenticator code.</summary>
 	/// <param name="request">The code and the secret. SECRET.</param>
 	/// <param name="cancellationToken">A cancellation token.</param>
 	[Post("api/v1/auth/totp/set")]
-	Task SetTotpAsync([Body] TotpActivateRequest request, CancellationToken cancellationToken = default);
+	Task SetTotpAsync([Body] TotpActivateRequest request, CancellationToken cancellationToken);
 
 	/// <summary>Deactivates multifactor authentication for your account; not possible when an administrator enforces it for all users.</summary>
 	/// <param name="cancellationToken">A cancellation token.</param>
 	[Post("api/v1/auth/totp/unset")]
-	Task UnsetTotpAsync(CancellationToken cancellationToken = default);
+	Task UnsetTotpAsync(CancellationToken cancellationToken);
 
 	/// <summary>
 	/// Deactivates multifactor authentication for another user. For your own login it behaves like <see cref="UnsetTotpAsync"/>; otherwise it needs
@@ -45,7 +45,7 @@ public interface IAuthentication
 	/// <param name="user">The ID or login of the user.</param>
 	/// <param name="cancellationToken">A cancellation token.</param>
 	[Post("api/v1/auth/totp/unset/{user}")]
-	Task UnsetTotpForUserAsync(string user, CancellationToken cancellationToken = default);
+	Task UnsetTotpForUserAsync(string user, CancellationToken cancellationToken);
 
 	/// <summary>
 	/// Logs in with a login, password and organization (and a code when multifactor authentication is enabled). The server answers with a session
@@ -55,15 +55,15 @@ public interface IAuthentication
 	/// <param name="cancellationToken">A cancellation token.</param>
 	/// <returns>The signed-in user.</returns>
 	[Post("api/v1/login")]
-	Task<User> LoginAsync([Body] LoginRequest request, CancellationToken cancellationToken = default);
+	Task<User> LoginAsync([Body] LoginRequest request, CancellationToken cancellationToken);
 
 	/// <summary>Ends the current session and revokes its cookie, using the <c>GET</c> variant that exists for clients that log out through a link or redirect. Prefer <see cref="LogoutAsync"/>.</summary>
 	/// <param name="cancellationToken">A cancellation token.</param>
 	[Get("api/v1/logout")]
-	Task LogoutByGetAsync(CancellationToken cancellationToken = default);
+	Task LogoutByGetAsync(CancellationToken cancellationToken);
 
 	/// <summary>Ends the current session and revokes its cookie (the <c>POST</c> variant, for clients that avoid state-changing GET requests).</summary>
 	/// <param name="cancellationToken">A cancellation token.</param>
 	[Post("api/v1/logout")]
-	Task LogoutAsync(CancellationToken cancellationToken = default);
+	Task LogoutAsync(CancellationToken cancellationToken);
 }

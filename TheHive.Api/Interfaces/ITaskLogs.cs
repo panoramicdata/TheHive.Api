@@ -14,20 +14,20 @@ public interface ITaskLogs
 	/// <param name="cancellationToken">A cancellation token.</param>
 	/// <returns>The created log.</returns>
 	[Post("api/v1/task/{taskId}/log")]
-	Task<TaskLog> CreateAsync(string taskId, [Body] TaskLogCreateRequest request, CancellationToken cancellationToken = default);
+	Task<TaskLog> CreateAsync(string taskId, [Body] TaskLogCreateRequest request, CancellationToken cancellationToken);
 
 	/// <summary>Updates the content or timeline pin of a task log (requires <c>manageTask</c>).</summary>
 	/// <param name="logId">The task log ID preceded by <c>~</c>.</param>
 	/// <param name="request">The properties to change.</param>
 	/// <param name="cancellationToken">A cancellation token.</param>
 	[Patch("api/v1/log/{logId}")]
-	Task UpdateAsync(string logId, [Body] TaskLogUpdateRequest request, CancellationToken cancellationToken = default);
+	Task UpdateAsync(string logId, [Body] TaskLogUpdateRequest request, CancellationToken cancellationToken);
 
 	/// <summary>Deletes a task log (requires <c>manageTask</c>).</summary>
 	/// <param name="logId">The task log ID preceded by <c>~</c>.</param>
 	/// <param name="cancellationToken">A cancellation token.</param>
 	[Delete("api/v1/log/{logId}")]
-	Task DeleteAsync(string logId, CancellationToken cancellationToken = default);
+	Task DeleteAsync(string logId, CancellationToken cancellationToken);
 
 	/// <summary>Adds files to an existing task log (requires <c>manageTask</c>).</summary>
 	/// <param name="logId">The task log ID preceded by <c>~</c>.</param>
@@ -40,14 +40,14 @@ public interface ITaskLogs
 	Task AddAttachmentsAsync(
 		string logId,
 		[AliasAs("attachments")] IEnumerable<MultipartItem> attachments,
-		CancellationToken cancellationToken = default);
+		CancellationToken cancellationToken);
 
 	/// <summary>Permanently deletes an attachment from a task log (requires <c>manageTask</c>).</summary>
 	/// <param name="logId">The task log ID preceded by <c>~</c>.</param>
 	/// <param name="attachmentId">The attachment ID preceded by <c>~</c>.</param>
 	/// <param name="cancellationToken">A cancellation token.</param>
 	[Delete("api/v1/log/{logId}/attachments/{attachmentId}")]
-	Task DeleteAttachmentAsync(string logId, string attachmentId, CancellationToken cancellationToken = default);
+	Task DeleteAttachmentAsync(string logId, string attachmentId, CancellationToken cancellationToken);
 
 	/// <summary>Gets the binary content of an attachment linked to an observable (the spec files this operation under the Task Log tag).</summary>
 	/// <param name="observableId">The observable ID preceded by <c>~</c>.</param>
@@ -69,7 +69,7 @@ public interface ITaskLogs
 		string observableId,
 		string attachmentId,
 		ConditionalDownloadOptions options,
-		CancellationToken cancellationToken = default)
+		CancellationToken cancellationToken)
 	{
 		ArgumentNullException.ThrowIfNull(options);
 		return GetObservableAttachmentWithHeadersAsync(observableId, attachmentId, options.IfNoneMatch, cancellationToken);

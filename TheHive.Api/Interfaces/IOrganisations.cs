@@ -18,21 +18,21 @@ public interface IOrganisations
 	/// <param name="cancellationToken">A cancellation token.</param>
 	/// <returns>The created organization.</returns>
 	[Post("api/v1/organisation")]
-	Task<Organisation> CreateAsync([Body] OrganisationCreateRequest request, CancellationToken cancellationToken = default);
+	Task<Organisation> CreateAsync([Body] OrganisationCreateRequest request, CancellationToken cancellationToken);
 
 	/// <summary>Gets an organization.</summary>
 	/// <param name="orgId">The organization ID preceded by <c>~</c>, or its name.</param>
 	/// <param name="cancellationToken">A cancellation token.</param>
 	/// <returns>The organization.</returns>
 	[Get("api/v1/organisation/{orgId}")]
-	Task<Organisation> GetAsync(string orgId, CancellationToken cancellationToken = default);
+	Task<Organisation> GetAsync(string orgId, CancellationToken cancellationToken);
 
 	/// <summary>Updates an organization; only the properties set on the request change.</summary>
 	/// <param name="orgId">The organization ID preceded by <c>~</c>, or its name.</param>
 	/// <param name="request">The properties to change.</param>
 	/// <param name="cancellationToken">A cancellation token.</param>
 	[Patch("api/v1/organisation/{orgId}")]
-	Task UpdateAsync(string orgId, [Body] OrganisationUpdateRequest request, CancellationToken cancellationToken = default);
+	Task UpdateAsync(string orgId, [Body] OrganisationUpdateRequest request, CancellationToken cancellationToken);
 
 	/// <summary>Streams the avatar image of an organization.</summary>
 	/// <param name="orgId">The organization ID preceded by <c>~</c>, or its name.</param>
@@ -54,7 +54,7 @@ public interface IOrganisations
 		string orgId,
 		string fileHash,
 		ConditionalDownloadOptions options,
-		CancellationToken cancellationToken = default)
+		CancellationToken cancellationToken)
 	{
 		ArgumentNullException.ThrowIfNull(options);
 		return GetAvatarWithHeadersAsync(orgId, fileHash, options.IfNoneMatch, cancellationToken);
@@ -86,7 +86,7 @@ public interface IOrganisations
 	/// <param name="otherOrgId">The ID preceded by <c>~</c>, or name, of the organization to unlink.</param>
 	/// <param name="cancellationToken">A cancellation token.</param>
 	[Delete("api/v1/organisation/{orgId}/link/{otherOrgId}")]
-	Task UnlinkAsync(string orgId, string otherOrgId, CancellationToken cancellationToken = default);
+	Task UnlinkAsync(string orgId, string otherOrgId, CancellationToken cancellationToken);
 
 	/// <summary>Creates a sharing link between two organizations so they can share cases.</summary>
 	/// <param name="orgId">The organization ID preceded by <c>~</c>, or its name.</param>
@@ -94,27 +94,27 @@ public interface IOrganisations
 	/// <param name="request">The sharing profile for each direction; pass <c>new OrganisationLinkRequest()</c> to use the <c>default</c> profile for both (the spec's body is optional, but a <see langword="null"/> body would be sent as a JSON <c>null</c>).</param>
 	/// <param name="cancellationToken">A cancellation token.</param>
 	[Put("api/v1/organisation/{orgId}/link/{otherOrgId}")]
-	Task LinkAsync(string orgId, string otherOrgId, [Body] OrganisationLinkRequest request, CancellationToken cancellationToken = default);
+	Task LinkAsync(string orgId, string otherOrgId, [Body] OrganisationLinkRequest request, CancellationToken cancellationToken);
 
 	/// <summary>Lists the organizations linked to an organization, with the sharing profile in each direction.</summary>
 	/// <param name="orgId">The organization ID preceded by <c>~</c>, or its name.</param>
 	/// <param name="cancellationToken">A cancellation token.</param>
 	/// <returns>The links.</returns>
 	[Get("api/v1/organisation/{orgId}/links")]
-	Task<List<OrganisationLinkDetails>> ListLinksAsync(string orgId, CancellationToken cancellationToken = default);
+	Task<List<OrganisationLinkDetails>> ListLinksAsync(string orgId, CancellationToken cancellationToken);
 
 	/// <summary>Replaces the complete set of sharing links of an organization: existing links are removed and the given ones created.</summary>
 	/// <param name="orgId">The organization ID preceded by <c>~</c>, or its name.</param>
 	/// <param name="request">The links to apply.</param>
 	/// <param name="cancellationToken">A cancellation token.</param>
 	[Put("api/v1/organisation/{orgId}/links")]
-	Task ReplaceLinksAsync(string orgId, [Body] OrganisationBulkLinkRequest request, CancellationToken cancellationToken = default);
+	Task ReplaceLinksAsync(string orgId, [Body] OrganisationBulkLinkRequest request, CancellationToken cancellationToken);
 
 	/// <summary>Lists the sharing profiles defined in the platform configuration.</summary>
 	/// <param name="cancellationToken">A cancellation token.</param>
 	/// <returns>The sharing profiles.</returns>
 	[Get("api/v1/sharingProfile")]
-	Task<List<SharingProfile>> ListSharingProfilesAsync(CancellationToken cancellationToken = default);
+	Task<List<SharingProfile>> ListSharingProfilesAsync(CancellationToken cancellationToken);
 
 	/// <summary>
 	/// Uploads one or more permanent files to the organization (requires <c>manageKnowledgeBase</c>). This is also how to obtain the
@@ -136,7 +136,7 @@ public interface IOrganisations
 	Task<AttachmentUploadResult> UploadAttachmentsAsync(
 		IEnumerable<MultipartItem> attachments,
 		AttachmentUploadOptions options,
-		CancellationToken cancellationToken = default)
+		CancellationToken cancellationToken)
 	{
 		ArgumentNullException.ThrowIfNull(options);
 		return UploadAttachmentsMultipartAsync(attachments, options.CanRename, cancellationToken);
@@ -163,7 +163,7 @@ public interface IOrganisations
 	/// <param name="attachmentId">The attachment ID preceded by <c>~</c>.</param>
 	/// <param name="cancellationToken">A cancellation token.</param>
 	[Delete("api/v1/attachment/{attachmentId}")]
-	Task DeleteAttachmentAsync(string attachmentId, CancellationToken cancellationToken = default);
+	Task DeleteAttachmentAsync(string attachmentId, CancellationToken cancellationToken);
 
 	/// <summary>Streams the content of an organization file.</summary>
 	/// <param name="attachmentId">The attachment ID preceded by <c>~</c>.</param>
@@ -183,7 +183,7 @@ public interface IOrganisations
 	Task<HttpContent> GetAttachmentAsync(
 		string attachmentId,
 		ConditionalDownloadOptions options,
-		CancellationToken cancellationToken = default)
+		CancellationToken cancellationToken)
 	{
 		ArgumentNullException.ThrowIfNull(options);
 		return GetAttachmentWithHeadersAsync(attachmentId, options.IfNoneMatch, cancellationToken);
@@ -220,5 +220,5 @@ public interface IOrganisations
 	/// pass a <see cref="CancellationToken"/> to <c>ReadAs*Async</c> (or the stream reads) so a stalled download cannot hang.
 	/// </remarks>
 	[Get("api/v1/attachment/{attachmentId}/download")]
-	Task<HttpContent> DownloadAttachmentAsync(string attachmentId, CancellationToken cancellationToken = default);
+	Task<HttpContent> DownloadAttachmentAsync(string attachmentId, CancellationToken cancellationToken);
 }

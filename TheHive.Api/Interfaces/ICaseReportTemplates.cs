@@ -18,33 +18,33 @@ public interface ICaseReportTemplates
 	/// <param name="cancellationToken">A cancellation token.</param>
 	/// <returns>The created template.</returns>
 	[Post("api/v1/caseReportTemplate")]
-	Task<CaseReportTemplate> CreateAsync([Body] CaseReportTemplateCreateRequest request, CancellationToken cancellationToken = default);
+	Task<CaseReportTemplate> CreateAsync([Body] CaseReportTemplateCreateRequest request, CancellationToken cancellationToken);
 
 	/// <summary>Lists the widget types and the field names each widget category supports, to discover valid values for a template definition.</summary>
 	/// <param name="cancellationToken">A cancellation token.</param>
 	/// <returns>The available options.</returns>
 	[Get("api/v1/caseReportTemplate/_info")]
-	Task<CaseReportTemplateOptions> GetOptionsAsync(CancellationToken cancellationToken = default);
+	Task<CaseReportTemplateOptions> GetOptionsAsync(CancellationToken cancellationToken);
 
 	/// <summary>Gets a case report template.</summary>
 	/// <param name="templateId">The template ID preceded by <c>~</c>.</param>
 	/// <param name="cancellationToken">A cancellation token.</param>
 	/// <returns>The template.</returns>
 	[Get("api/v1/caseReportTemplate/{templateId}")]
-	Task<CaseReportTemplate> GetAsync(string templateId, CancellationToken cancellationToken = default);
+	Task<CaseReportTemplate> GetAsync(string templateId, CancellationToken cancellationToken);
 
 	/// <summary>Updates a case report template (requires <c>manageCaseReportTemplate</c>); only the properties set on the request change.</summary>
 	/// <param name="idOrName">The template ID preceded by <c>~</c>.</param>
 	/// <param name="request">The properties to change.</param>
 	/// <param name="cancellationToken">A cancellation token.</param>
 	[Patch("api/v1/caseReportTemplate/{idOrName}")]
-	Task UpdateAsync(string idOrName, [Body] CaseReportTemplateUpdateRequest request, CancellationToken cancellationToken = default);
+	Task UpdateAsync(string idOrName, [Body] CaseReportTemplateUpdateRequest request, CancellationToken cancellationToken);
 
 	/// <summary>Permanently deletes a case report template (requires <c>manageCaseReportTemplate</c>).</summary>
 	/// <param name="idOrName">The template ID preceded by <c>~</c>.</param>
 	/// <param name="cancellationToken">A cancellation token.</param>
 	[Delete("api/v1/caseReportTemplate/{idOrName}")]
-	Task DeleteAsync(string idOrName, CancellationToken cancellationToken = default);
+	Task DeleteAsync(string idOrName, CancellationToken cancellationToken);
 
 	/// <summary>Uploads one or more files to a template as attachments, for use in <c>Image</c> widgets (requires <c>manageCaseReportTemplate</c>). The spec requires at least one file.</summary>
 	/// <remarks>
@@ -62,7 +62,7 @@ public interface ICaseReportTemplates
 		string templateId,
 		IEnumerable<MultipartItem> attachments,
 		AttachmentUploadOptions options,
-		CancellationToken cancellationToken = default)
+		CancellationToken cancellationToken)
 	{
 		ArgumentNullException.ThrowIfNull(options);
 		return AddAttachmentsMultipartAsync(templateId, attachments, options.CanRename, cancellationToken);
@@ -92,7 +92,7 @@ public interface ICaseReportTemplates
 	/// <param name="attachmentId">The attachment ID preceded by <c>~</c>.</param>
 	/// <param name="cancellationToken">A cancellation token.</param>
 	[Delete("api/v1/caseReportTemplate/{templateId}/attachment/{attachmentId}")]
-	Task DeleteAttachmentAsync(string templateId, string attachmentId, CancellationToken cancellationToken = default);
+	Task DeleteAttachmentAsync(string templateId, string attachmentId, CancellationToken cancellationToken);
 
 	/// <summary>Streams the content of a template attachment.</summary>
 	/// <param name="templateId">The template ID preceded by <c>~</c>.</param>
@@ -114,7 +114,7 @@ public interface ICaseReportTemplates
 		string templateId,
 		string attachmentId,
 		ConditionalDownloadOptions options,
-		CancellationToken cancellationToken = default)
+		CancellationToken cancellationToken)
 	{
 		ArgumentNullException.ThrowIfNull(options);
 		return GetAttachmentWithHeadersAsync(templateId, attachmentId, options.IfNoneMatch, cancellationToken);
@@ -153,5 +153,5 @@ public interface ICaseReportTemplates
 	/// pass a <see cref="CancellationToken"/> to <c>ReadAs*Async</c> (or the stream reads) so a stalled download cannot hang.
 	/// </remarks>
 	[Get("api/v1/caseReportTemplate/{templateId}/attachment/{attachmentId}/download")]
-	Task<HttpContent> DownloadAttachmentAsync(string templateId, string attachmentId, CancellationToken cancellationToken = default);
+	Task<HttpContent> DownloadAttachmentAsync(string templateId, string attachmentId, CancellationToken cancellationToken);
 }

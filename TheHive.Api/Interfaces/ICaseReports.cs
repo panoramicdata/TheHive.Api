@@ -23,7 +23,7 @@ public interface ICaseReports
 	/// <param name="cancellationToken">A cancellation token.</param>
 	/// <returns>The report created.</returns>
 	[Post("api/v1/case/{caseId}/report")]
-	Task<CaseReport> GenerateAsync(string caseId, [Body] CaseReportGenerateRequest request, CancellationToken cancellationToken = default);
+	Task<CaseReport> GenerateAsync(string caseId, [Body] CaseReportGenerateRequest request, CancellationToken cancellationToken);
 
 	/// <summary>Attaches an externally produced report file to a case (requires <c>manageCaseReport</c>).</summary>
 	/// <remarks>Uploads are never retried (see <see cref="TheHiveClientOptions.MaxRetries"/>), so a file is never stored twice; the per-attempt <see cref="TheHiveClientOptions.Timeout"/> covers sending the file, so raise it for large uploads.</remarks>
@@ -34,7 +34,7 @@ public interface ICaseReports
 	/// <returns>The report created.</returns>
 	[Multipart]
 	[Post("api/v1/case/{caseId}/report/upload")]
-	Task<CaseReport> UploadAsync(string caseId, [AliasAs("file")] MultipartItem file, CancellationToken cancellationToken = default);
+	Task<CaseReport> UploadAsync(string caseId, [AliasAs("file")] MultipartItem file, CancellationToken cancellationToken);
 
 	/// <summary>Replaces the file of a case report (requires <c>manageCaseReport</c>).</summary>
 	/// <remarks>Uploads are never retried; see <see cref="UploadAsync"/>.</remarks>
@@ -43,39 +43,39 @@ public interface ICaseReports
 	/// <param name="cancellationToken">A cancellation token.</param>
 	[Multipart]
 	[Patch("api/v1/caseReport/{reportId}")]
-	Task UpdateAsync(string reportId, [AliasAs("file")] MultipartItem file, CancellationToken cancellationToken = default);
+	Task UpdateAsync(string reportId, [AliasAs("file")] MultipartItem file, CancellationToken cancellationToken);
 
 	/// <summary>Deletes a case report (requires <c>manageCaseReport</c>).</summary>
 	/// <param name="reportId">The case report ID preceded by <c>~</c>.</param>
 	/// <param name="cancellationToken">A cancellation token.</param>
 	[Delete("api/v1/caseReport/{reportId}")]
-	Task DeleteAsync(string reportId, CancellationToken cancellationToken = default);
+	Task DeleteAsync(string reportId, CancellationToken cancellationToken);
 
 	/// <summary>Downloads a case report file as an attachment.</summary>
 	/// <param name="reportId">The case report ID preceded by <c>~</c>.</param>
 	/// <param name="cancellationToken">A cancellation token.</param>
 	/// <returns>The file; the suggested name is in <c>Headers.ContentDisposition.FileName</c>. The caller owns the content and must dispose it.</returns>
 	[Get("api/v1/caseReport/{reportId}/download")]
-	Task<HttpContent> DownloadAsync(string reportId, CancellationToken cancellationToken = default);
+	Task<HttpContent> DownloadAsync(string reportId, CancellationToken cancellationToken);
 
 	/// <summary>Gets the content of a case report for inline display in a browser.</summary>
 	/// <param name="reportId">The case report ID preceded by <c>~</c>.</param>
 	/// <param name="cancellationToken">A cancellation token.</param>
 	/// <returns>The report content. The caller owns the content and must dispose it.</returns>
 	[Get("api/v1/caseReport/{reportId}/view")]
-	Task<HttpContent> ViewAsync(string reportId, CancellationToken cancellationToken = default);
+	Task<HttpContent> ViewAsync(string reportId, CancellationToken cancellationToken);
 
 	/// <summary>Renders a preview of a case report from a saved template without saving it. Use <see cref="RenderAsync"/> for an inline definition.</summary>
 	/// <param name="query">The format, template and optional case and element limit (<c>format</c>, <c>caseReportTemplateId</c>, <c>caseId</c>, <c>maxElements</c>). Pass a non-null query: a <see langword="null"/> one is not rejected by the client, it sends no query parameters and the server rejects the request.</param>
 	/// <param name="cancellationToken">A cancellation token.</param>
 	/// <returns>The rendered output. The caller owns the content and must dispose it.</returns>
 	[Get("api/v1/caseReport/render")]
-	Task<HttpContent> RenderTemplateAsync([Query] CaseReportRenderQuery query, CancellationToken cancellationToken = default);
+	Task<HttpContent> RenderTemplateAsync([Query] CaseReportRenderQuery query, CancellationToken cancellationToken);
 
 	/// <summary>Renders a preview of a case report from a saved template or an inline definition, without saving it.</summary>
 	/// <param name="request">What to render.</param>
 	/// <param name="cancellationToken">A cancellation token.</param>
 	/// <returns>The rendered output. The caller owns the content and must dispose it.</returns>
 	[Post("api/v1/caseReport/render")]
-	Task<HttpContent> RenderAsync([Body] CaseReportRenderRequest request, CancellationToken cancellationToken = default);
+	Task<HttpContent> RenderAsync([Body] CaseReportRenderRequest request, CancellationToken cancellationToken);
 }

@@ -18,5 +18,5 @@ public interface IAudit
 	/// <param name="cancellationToken">A cancellation token.</param>
 	/// <returns>The audit entries, most recent first.</returns>
 	[Get("api/v1/flow")]
-	Task<List<AuditStreamEntry>> GetFlowAsync([Query] AuditFlowQuery query, CancellationToken cancellationToken = default);
+	Task<List<AuditStreamEntry>> GetFlowAsync([Query] AuditFlowQuery query, CancellationToken cancellationToken);
 }

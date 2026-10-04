@@ -11,7 +11,7 @@ public interface IStatus
 	/// <param name="cancellationToken">A cancellation token.</param>
 	/// <returns>The platform status.</returns>
 	[Get("api/v1/status")]
-	Task<PlatformStatus> GetAsync([Query] PlatformStatusQuery query, CancellationToken cancellationToken = default);
+	Task<PlatformStatus> GetAsync([Query] PlatformStatusQuery query, CancellationToken cancellationToken);
 
 	/// <summary>
 	/// Gets the platform information that needs no authentication: whether single sign-on is on, the SSO providers, the version and the status of
@@ -20,5 +20,5 @@ public interface IStatus
 	/// <param name="cancellationToken">A cancellation token.</param>
 	/// <returns>The public status.</returns>
 	[Get("api/v1/status/public")]
-	Task<PublicStatus> GetPublicAsync(CancellationToken cancellationToken = default);
+	Task<PublicStatus> GetPublicAsync(CancellationToken cancellationToken);
 }

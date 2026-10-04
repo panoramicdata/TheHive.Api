@@ -18,7 +18,7 @@ public interface IObservables
 		string caseId,
 		[Body] ObservableInput request,
 		[Query] ObservableCreateOptions options,
-		CancellationToken cancellationToken = default);
+		CancellationToken cancellationToken);
 
 	/// <summary>Adds one or more observables to an alert (requires <c>manageObservable</c>).</summary>
 	/// <param name="alertId">The alert ID preceded by <c>~</c>.</param>
@@ -32,33 +32,33 @@ public interface IObservables
 		string alertId,
 		[Body] ObservableInput request,
 		[Query] ObservableCreateOptions options,
-		CancellationToken cancellationToken = default);
+		CancellationToken cancellationToken);
 
 	/// <summary>Gets an observable with its type, value, tags and analysis reports.</summary>
 	/// <param name="observableId">The observable ID preceded by <c>~</c>.</param>
 	/// <param name="cancellationToken">A cancellation token.</param>
 	/// <returns>The observable.</returns>
 	[Get("api/v1/observable/{observableId}")]
-	Task<Observable> GetAsync(string observableId, CancellationToken cancellationToken = default);
+	Task<Observable> GetAsync(string observableId, CancellationToken cancellationToken);
 
 	/// <summary>Updates an observable; only the set properties of the request change (requires <c>manageObservable</c>).</summary>
 	/// <param name="observableId">The observable ID preceded by <c>~</c>.</param>
 	/// <param name="request">The properties to change.</param>
 	/// <param name="cancellationToken">A cancellation token.</param>
 	[Patch("api/v1/observable/{observableId}")]
-	Task UpdateAsync(string observableId, [Body] ObservableUpdateRequest request, CancellationToken cancellationToken = default);
+	Task UpdateAsync(string observableId, [Body] ObservableUpdateRequest request, CancellationToken cancellationToken);
 
 	/// <summary>Applies the same update to several observables (requires <c>manageObservable</c>).</summary>
 	/// <param name="request">The observable IDs and the properties to change.</param>
 	/// <param name="cancellationToken">A cancellation token.</param>
 	[Patch("api/v1/observable/_bulk")]
-	Task BulkUpdateAsync([Body] ObservableBulkUpdateRequest request, CancellationToken cancellationToken = default);
+	Task BulkUpdateAsync([Body] ObservableBulkUpdateRequest request, CancellationToken cancellationToken);
 
 	/// <summary>Permanently deletes an observable; to keep it but exclude it from correlation, set <c>IgnoreSimilarity</c> instead (requires <c>manageObservable</c>).</summary>
 	/// <param name="observableId">The observable ID preceded by <c>~</c>.</param>
 	/// <param name="cancellationToken">A cancellation token.</param>
 	[Delete("api/v1/observable/{observableId}")]
-	Task DeleteAsync(string observableId, CancellationToken cancellationToken = default);
+	Task DeleteAsync(string observableId, CancellationToken cancellationToken);
 
 	/// <summary>Downloads the file attached to a file-type observable.</summary>
 	/// <param name="observableId">The observable ID preceded by <c>~</c>.</param>
@@ -78,5 +78,5 @@ public interface IObservables
 		string observableId,
 		string attachmentId,
 		[Query] ObservableAttachmentDownloadOptions options,
-		CancellationToken cancellationToken = default);
+		CancellationToken cancellationToken);
 }
