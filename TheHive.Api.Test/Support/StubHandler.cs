@@ -53,25 +53,8 @@ internal sealed class StubHandler : HttpMessageHandler
 		// Each body is read exactly once, as a real transport would, so non-seekable streams work.
 		// A multipart body is recorded part by part (Body and BodyBytes stay null); any other body as bytes and UTF-8 text.
 		var content = request.Content;
-		var parts = new List<RecordedPart>();
-		byte[]? bytes = null;
-		if (content is MultipartContent multipart)
-		{
-			foreach (var part in multipart)
-			{
-				var disposition = part.Headers.ContentDisposition;
-				parts.Add(new RecordedPart(
-					disposition?.Name?.Trim('"'),
-					disposition?.FileName?.Trim('"'),
-					part.Headers.ContentType?.MediaType,
-					await part.ReadAsByteArrayAsync(cancellationToken)));
-			}
-		}
-		else if (content is not null)
-		{
-			bytes = await content.ReadAsByteArrayAsync(cancellationToken);
-		}
-
+		var parts = content is MultipartContent multipart ? await RecordPartsAsync(multipart, cancellationToken) : [];
+		var bytes = content is null or MultipartContent ? null : await content.ReadAsByteArrayAsync(cancellationToken);
 		var body = bytes is null ? null : System.Text.Encoding.UTF8.GetString(bytes);
 		Calls.Add(new RecordedCall(request.Method, request.RequestUri!, body, request.Headers)
 		{
@@ -80,5 +63,21 @@ internal sealed class StubHandler : HttpMessageHandler
 			Parts = parts
 		});
 		return _responses.Dequeue()();
+	}
+
+	private static async Task<List<RecordedPart>> RecordPartsAsync(MultipartContent multipart, CancellationToken cancellationToken)
+	{
+		var parts = new List<RecordedPart>();
+		foreach (var part in multipart)
+		{
+			var disposition = part.Headers.ContentDisposition;
+			parts.Add(new RecordedPart(
+				disposition?.Name?.Trim('"'),
+				disposition?.FileName?.Trim('"'),
+				part.Headers.ContentType?.MediaType,
+				await part.ReadAsByteArrayAsync(cancellationToken)));
+		}
+
+		return parts;
 	}
 }

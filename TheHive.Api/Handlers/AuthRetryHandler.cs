@@ -37,42 +37,46 @@ internal sealed class AuthRetryHandler : DelegatingHandler
 
 	protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
 	{
+		AddAuthenticationHeaders(request);
+
+		// Only the path is logged: query strings can carry secrets (for example the case export password).
+		var path = request.RequestUri!.GetLeftPart(UriPartial.Path);
+		var replayable = IsReplayable(request.Content);
+		var backoff = _retryBaseDelay;
+		var attempt = 0;
+		var response = await SendAttemptAsync(request, path, attempt, cancellationToken);
+		while (replayable && attempt < _maxRetries && IsRetryable(request.Method, response.StatusCode))
+		{
+			var wait = CapDelay(RetryAfter(response) ?? backoff);
+			_logger?.LogWarning("TheHive returned {Status}; retrying in {Delay}", (int)response.StatusCode, wait);
+			response.Dispose();
+			await Delay(wait, cancellationToken);
+			backoff = NextBackoff(backoff);
+			attempt++;
+			response = await SendAttemptAsync(request, path, attempt, cancellationToken);
+		}
+
+		return response;
+	}
+
+	private void AddAuthenticationHeaders(HttpRequestMessage request)
+	{
 		request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", _apiKey);
 		if (!string.IsNullOrWhiteSpace(_organisation))
 		{
 			request.Headers.Remove("X-Organisation");
 			request.Headers.Add("X-Organisation", _organisation);
 		}
-
-		// Only the path is logged: query strings can carry secrets (for example the case export password).
-		var path = request.RequestUri!.GetLeftPart(UriPartial.Path);
-		var replayable = IsReplayable(request.Content);
-		var backoff = _retryBaseDelay;
-		for (var attempt = 0; ; attempt++)
-		{
-			_logger?.LogDebug("TheHive {Method} {Path} (attempt {Attempt})", request.Method, path, attempt + 1);
-			var response = await SendAttemptAsync(request, cancellationToken);
-			if (!replayable || !IsRetryable(request.Method, response.StatusCode) || attempt >= _maxRetries)
-			{
-				return response;
-			}
-
-			var wait = RetryAfter(response) ?? backoff;
-			if (wait > _maxRetryDelay)
-			{
-				wait = _maxRetryDelay;
-			}
-
-			_logger?.LogWarning("TheHive returned {Status}; retrying in {Delay}", (int)response.StatusCode, wait);
-			response.Dispose();
-			await Delay(wait, cancellationToken);
-			// Doubling is capped so it can never overflow TimeSpan.
-			backoff = backoff > _maxRetryDelay / 2 ? _maxRetryDelay : backoff * 2;
-		}
 	}
 
-	private async Task<HttpResponseMessage> SendAttemptAsync(HttpRequestMessage request, CancellationToken cancellationToken)
+	private TimeSpan CapDelay(TimeSpan wait) => wait > _maxRetryDelay ? _maxRetryDelay : wait;
+
+	// Doubling is capped so it can never overflow TimeSpan.
+	private TimeSpan NextBackoff(TimeSpan backoff) => backoff > _maxRetryDelay / 2 ? _maxRetryDelay : backoff * 2;
+
+	private async Task<HttpResponseMessage> SendAttemptAsync(HttpRequestMessage request, string path, int attempt, CancellationToken cancellationToken)
 	{
+		_logger?.LogDebug("TheHive {Method} {Path} (attempt {Attempt})", request.Method, path, attempt + 1);
 		using var attemptCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
 		attemptCts.CancelAfter(_timeout);
 		try
