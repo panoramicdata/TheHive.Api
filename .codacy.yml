@@ -3,3 +3,9 @@ exclude_paths:
   - "**/bin/**"
   - "**/obj/**"
   - "TheHive.Api.Test.Integration/**"
+engines:
+  # Agentlinter grades AI-agent instruction files. SECURITY.md is not one, and the only finding it raises
+  # there (no-pii-exposure) is the security contact address, which a security policy must publish.
+  agentlinter:
+    exclude_paths:
+      - "SECURITY.md"

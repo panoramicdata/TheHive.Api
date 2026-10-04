@@ -14,7 +14,7 @@ using TheHive.Api.Test.Support;
 
 namespace TheHive.Api.Test.Groups;
 
-public class CasesTests
+public partial class CasesTests
 {
 	private const string FullCaseJson = """
 		{
@@ -57,6 +57,12 @@ public class CasesTests
 		stub.Calls.Should().ContainSingle();
 		stub.Calls[0].Method.Should().Be(HttpMethod.Get);
 		stub.Calls[0].Uri.AbsolutePath.Should().Be("/api/v1/case/~123");
+		AssertFullCaseCore(result);
+		AssertFullCaseMetrics(result);
+	}
+
+	private static void AssertFullCaseCore(Case result)
+	{
 		result.Id.Should().Be("~123");
 		result.Type.Should().Be("Case");
 		result.CreatedBy.Should().Be("alice@example.com");
@@ -83,6 +89,10 @@ public class CasesTests
 		result.Assignee.Should().Be("bob@example.com");
 		result.Access.Kind.Should().Be(AccessKind.UserAccessKind);
 		result.Access.Users.Should().Equal("bob@example.com");
+	}
+
+	private static void AssertFullCaseMetrics(Case result)
+	{
 		var field = result.CustomFields.Should().ContainSingle().Subject;
 		field.Id.Should().Be("~9");
 		field.Name.Should().Be("threat-type");
@@ -194,60 +204,64 @@ public class CasesTests
 		var stub = new StubHandler();
 		stub.Enqueue(HttpStatusCode.Created, FullCaseJson);
 		using var client = TestClient.Create(stub);
-		var request = new CaseCreateRequest
-		{
-			Title = "Phish",
-			Description = "d",
-			Severity = Severity.Critical,
-			StartDate = DateTimeOffset.FromUnixTimeMilliseconds(1748736000000),
-			EndDate = DateTimeOffset.FromUnixTimeMilliseconds(1748995200000),
-			Tags = ["x"],
-			Flag = true,
-			Tlp = Tlp.Red,
-			Pap = Pap.Red,
-			Status = "New",
-			Summary = "sum",
-			Assignee = "lucas@example.com",
-			Access = new Access { Kind = AccessKind.ExternalAccessKind, Users = ["ext@example.com"] },
-			CustomFields = [new CustomFieldInput { Name = "threat-type", Value = "Malware", Order = 0 }],
-			CaseTemplate = "Ransomware",
-			Tasks =
-			[
-				new CaseTaskCreateRequest
-				{
-					Title = "Isolate",
-					Group = "Containment",
-					Description = "td",
-					Status = CaseTaskStatus.Waiting,
-					Flag = false,
-					StartDate = DateTimeOffset.FromUnixTimeMilliseconds(1),
-					EndDate = DateTimeOffset.FromUnixTimeMilliseconds(2),
-					Order = 1,
-					DueDate = DateTimeOffset.FromUnixTimeMilliseconds(3),
-					Assignee = "lucas@example.com",
-					Mandatory = true
-				}
-			],
-			Pages = [new PageCreateRequest { Title = "Notes", Content = "c", Order = 0, Category = "Investigation" }],
-			SharingParameters =
-			[
-				new ShareSettings
-				{
-					Organisation = "Org",
-					Share = true,
-					Profile = "analyst",
-					TaskRule = SharingRule.AutoShare,
-					ObservableRule = SharingRule.Manual
-				}
-			],
-			TaskRule = SharingRule.Manual,
-			ObservableRule = SharingRule.AutoShare
-		};
 
-		await client.Cases.CreateAsync(request, TestContext.Current.CancellationToken);
+		await client.Cases.CreateAsync(FullCaseCreateRequest(), TestContext.Current.CancellationToken);
 
 		using var body = JsonDocument.Parse(stub.Calls[0].Body!);
-		var root = body.RootElement;
+		AssertFullCaseCreateFields(body.RootElement);
+		AssertFullCaseCreateCollections(body.RootElement);
+	}
+
+	private static CaseCreateRequest FullCaseCreateRequest() => new()
+	{
+		Title = "Phish",
+		Description = "d",
+		Severity = Severity.Critical,
+		StartDate = DateTimeOffset.FromUnixTimeMilliseconds(1748736000000),
+		EndDate = DateTimeOffset.FromUnixTimeMilliseconds(1748995200000),
+		Tags = ["x"],
+		Flag = true,
+		Tlp = Tlp.Red,
+		Pap = Pap.Red,
+		Status = "New",
+		Summary = "sum",
+		Assignee = "lucas@example.com",
+		Access = new Access { Kind = AccessKind.ExternalAccessKind, Users = ["ext@example.com"] },
+		CustomFields = [new CustomFieldInput { Name = "threat-type", Value = "Malware", Order = 0 }],
+		CaseTemplate = "Ransomware",
+		Tasks = [FullCaseTaskCreateRequest()],
+		Pages = [new PageCreateRequest { Title = "Notes", Content = "c", Order = 0, Category = "Investigation" }],
+		SharingParameters = [FullShareSettings()],
+		TaskRule = SharingRule.Manual,
+		ObservableRule = SharingRule.AutoShare
+	};
+
+	private static CaseTaskCreateRequest FullCaseTaskCreateRequest() => new()
+	{
+		Title = "Isolate",
+		Group = "Containment",
+		Description = "td",
+		Status = CaseTaskStatus.Waiting,
+		Flag = false,
+		StartDate = DateTimeOffset.FromUnixTimeMilliseconds(1),
+		EndDate = DateTimeOffset.FromUnixTimeMilliseconds(2),
+		Order = 1,
+		DueDate = DateTimeOffset.FromUnixTimeMilliseconds(3),
+		Assignee = "lucas@example.com",
+		Mandatory = true
+	};
+
+	private static ShareSettings FullShareSettings() => new()
+	{
+		Organisation = "Org",
+		Share = true,
+		Profile = "analyst",
+		TaskRule = SharingRule.AutoShare,
+		ObservableRule = SharingRule.Manual
+	};
+
+	private static void AssertFullCaseCreateFields(JsonElement root)
+	{
 		root.GetProperty("title").GetString().Should().Be("Phish");
 		root.GetProperty("description").GetString().Should().Be("d");
 		root.GetProperty("severity").GetInt32().Should().Be(4);
@@ -260,17 +274,21 @@ public class CasesTests
 		root.GetProperty("status").GetString().Should().Be("New");
 		root.GetProperty("summary").GetString().Should().Be("sum");
 		root.GetProperty("assignee").GetString().Should().Be("lucas@example.com");
+		root.GetProperty("caseTemplate").GetString().Should().Be("Ransomware");
+		root.GetProperty("taskRule").GetString().Should().Be("manual");
+		root.GetProperty("observableRule").GetString().Should().Be("autoShare");
+	}
+
+	private static void AssertFullCaseCreateCollections(JsonElement root)
+	{
 		root.GetProperty("access").GetRawText().Should().Be("""{"_kind":"ExternalAccessKind","users":["ext@example.com"]}""");
 		root.GetProperty("customFields").GetRawText().Should().Be("""[{"name":"threat-type","value":"Malware","order":0}]""");
-		root.GetProperty("caseTemplate").GetString().Should().Be("Ransomware");
 		root.GetProperty("tasks").GetRawText().Should().Be(
 			"""[{"title":"Isolate","group":"Containment","description":"td","status":"Waiting","flag":false,"startDate":1,"endDate":2,"order":1,"dueDate":3,"assignee":"lucas@example.com","mandatory":true}]""");
 		root.GetProperty("pages").GetRawText().Should().Be(
 			"""[{"title":"Notes","content":"c","order":0,"category":"Investigation"}]""");
 		root.GetProperty("sharingParameters").GetRawText().Should().Be(
 			"""[{"organisation":"Org","share":true,"profile":"analyst","taskRule":"autoShare","observableRule":"manual"}]""");
-		root.GetProperty("taskRule").GetString().Should().Be("manual");
-		root.GetProperty("observableRule").GetString().Should().Be("autoShare");
 	}
 
 	[Fact]
@@ -428,655 +446,5 @@ public class CasesTests
 		await client.Cases.GetAsync(idOrName, TestContext.Current.CancellationToken);
 
 		stub.Calls[0].Uri.AbsoluteUri.Should().Be($"https://hive.test/thehive/api/v1/case/{expectedSegment}");
-	}
-
-	private const string AttachmentJson = """
-		{
-			"_id":"~456789012","_type":"Attachment","_createdBy":"lucas@example.com","_updatedBy":"alice@example.com",
-			"_createdAt":1748739600000,"_updatedAt":1776902400000,"name":"encrypt.ps1",
-			"hashes":["fake-hash-0001","fake-hash-0002"],"size":2048,
-			"contentType":"application/x-powershell","id":"fake-storage-id",
-			"path":"attachments/fake-storage-id","extraData":{"links":1},"external":true
-		}
-		""";
-
-	private const string ObservableJson = $$$"""
-		{
-			"_id":"~8529344","_type":"Observable","_createdBy":"lucas@example.com","_updatedBy":"alice@example.com",
-			"_createdAt":1748739600000,"_updatedAt":1776902400000,"dataType":"ip","data":"00.01.002.003",
-			"startDate":1748739600000,"attachment":{{{AttachmentJson}}},"tlp":2,"tlpLabel":"AMBER","pap":3,"papLabel":"RED",
-			"tags":["Source IP"],"ioc":true,"sighted":true,"sightedAt":1748822400000,
-			"reports":{"VirusTotal_GetReport":{"status":"Success"}},
-			"message":"Source IP of the ransomware C2 server","extraData":{"seen":2},"ignoreSimilarity":true,"external":true
-		}
-		""";
-
-	private const string MinimalObservableJson = """
-		{
-			"_id":"~1","_type":"Observable","_createdBy":"lucas@example.com","_createdAt":1748739600000,"dataType":"file",
-			"startDate":1748739600000,"tlp":2,"tlpLabel":"AMBER","pap":2,"papLabel":"AMBER","ioc":false,"sighted":false,
-			"reports":{},"extraData":{},"ignoreSimilarity":false,"external":false
-		}
-		""";
-
-	[Fact]
-	public async Task BulkUpdateAsync_PatchesIdsAndFields()
-	{
-		var stub = new StubHandler();
-		stub.Enqueue(HttpStatusCode.NoContent, "");
-		using var client = TestClient.Create(stub);
-		var request = new CaseBulkUpdateRequest
-		{
-			Ids = ["~128458762", "~216513541"],
-			Title = "t",
-			Description = "d",
-			Severity = Severity.High,
-			StartDate = DateTimeOffset.FromUnixTimeMilliseconds(10),
-			EndDate = null,
-			Tags = ["a"],
-			Flag = false,
-			Tlp = Tlp.Amber,
-			Pap = Pap.Amber,
-			Status = "InProgress",
-			Summary = "s",
-			Assignee = null,
-			ImpactStatus = ImpactStatus.NotApplicable,
-			CustomFields = [new CustomFieldInput { Name = "threat-type", Value = "Malware" }],
-			TaskRule = SharingRule.Manual,
-			ObservableRule = SharingRule.Manual,
-			AddTags = ["ransomware"],
-			RemoveTags = ["file-encryption"]
-		};
-
-		await client.Cases.BulkUpdateAsync(request, TestContext.Current.CancellationToken);
-
-		stub.Calls[0].Method.Should().Be(HttpMethod.Patch);
-		stub.Calls[0].Uri.AbsolutePath.Should().Be("/api/v1/case/_bulk");
-		stub.Calls[0].Body.Should().Be(
-			"""{"ids":["~128458762","~216513541"],"title":"t","description":"d","severity":3,"startDate":10,"endDate":null,"tags":["a"],"flag":false,"tlp":2,"pap":2,"status":"InProgress","summary":"s","assignee":null,"impactStatus":"NotApplicable","customFields":[{"name":"threat-type","value":"Malware"}],"taskRule":"manual","observableRule":"manual","addTags":["ransomware"],"removeTags":["file-encryption"]}""");
-	}
-
-	[Fact]
-	public async Task BulkUpdateAsync_SendsOnlyIdsAndSetFields()
-	{
-		var stub = new StubHandler();
-		stub.Enqueue(HttpStatusCode.NoContent, "");
-		using var client = TestClient.Create(stub);
-
-		await client.Cases.BulkUpdateAsync(new CaseBulkUpdateRequest { Ids = ["~1"], Flag = true }, TestContext.Current.CancellationToken);
-
-		stub.Calls[0].Body.Should().Be("""{"ids":["~1"],"flag":true}""");
-	}
-
-	[Fact]
-	public async Task SetAccessAsync_PostsAccess()
-	{
-		var stub = new StubHandler();
-		stub.Enqueue(HttpStatusCode.NoContent, "");
-		using var client = TestClient.Create(stub);
-
-		await client.Cases.SetAccessAsync(
-			"~123",
-			new CaseAccessRequest { Access = new Access { Kind = AccessKind.UserAccessKind, Users = ["bob@example.com"] } },
-			TestContext.Current.CancellationToken);
-
-		stub.Calls[0].Method.Should().Be(HttpMethod.Post);
-		stub.Calls[0].Uri.AbsolutePath.Should().Be("/api/v1/case/~123/access");
-		stub.Calls[0].Body.Should().Be("""{"access":{"_kind":"UserAccessKind","users":["bob@example.com"]}}""");
-	}
-
-	[Fact]
-	public async Task BulkSetAccessAsync_PostsIdsAndAccess()
-	{
-		var stub = new StubHandler();
-		stub.Enqueue(HttpStatusCode.NoContent, "");
-		using var client = TestClient.Create(stub);
-
-		await client.Cases.BulkSetAccessAsync(
-			new CaseBulkAccessRequest { Ids = ["~1", "2"], Access = new Access { Kind = AccessKind.OrganisationAccessKind } },
-			TestContext.Current.CancellationToken);
-
-		stub.Calls[0].Method.Should().Be(HttpMethod.Post);
-		stub.Calls[0].Uri.AbsolutePath.Should().Be("/api/v1/case/_bulk/access");
-		stub.Calls[0].Body.Should().Be("""{"ids":["~1","2"],"access":{"_kind":"OrganisationAccessKind"}}""");
-	}
-
-	[Fact]
-	public async Task BulkApplyTemplateAsync_PostsEveryFieldWithWireNames()
-	{
-		var stub = new StubHandler();
-		stub.Enqueue(HttpStatusCode.NoContent, "");
-		using var client = TestClient.Create(stub);
-		var request = new CaseBulkApplyTemplateRequest
-		{
-			Ids = ["~128458762"],
-			CaseTemplate = "Ransomware",
-			UpdateTitlePrefix = true,
-			UpdateDescription = false,
-			UpdateTags = true,
-			UpdateSeverity = false,
-			UpdateFlag = true,
-			UpdateTlp = false,
-			UpdatePap = true,
-			UpdateCustomFields = true,
-			ImportTasks = ["~123456789"],
-			ImportPages = ["~111111111"]
-		};
-
-		await client.Cases.BulkApplyTemplateAsync(request, TestContext.Current.CancellationToken);
-
-		stub.Calls[0].Method.Should().Be(HttpMethod.Post);
-		stub.Calls[0].Uri.AbsolutePath.Should().Be("/api/v1/case/_bulk/caseTemplate");
-		stub.Calls[0].Body.Should().Be(
-			"""{"ids":["~128458762"],"caseTemplate":"Ransomware","updateTitlePrefix":true,"updateDescription":false,"updateTags":true,"updateSeverity":false,"updateFlag":true,"updateTlp":false,"updatePap":true,"updateCustomFields":true,"importTasks":["~123456789"],"importPages":["~111111111"]}""");
-	}
-
-	[Fact]
-	public async Task BulkApplyTemplateAsync_OmitsUnsetOptions()
-	{
-		var stub = new StubHandler();
-		stub.Enqueue(HttpStatusCode.NoContent, "");
-		using var client = TestClient.Create(stub);
-
-		await client.Cases.BulkApplyTemplateAsync(
-			new CaseBulkApplyTemplateRequest { Ids = ["~1"], CaseTemplate = "Phishing" },
-			TestContext.Current.CancellationToken);
-
-		stub.Calls[0].Body.Should().Be("""{"ids":["~1"],"caseTemplate":"Phishing"}""");
-	}
-
-	[Fact]
-	public async Task ChangeOwnerAsync_PostsEveryField()
-	{
-		var stub = new StubHandler();
-		stub.Enqueue(HttpStatusCode.NoContent, "");
-		using var client = TestClient.Create(stub);
-		var request = new CaseOwnerChangeRequest
-		{
-			Organisation = "TheOrganization",
-			KeepProfile = "analyst",
-			TaskRule = SharingRule.AutoShare,
-			ObservableRule = SharingRule.Manual
-		};
-
-		await client.Cases.ChangeOwnerAsync("~123", request, TestContext.Current.CancellationToken);
-
-		stub.Calls[0].Method.Should().Be(HttpMethod.Post);
-		stub.Calls[0].Uri.AbsolutePath.Should().Be("/api/v1/case/~123/owner");
-		stub.Calls[0].Body.Should().Be("""{"organisation":"TheOrganization","keepProfile":"analyst","taskRule":"autoShare","observableRule":"manual"}""");
-	}
-
-	[Fact]
-	public async Task ChangeOwnerAsync_OrganisationOnly_OmitsTheRest()
-	{
-		var stub = new StubHandler();
-		stub.Enqueue(HttpStatusCode.NoContent, "");
-		using var client = TestClient.Create(stub);
-
-		await client.Cases.ChangeOwnerAsync("7", new CaseOwnerChangeRequest { Organisation = "Org" }, TestContext.Current.CancellationToken);
-
-		stub.Calls[0].Body.Should().Be("""{"organisation":"Org"}""");
-	}
-
-	[Fact]
-	public async Task RemoveAlertAsync_SendsDelete()
-	{
-		var stub = new StubHandler();
-		stub.Enqueue(HttpStatusCode.NoContent, "");
-		using var client = TestClient.Create(stub);
-
-		await client.Cases.RemoveAlertAsync("~123", "~456", TestContext.Current.CancellationToken);
-
-		stub.Calls[0].Method.Should().Be(HttpMethod.Delete);
-		stub.Calls[0].Uri.AbsolutePath.Should().Be("/api/v1/case/~123/alert/~456");
-		stub.Calls[0].Body.Should().BeNull();
-	}
-
-	[Fact]
-	public async Task DeduplicateObservablesAsync_PostsAndMapsCounts()
-	{
-		var stub = new StubHandler();
-		stub.Enqueue(HttpStatusCode.OK, """{"untouched":14,"updated":3,"deleted":5}""");
-		using var client = TestClient.Create(stub);
-
-		var result = await client.Cases.DeduplicateObservablesAsync("~123", TestContext.Current.CancellationToken);
-
-		stub.Calls[0].Method.Should().Be(HttpMethod.Post);
-		stub.Calls[0].Uri.AbsolutePath.Should().Be("/api/v1/case/~123/observable/_merge");
-		stub.Calls[0].Body.Should().BeNull();
-		result.Untouched.Should().Be(14);
-		result.Updated.Should().Be(3);
-		result.Deleted.Should().Be(5);
-	}
-
-	[Theory]
-	[InlineData(true)]
-	[InlineData(false)]
-	public async Task CaseLinks_AddAndRemove_PostTypeAndCaseId(bool add)
-	{
-		var stub = new StubHandler();
-		stub.Enqueue(HttpStatusCode.NoContent, "");
-		using var client = TestClient.Create(stub);
-		var request = new CaseLinkRequest { Type = "Duplicate", CaseId = "~72637286" };
-
-		await (add
-			? client.Cases.AddCaseLinkAsync("~123", request, TestContext.Current.CancellationToken)
-			: client.Cases.RemoveCaseLinkAsync("~123", request, TestContext.Current.CancellationToken));
-
-		stub.Calls[0].Method.Should().Be(HttpMethod.Post);
-		stub.Calls[0].Uri.AbsolutePath.Should().Be(add ? "/api/v1/case/~123/link/case/add" : "/api/v1/case/~123/link/case/remove");
-		stub.Calls[0].Body.Should().Be("""{"type":"Duplicate","caseId":"~72637286"}""");
-	}
-
-	[Theory]
-	[InlineData(true)]
-	[InlineData(false)]
-	public async Task ExternalLinks_AddAndRemove_PostTypeAndUrl(bool add)
-	{
-		var stub = new StubHandler();
-		stub.Enqueue(HttpStatusCode.NoContent, "");
-		using var client = TestClient.Create(stub);
-		var request = new ExternalLinkRequest { Type = "MITRE ATT&CK", Url = "https://attack.mitre.org/techniques/T1486/" };
-
-		await (add
-			? client.Cases.AddExternalLinkAsync("~123", request, TestContext.Current.CancellationToken)
-			: client.Cases.RemoveExternalLinkAsync("~123", request, TestContext.Current.CancellationToken));
-
-		stub.Calls[0].Method.Should().Be(HttpMethod.Post);
-		stub.Calls[0].Uri.AbsolutePath.Should().Be(add ? "/api/v1/case/~123/link/external/add" : "/api/v1/case/~123/link/external/remove");
-		// The default encoder escapes '&' as a \u escape, so compare the parsed members (names, order and values).
-		using var body = JsonDocument.Parse(stub.Calls[0].Body!);
-		body.RootElement.EnumerateObject().Select(p => $"{p.Name}={p.Value.GetString()}")
-			.Should().Equal("type=MITRE ATT&CK", "url=https://attack.mitre.org/techniques/T1486/");
-	}
-
-	[Fact]
-	public async Task GetLinkTypesAsync_MapsNames()
-	{
-		var stub = new StubHandler();
-		stub.Enqueue(HttpStatusCode.OK, """["Duplicate","MITRE ATT&CK"]""");
-		using var client = TestClient.Create(stub);
-
-		var result = await client.Cases.GetLinkTypesAsync(TestContext.Current.CancellationToken);
-
-		stub.Calls[0].Method.Should().Be(HttpMethod.Get);
-		stub.Calls[0].Uri.AbsolutePath.Should().Be("/api/v1/case/link/types");
-		result.Should().Equal("Duplicate", "MITRE ATT&CK");
-	}
-
-	[Fact]
-	public async Task DeleteCustomFieldAsync_SendsDelete()
-	{
-		var stub = new StubHandler();
-		stub.Enqueue(HttpStatusCode.NoContent, "");
-		using var client = TestClient.Create(stub);
-
-		await client.Cases.DeleteCustomFieldAsync("~9", TestContext.Current.CancellationToken);
-
-		stub.Calls[0].Method.Should().Be(HttpMethod.Delete);
-		stub.Calls[0].Uri.AbsolutePath.Should().Be("/api/v1/case/customField/~9");
-		stub.Calls[0].Body.Should().BeNull();
-	}
-
-	[Fact]
-	public async Task GetSimilarObservablesAsync_MapsEveryObservableField()
-	{
-		var stub = new StubHandler();
-		stub.Enqueue(HttpStatusCode.OK, $"[{ObservableJson},{MinimalObservableJson}]");
-		using var client = TestClient.Create(stub);
-
-		var result = await client.Cases.GetSimilarObservablesAsync("~123", "~456", TestContext.Current.CancellationToken);
-
-		stub.Calls[0].Method.Should().Be(HttpMethod.Get);
-		stub.Calls[0].Uri.AbsolutePath.Should().Be("/api/v1/case/~123/similar/~456/observables");
-		result.Should().HaveCount(2);
-		var full = result[0];
-		full.Id.Should().Be("~8529344");
-		full.Type.Should().Be("Observable");
-		full.CreatedBy.Should().Be("lucas@example.com");
-		full.UpdatedBy.Should().Be("alice@example.com");
-		full.CreatedAt.Should().Be(DateTimeOffset.FromUnixTimeMilliseconds(1748739600000));
-		full.UpdatedAt.Should().Be(DateTimeOffset.FromUnixTimeMilliseconds(1776902400000));
-		full.DataType.Should().Be("ip");
-		full.Data.Should().Be("00.01.002.003");
-		full.StartDate.Should().Be(DateTimeOffset.FromUnixTimeMilliseconds(1748739600000));
-		AssertFullAttachment(full.Attachment!);
-		full.Tlp.Should().Be(Tlp.Amber);
-		full.TlpLabel.Should().Be("AMBER");
-		full.Pap.Should().Be(Pap.Red);
-		full.PapLabel.Should().Be("RED");
-		full.Tags.Should().Equal("Source IP");
-		full.Ioc.Should().BeTrue();
-		full.Sighted.Should().BeTrue();
-		full.SightedAt.Should().Be(DateTimeOffset.FromUnixTimeMilliseconds(1748822400000));
-		full.Reports["VirusTotal_GetReport"].GetProperty("status").GetString().Should().Be("Success");
-		full.Message.Should().Be("Source IP of the ransomware C2 server");
-		full.ExtraData["seen"].GetInt32().Should().Be(2);
-		full.IgnoreSimilarity.Should().BeTrue();
-		full.External.Should().BeTrue();
-		var minimal = result[1];
-		minimal.UpdatedBy.Should().BeNull();
-		minimal.UpdatedAt.Should().BeNull();
-		minimal.Data.Should().BeNull();
-		minimal.Attachment.Should().BeNull();
-		minimal.Tags.Should().BeEmpty();
-		minimal.SightedAt.Should().BeNull();
-		minimal.Message.Should().BeNull();
-		minimal.Reports.Should().BeEmpty();
-	}
-
-	[Fact]
-	public void Observable_Defaults_AreEmptyNotNull()
-	{
-		var item = new Observable();
-
-		item.Id.Should().BeEmpty();
-		item.Type.Should().BeEmpty();
-		item.CreatedBy.Should().BeEmpty();
-		item.DataType.Should().BeEmpty();
-		item.TlpLabel.Should().BeEmpty();
-		item.PapLabel.Should().BeEmpty();
-		item.Tags.Should().BeEmpty();
-		item.Reports.Should().BeEmpty();
-		item.ExtraData.Should().BeEmpty();
-	}
-
-	[Fact]
-	public async Task GetTimelineAsync_MapsEveryEventField()
-	{
-		var stub = new StubHandler();
-		stub.Enqueue(HttpStatusCode.OK, """
-			{"events":[
-				{"date":1736849400000,"kind":"task","entity":"Task","entityId":"~72637286",
-				 "details":{"task":{"title":"Isolate affected workstation from the network","status":"InProgress"}},"endDate":1736939400000},
-				{"date":1736849300000,"kind":"case.inProgress","entity":"Case","entityId":"~1","details":{}},
-				{"date":1736849200000,"kind":"case.archived","entity":"Dossier","entityId":"~2","details":{}}
-			]}
-			""");
-		using var client = TestClient.Create(stub);
-
-		var result = await client.Cases.GetTimelineAsync("~123", TestContext.Current.CancellationToken);
-
-		stub.Calls[0].Method.Should().Be(HttpMethod.Get);
-		stub.Calls[0].Uri.AbsolutePath.Should().Be("/api/v1/case/~123/timeline");
-		result.Events.Should().HaveCount(3);
-		var task = result.Events[0];
-		task.Date.Should().Be(DateTimeOffset.FromUnixTimeMilliseconds(1736849400000));
-		task.Kind.Should().Be(TimelineEventKind.Task);
-		task.Entity.Should().Be(TimelineEntityType.Task);
-		task.EntityId.Should().Be("~72637286");
-		task.Details["task"].GetProperty("status").GetString().Should().Be("InProgress");
-		task.EndDate.Should().Be(DateTimeOffset.FromUnixTimeMilliseconds(1736939400000));
-		result.Events[1].Kind.Should().Be(TimelineEventKind.CaseInProgress);
-		result.Events[1].Entity.Should().Be(TimelineEntityType.Case);
-		result.Events[1].Details.Should().BeEmpty();
-		result.Events[1].EndDate.Should().BeNull();
-		result.Events[2].Kind.Should().Be(TimelineEventKind.Unknown);
-		result.Events[2].Entity.Should().Be(TimelineEntityType.Unknown);
-	}
-
-	[Theory]
-	[InlineData("case.start", TimelineEventKind.CaseStart)]
-	[InlineData("case.created", TimelineEventKind.CaseCreated)]
-	[InlineData("case.new", TimelineEventKind.CaseNew)]
-	[InlineData("case.inProgress", TimelineEventKind.CaseInProgress)]
-	[InlineData("case.closed", TimelineEventKind.CaseClosed)]
-	[InlineData("case.end", TimelineEventKind.CaseEnd)]
-	[InlineData("alert.occurred", TimelineEventKind.AlertOccurred)]
-	[InlineData("procedure.occurred", TimelineEventKind.ProcedureOccurred)]
-	[InlineData("observable.sighted", TimelineEventKind.ObservableSighted)]
-	[InlineData("task", TimelineEventKind.Task)]
-	[InlineData("log.created", TimelineEventKind.LogCreated)]
-	[InlineData("custom", TimelineEventKind.Custom)]
-	public void TimelineEventKind_ReadsEveryWireName(string wire, TimelineEventKind expected) =>
-		JsonSerializer.Deserialize<TimelineEventKind>($"\"{wire}\"", TheHiveJson.Options).Should().Be(expected);
-
-	[Theory]
-	[InlineData("Case", TimelineEntityType.Case)]
-	[InlineData("Alert", TimelineEntityType.Alert)]
-	[InlineData("Procedure", TimelineEntityType.Procedure)]
-	[InlineData("Observable", TimelineEntityType.Observable)]
-	[InlineData("Task", TimelineEntityType.Task)]
-	[InlineData("Log", TimelineEntityType.Log)]
-	[InlineData("CustomEvent", TimelineEntityType.CustomEvent)]
-	public void TimelineEntityType_ReadsEveryWireName(string wire, TimelineEntityType expected) =>
-		JsonSerializer.Deserialize<TimelineEntityType>($"\"{wire}\"", TheHiveJson.Options).Should().Be(expected);
-
-	[Fact]
-	public void CaseTimeline_Defaults_AreEmptyNotNull()
-	{
-		new CaseTimeline().Events.Should().BeEmpty();
-		var item = new TimelineEvent();
-		item.EntityId.Should().BeEmpty();
-		item.Details.Should().BeEmpty();
-	}
-
-	[Fact]
-	public async Task AddAttachmentsAsync_UploadsEachFileAsAnAttachmentsPart()
-	{
-		var stub = new StubHandler();
-		stub.Enqueue(HttpStatusCode.Created, $$"""{"attachments":[{{AttachmentJson}}]}""");
-		using var client = TestClient.Create(stub);
-		using var first = new MemoryStream([1, 2, 3]);
-		using var second = new MemoryStream([4, 5]);
-
-		var result = await client.Cases.AddAttachmentsAsync(
-			"~123",
-			[new StreamPart(first, "encrypt.ps1", "application/x-powershell"), new StreamPart(second, "notes.txt", "text/plain")],
-			canRename: true,
-			TestContext.Current.CancellationToken);
-
-		var call = stub.Calls[0];
-		call.Method.Should().Be(HttpMethod.Post);
-		call.Uri.AbsolutePath.Should().Be("/api/v1/case/~123/attachments");
-		call.ContentType.Should().Be("multipart/form-data");
-		call.Parts.Should().HaveCount(3);
-		call.Parts[0].Should().Match<RecordedPart>(p => p.Name == "attachments" && p.FileName == "encrypt.ps1" && p.ContentType == "application/x-powershell");
-		call.Parts[0].Bytes.Should().Equal(1, 2, 3);
-		call.Parts[1].Should().Match<RecordedPart>(p => p.Name == "attachments" && p.FileName == "notes.txt" && p.ContentType == "text/plain");
-		call.Parts[1].Bytes.Should().Equal(4, 5);
-		call.Parts[2].Name.Should().Be("canRename");
-		call.Parts[2].FileName.Should().BeNull();
-		call.Parts[2].Text.Should().Be("true");
-		AssertFullAttachment(result.Attachments.Should().ContainSingle().Subject);
-	}
-
-	[Fact]
-	public async Task AddAttachmentsAsync_WithoutCanRename_SendsOnlyFiles()
-	{
-		var stub = new StubHandler();
-		stub.Enqueue(HttpStatusCode.Created, """{"attachments":[]}""");
-		using var client = TestClient.Create(stub);
-
-		await client.Cases.AddAttachmentsAsync(
-			"~123",
-			[new ByteArrayPart([9], "a.bin")],
-			cancellationToken: TestContext.Current.CancellationToken);
-
-		var part = stub.Calls[0].Parts.Should().ContainSingle().Subject;
-		part.Name.Should().Be("attachments");
-		part.FileName.Should().Be("a.bin");
-		part.Bytes.Should().Equal(9);
-	}
-
-	[Fact]
-	public void Attachment_Defaults_AreEmptyNotNull()
-	{
-		var item = new Attachment();
-
-		item.Id.Should().BeEmpty();
-		item.Type.Should().BeEmpty();
-		item.CreatedBy.Should().BeEmpty();
-		item.Name.Should().BeEmpty();
-		item.Hashes.Should().BeEmpty();
-		item.ContentType.Should().BeEmpty();
-		item.StorageId.Should().BeEmpty();
-		item.Path.Should().BeEmpty();
-		item.ExtraData.Should().BeEmpty();
-		new AttachmentUploadResult().Attachments.Should().BeEmpty();
-	}
-
-	[Fact]
-	public async Task UpdateAttachmentAsync_PatchesExternalFlag()
-	{
-		var stub = new StubHandler();
-		stub.Enqueue(HttpStatusCode.NoContent, "");
-		using var client = TestClient.Create(stub);
-
-		await client.Cases.UpdateAttachmentAsync("~123", "~456", new AttachmentUpdateRequest { External = true }, TestContext.Current.CancellationToken);
-
-		stub.Calls[0].Method.Should().Be(HttpMethod.Patch);
-		stub.Calls[0].Uri.AbsolutePath.Should().Be("/api/v1/case/~123/attachment/~456");
-		stub.Calls[0].Body.Should().Be("""{"external":true}""");
-	}
-
-	[Fact]
-	public async Task DeleteAttachmentAsync_SendsDelete()
-	{
-		var stub = new StubHandler();
-		stub.Enqueue(HttpStatusCode.NoContent, "");
-		using var client = TestClient.Create(stub);
-
-		await client.Cases.DeleteAttachmentAsync("~123", "~456", TestContext.Current.CancellationToken);
-
-		stub.Calls[0].Method.Should().Be(HttpMethod.Delete);
-		stub.Calls[0].Uri.AbsolutePath.Should().Be("/api/v1/case/~123/attachment/~456");
-		stub.Calls[0].Body.Should().BeNull();
-	}
-
-	[Fact]
-	public async Task ExportAsync_ReturnsArchiveBytesAndFileName()
-	{
-		var stub = new StubHandler();
-		byte[] archive = [0x50, 0x4B, 0x03, 0x04, 0x00, 0xFF];
-		stub.EnqueueFile(archive, "application/octet-stream", "7.thar");
-		using var client = TestClient.Create(stub);
-
-		using var content = await client.Cases.ExportAsync("~123", "fake pass", TestContext.Current.CancellationToken);
-
-		stub.Calls[0].Method.Should().Be(HttpMethod.Get);
-		stub.Calls[0].Uri.AbsolutePath.Should().Be("/api/v1/case/~123/export");
-		stub.Calls[0].Uri.Query.Should().Be("?password=fake%20pass");
-		content.Headers.ContentType!.MediaType.Should().Be("application/octet-stream");
-		content.Headers.ContentDisposition!.FileName.Should().Be("7.thar");
-		(await content.ReadAsByteArrayAsync(TestContext.Current.CancellationToken)).Should().Equal(archive);
-	}
-
-	[Fact]
-	public async Task ExportAsync_Forbidden_ThrowsTheHiveApiException()
-	{
-		var stub = new StubHandler();
-		stub.Enqueue(HttpStatusCode.Forbidden, """{"type":"AuthorizationError","message":"Your licence does not allow this"}""");
-		using var client = TestClient.Create(stub);
-
-		var act = () => client.Cases.ExportAsync("~123", "pw", TestContext.Current.CancellationToken);
-
-		(await act.Should().ThrowAsync<TheHiveApiException>())
-			.Which.Should().Match<TheHiveApiException>(e => e.StatusCode == HttpStatusCode.Forbidden && e.ErrorType == "AuthorizationError");
-	}
-
-	[Fact]
-	public async Task ImportAsync_UploadsJsonAndFilePartsAndMapsResult()
-	{
-		var stub = new StubHandler();
-		stub.Enqueue(HttpStatusCode.OK, $$"""
-			{
-				"case":{{FullCaseJson}},
-				"observables":[{{MinimalObservableJson}}],
-				"procedures":[{
-					"_id":"~234567890","_createdAt":1748739600000,"_createdBy":"lucas@example.com","_updatedAt":1776902400000,
-					"_updatedBy":"alice@example.com","description":"PowerShell script used to encrypt files.","occurDate":1748739600000,
-					"patternId":"T1486","patternName":"Data Encrypted for Impact","tactic":"impact","tacticLabel":"Impact","extraData":{"k":1}
-				}],
-				"errors":[{"message":"observable skipped"}]
-			}
-			""");
-		using var client = TestClient.Create(stub);
-		using var archive = new MemoryStream([7, 8, 9]);
-		var request = new CaseImportRequest
-		{
-			Password = "fake-password",
-			SharingParameters = [new ShareSettings { Organisation = "Org" }],
-			TaskRule = SharingRule.Manual,
-			ObservableRule = SharingRule.AutoShare
-		};
-
-		var result = await client.Cases.ImportAsync(request, new StreamPart(archive, "7.thar", "application/octet-stream"), TestContext.Current.CancellationToken);
-
-		var call = stub.Calls[0];
-		call.Method.Should().Be(HttpMethod.Post);
-		call.Uri.AbsolutePath.Should().Be("/api/v1/case/import");
-		call.ContentType.Should().Be("multipart/form-data");
-		call.Parts.Should().HaveCount(2);
-		call.Parts[0].Name.Should().Be("_json");
-		call.Parts[0].FileName.Should().BeNull();
-		call.Parts[0].Text.Should().Be(
-			"""{"password":"fake-password","sharingParameters":[{"organisation":"Org"}],"taskRule":"manual","observableRule":"autoShare"}""");
-		call.Parts[1].Should().Match<RecordedPart>(p => p.Name == "file" && p.FileName == "7.thar" && p.ContentType == "application/octet-stream");
-		call.Parts[1].Bytes.Should().Equal(7, 8, 9);
-		result.Case.Id.Should().Be("~123");
-		result.Observables.Should().ContainSingle().Which.Id.Should().Be("~1");
-		var procedure = result.Procedures.Should().ContainSingle().Subject;
-		procedure.Id.Should().Be("~234567890");
-		procedure.CreatedAt.Should().Be(DateTimeOffset.FromUnixTimeMilliseconds(1748739600000));
-		procedure.CreatedBy.Should().Be("lucas@example.com");
-		procedure.UpdatedAt.Should().Be(DateTimeOffset.FromUnixTimeMilliseconds(1776902400000));
-		procedure.UpdatedBy.Should().Be("alice@example.com");
-		procedure.Description.Should().Be("PowerShell script used to encrypt files.");
-		procedure.OccurDate.Should().Be(DateTimeOffset.FromUnixTimeMilliseconds(1748739600000));
-		procedure.PatternId.Should().Be("T1486");
-		procedure.PatternName.Should().Be("Data Encrypted for Impact");
-		procedure.Tactic.Should().Be("impact");
-		procedure.TacticLabel.Should().Be("Impact");
-		procedure.ExtraData["k"].GetInt32().Should().Be(1);
-		result.Errors.Should().ContainSingle().Which.GetProperty("message").GetString().Should().Be("observable skipped");
-	}
-
-	[Fact]
-	public async Task ImportAsync_PasswordOnly_SendsMinimalJson()
-	{
-		var stub = new StubHandler();
-		stub.Enqueue(HttpStatusCode.OK, $$"""{"case":{{MinimalCaseJson}}}""");
-		using var client = TestClient.Create(stub);
-
-		var result = await client.Cases.ImportAsync(
-			new CaseImportRequest { Password = "pw" },
-			new ByteArrayPart([1], "a.thar"),
-			TestContext.Current.CancellationToken);
-
-		stub.Calls[0].Parts[0].Text.Should().Be("""{"password":"pw"}""");
-		result.Observables.Should().BeEmpty();
-		result.Procedures.Should().BeEmpty();
-		result.Errors.Should().BeEmpty();
-	}
-
-	[Fact]
-	public void ImportResultAndProcedure_Defaults_AreEmptyNotNull()
-	{
-		new CaseImportResult().Case.Id.Should().BeEmpty();
-		var procedure = new Procedure();
-		procedure.Id.Should().BeEmpty();
-		procedure.CreatedBy.Should().BeEmpty();
-		procedure.ExtraData.Should().BeEmpty();
-		procedure.UpdatedBy.Should().BeNull();
-		procedure.Description.Should().BeNull();
-	}
-
-	private static void AssertFullAttachment(Attachment attachment)
-	{
-		attachment.Id.Should().Be("~456789012");
-		attachment.Type.Should().Be("Attachment");
-		attachment.CreatedBy.Should().Be("lucas@example.com");
-		attachment.UpdatedBy.Should().Be("alice@example.com");
-		attachment.CreatedAt.Should().Be(DateTimeOffset.FromUnixTimeMilliseconds(1748739600000));
-		attachment.UpdatedAt.Should().Be(DateTimeOffset.FromUnixTimeMilliseconds(1776902400000));
-		attachment.Name.Should().Be("encrypt.ps1");
-		attachment.Hashes.Should().Equal("fake-hash-0001", "fake-hash-0002");
-		attachment.Size.Should().Be(2048);
-		attachment.ContentType.Should().Be("application/x-powershell");
-		attachment.StorageId.Should().Be("fake-storage-id");
-		attachment.Path.Should().Be("attachments/fake-storage-id");
-		attachment.ExtraData["links"].GetInt32().Should().Be(1);
-		attachment.External.Should().BeTrue();
 	}
 }

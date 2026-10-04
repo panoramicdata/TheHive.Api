@@ -4,17 +4,17 @@ namespace TheHive.Api.Data.Common;
 public static class Tlp
 {
 	/// <summary>TLP:CLEAR (0): no restrictions.</summary>
-	public const int Clear = 0;
+	public static int Clear => 0;
 
 	/// <summary>TLP:GREEN (1): community.</summary>
-	public const int Green = 1;
+	public static readonly int Green = 1;
 
 	/// <summary>TLP:AMBER (2): organization and clients; the server default.</summary>
-	public const int Amber = 2;
+	public static readonly int Amber = 2;
 
 	/// <summary>TLP:AMBER+STRICT (3): organization only.</summary>
-	public const int AmberStrict = 3;
+	public static readonly int AmberStrict = 3;
 
 	/// <summary>TLP:RED (4): named recipients only.</summary>
-	public const int Red = 4;
+	public static readonly int Red = 4;
 }

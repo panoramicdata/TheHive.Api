@@ -4,8 +4,8 @@ namespace TheHive.Api.Data.EmailIntake;
 public static class EmailIntakeMailboxKinds
 {
 	/// <summary>An API-based mailbox (Microsoft 365, Microsoft Graph API, Google Workspace).</summary>
-	public const string Api = "api";
+	public static readonly string Api = "api";
 
 	/// <summary>An IMAP mailbox.</summary>
-	public const string Imap = "imap";
+	public static readonly string Imap = "imap";
 }

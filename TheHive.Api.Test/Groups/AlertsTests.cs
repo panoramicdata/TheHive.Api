@@ -13,7 +13,7 @@ using TheHive.Api.Test.Support;
 
 namespace TheHive.Api.Test.Groups;
 
-public class AlertsTests
+public partial class AlertsTests
 {
 	private const string FullAlertJson = """
 		{
@@ -67,18 +67,8 @@ public class AlertsTests
 		return stub;
 	}
 
-	[Fact]
-	public async Task GetAsync_MapsEveryAlertField()
+	private static void AssertFullAlert(Alert result)
 	{
-		var stub = Stub(HttpStatusCode.OK, FullAlertJson);
-		using var client = TestClient.Create(stub);
-
-		var result = await client.Alerts.GetAsync("~354", TestContext.Current.CancellationToken);
-
-		stub.Calls.Should().ContainSingle();
-		stub.Calls[0].Method.Should().Be(HttpMethod.Get);
-		stub.Calls[0].Uri.AbsolutePath.Should().Be("/api/v1/alert/~354");
-		stub.Calls[0].Body.Should().BeNull();
 		result.Id.Should().Be("~354");
 		result.EntityType.Should().Be("Alert");
 		result.CreatedBy.Should().Be("lucas@example.com");
@@ -122,6 +112,21 @@ public class AlertsTests
 		result.TimeToTriage.Should().Be(12);
 		result.TimeToQualify.Should().Be(13);
 		result.TimeToAcknowledge.Should().Be(14);
+	}
+
+	[Fact]
+	public async Task GetAsync_MapsEveryAlertField()
+	{
+		var stub = Stub(HttpStatusCode.OK, FullAlertJson);
+		using var client = TestClient.Create(stub);
+
+		var result = await client.Alerts.GetAsync("~354", TestContext.Current.CancellationToken);
+
+		stub.Calls.Should().ContainSingle();
+		stub.Calls[0].Method.Should().Be(HttpMethod.Get);
+		stub.Calls[0].Uri.AbsolutePath.Should().Be("/api/v1/alert/~354");
+		stub.Calls[0].Body.Should().BeNull();
+		AssertFullAlert(result);
 	}
 
 	[Fact]
@@ -199,57 +204,59 @@ public class AlertsTests
 		result.Id.Should().Be("~354");
 	}
 
+	private static AlertCreateRequest FullCreateRequest() => new()
+	{
+		Type = "Endpoint Detection",
+		Source = "EDR",
+		SourceRef = "MDATP-1",
+		ExternalLink = "https://example.com/a",
+		Title = "t",
+		Description = "d",
+		Severity = Severity.Critical,
+		Date = DateTimeOffset.FromUnixTimeMilliseconds(1718532000000),
+		Tags = ["x"],
+		Flag = true,
+		Tlp = Tlp.Red,
+		Pap = Pap.Red,
+		CustomFields = [new CustomFieldInput { Name = "threat-type", Value = "Malware", Order = 0 }],
+		Summary = "sum",
+		Status = "New",
+		Assignee = "lucas@example.com",
+		CaseTemplate = "Ransomware",
+		Observables =
+		[
+			new ObservableInput
+			{
+				DataType = "file",
+				Data = ["a", "b"],
+				Message = "m",
+				StartDate = DateTimeOffset.FromUnixTimeMilliseconds(1),
+				Attachment = [new ObservableAttachmentReference { Name = "x.exe", ContentType = "application/octet-stream", Id = "~1", External = true }],
+				Tlp = Tlp.Green,
+				Pap = Pap.Green,
+				Tags = ["t"],
+				Ioc = true,
+				Sighted = false,
+				SightedAt = DateTimeOffset.FromUnixTimeMilliseconds(2),
+				IgnoreSimilarity = true,
+				IsZip = true,
+				ZipPassword = "infected"
+			},
+			new ObservableInput { DataType = "hostname", Data = ["CORP-LAPTOP-056"] }
+		],
+		Procedures =
+		[
+			new ProcedureInput { PatternId = "T1486", OccurDate = DateTimeOffset.FromUnixTimeMilliseconds(3), Tactic = "impact", Description = "pd" },
+			new ProcedureInput { PatternId = "T1059", OccurDate = DateTimeOffset.FromUnixTimeMilliseconds(4) }
+		]
+	};
+
 	[Fact]
 	public async Task CreateAsync_SerializesEveryFieldWithWireNames()
 	{
 		var stub = Stub(HttpStatusCode.Created, FullAlertJson);
 		using var client = TestClient.Create(stub);
-		var request = new AlertCreateRequest
-		{
-			Type = "Endpoint Detection",
-			Source = "EDR",
-			SourceRef = "MDATP-1",
-			ExternalLink = "https://example.com/a",
-			Title = "t",
-			Description = "d",
-			Severity = Severity.Critical,
-			Date = DateTimeOffset.FromUnixTimeMilliseconds(1718532000000),
-			Tags = ["x"],
-			Flag = true,
-			Tlp = Tlp.Red,
-			Pap = Pap.Red,
-			CustomFields = [new CustomFieldInput { Name = "threat-type", Value = "Malware", Order = 0 }],
-			Summary = "sum",
-			Status = "New",
-			Assignee = "lucas@example.com",
-			CaseTemplate = "Ransomware",
-			Observables =
-			[
-				new ObservableInput
-				{
-					DataType = "file",
-					Data = ["a", "b"],
-					Message = "m",
-					StartDate = DateTimeOffset.FromUnixTimeMilliseconds(1),
-					Attachment = [new ObservableAttachmentReference { Name = "x.exe", ContentType = "application/octet-stream", Id = "~1", External = true }],
-					Tlp = Tlp.Green,
-					Pap = Pap.Green,
-					Tags = ["t"],
-					Ioc = true,
-					Sighted = false,
-					SightedAt = DateTimeOffset.FromUnixTimeMilliseconds(2),
-					IgnoreSimilarity = true,
-					IsZip = true,
-					ZipPassword = "infected"
-				},
-				new ObservableInput { DataType = "hostname", Data = ["CORP-LAPTOP-056"] }
-			],
-			Procedures =
-			[
-				new ProcedureInput { PatternId = "T1486", OccurDate = DateTimeOffset.FromUnixTimeMilliseconds(3), Tactic = "impact", Description = "pd" },
-				new ProcedureInput { PatternId = "T1059", OccurDate = DateTimeOffset.FromUnixTimeMilliseconds(4) }
-			]
-		};
+		var request = FullCreateRequest();
 
 		await client.Alerts.CreateAsync(request, TestContext.Current.CancellationToken);
 
@@ -336,327 +343,5 @@ public class AlertsTests
 		request.ExternalLink.HasValue.Should().BeFalse();
 		request.Summary.HasValue.Should().BeFalse();
 		request.Assignee.HasValue.Should().BeFalse();
-	}
-
-	[Fact]
-	public async Task DeleteAsync_SendsDelete()
-	{
-		var stub = Stub(HttpStatusCode.NoContent);
-		using var client = TestClient.Create(stub);
-
-		await client.Alerts.DeleteAsync("~354", TestContext.Current.CancellationToken);
-
-		stub.Calls[0].Method.Should().Be(HttpMethod.Delete);
-		stub.Calls[0].Uri.AbsolutePath.Should().Be("/api/v1/alert/~354");
-		stub.Calls[0].Body.Should().BeNull();
-	}
-
-	[Fact]
-	public async Task BulkUpdateAsync_PatchesIdsFirstThenFields()
-	{
-		var stub = Stub(HttpStatusCode.NoContent);
-		using var client = TestClient.Create(stub);
-		var request = new AlertBulkUpdateRequest { Ids = ["~1", "~2"] };
-		var fields = FullUpdate();
-		request.Type = fields.Type;
-		request.Source = fields.Source;
-		request.SourceRef = fields.SourceRef;
-		request.ExternalLink = null;
-		request.Title = fields.Title;
-		request.Description = fields.Description;
-		request.Severity = fields.Severity;
-		request.Date = fields.Date;
-		request.LastSyncDate = fields.LastSyncDate;
-		request.Tags = fields.Tags;
-		request.Tlp = fields.Tlp;
-		request.Pap = fields.Pap;
-		request.Follow = fields.Follow;
-		request.CustomFields = fields.CustomFields;
-		request.Status = fields.Status;
-		request.Summary = null;
-		request.Assignee = null;
-		request.AddTags = fields.AddTags;
-		request.RemoveTags = fields.RemoveTags;
-
-		await client.Alerts.BulkUpdateAsync(request, TestContext.Current.CancellationToken);
-
-		stub.Calls[0].Method.Should().Be(HttpMethod.Patch);
-		stub.Calls[0].Uri.AbsolutePath.Should().Be("/api/v1/alert/_bulk");
-		stub.Calls[0].Body.Should().Be(
-			"""{"ids":["~1","~2"],"type":"t","source":"s","sourceRef":"r","externalLink":null,"title":"title","description":"d","severity":1,"date":10,"lastSyncDate":20,"tags":["a"],"tlp":0,"pap":2,"follow":false,"customFields":[{"name":"severity","value":3}],"status":"InProgress","summary":null,"assignee":null,"addTags":["ransomware"],"removeTags":["old"]}""");
-	}
-
-	[Fact]
-	public async Task BulkUpdateAsync_SendsOnlyIdsAndSetFields()
-	{
-		var stub = Stub(HttpStatusCode.NoContent);
-		using var client = TestClient.Create(stub);
-
-		await client.Alerts.BulkUpdateAsync(
-			new AlertBulkUpdateRequest { Ids = ["~1"], Status = "Closed" },
-			TestContext.Current.CancellationToken);
-
-		stub.Calls[0].Body.Should().Be("""{"ids":["~1"],"status":"Closed"}""");
-	}
-
-	[Fact]
-	public async Task BulkDeleteAsync_PostsIds()
-	{
-		var stub = Stub(HttpStatusCode.NoContent);
-		using var client = TestClient.Create(stub);
-
-		await client.Alerts.BulkDeleteAsync(new AlertBulkDeleteRequest { Ids = ["~1", "~2"] }, TestContext.Current.CancellationToken);
-
-		stub.Calls[0].Method.Should().Be(HttpMethod.Post);
-		stub.Calls[0].Uri.AbsolutePath.Should().Be("/api/v1/alert/delete/_bulk");
-		stub.Calls[0].Body.Should().Be("""{"ids":["~1","~2"]}""");
-	}
-
-	[Fact]
-	public async Task CreateCaseAsync_PostsEveryOverrideAndMapsCase()
-	{
-		var stub = Stub(HttpStatusCode.Created, CaseJson);
-		using var client = TestClient.Create(stub);
-		var request = new CaseFromAlertRequest
-		{
-			Title = "Suspicious Ransomware Activity",
-			Description = "cd",
-			Severity = Severity.High,
-			StartDate = DateTimeOffset.FromUnixTimeMilliseconds(1),
-			EndDate = DateTimeOffset.FromUnixTimeMilliseconds(2),
-			Tags = ["x"],
-			Flag = true,
-			Tlp = Tlp.Red,
-			Pap = Pap.Red,
-			Status = "New",
-			Summary = "sum",
-			Assignee = "lucas@example.com",
-			CustomFields = [new CustomFieldInput { Name = "threat-type", Value = "Malware" }],
-			CaseTemplate = "Ransomware",
-			Tasks = [new CaseTaskCreateRequest { Title = "Isolate", Status = CaseTaskStatus.Waiting }],
-			Pages = [new PageCreateRequest { Title = "Notes", Content = "c", Category = "Investigation" }],
-			SharingParameters = [new ShareSettings { Organisation = "Org", Share = true }],
-			TaskRule = SharingRule.Manual,
-			ObservableRule = SharingRule.AutoShare
-		};
-
-		var result = await client.Alerts.CreateCaseAsync("~354", request, TestContext.Current.CancellationToken);
-
-		stub.Calls[0].Method.Should().Be(HttpMethod.Post);
-		stub.Calls[0].Uri.AbsolutePath.Should().Be("/api/v1/alert/~354/case");
-		stub.Calls[0].Body.Should().Be(
-			"""{"title":"Suspicious Ransomware Activity","description":"cd","severity":3,"startDate":1,"endDate":2,"tags":["x"],"flag":true,"tlp":4,"pap":3,"status":"New","summary":"sum","assignee":"lucas@example.com","customFields":[{"name":"threat-type","value":"Malware"}],"caseTemplate":"Ransomware","tasks":[{"title":"Isolate","status":"Waiting"}],"pages":[{"title":"Notes","content":"c","category":"Investigation"}],"sharingParameters":[{"organisation":"Org","share":true}],"taskRule":"manual","observableRule":"autoShare"}""");
-		result.Number.Should().Be(7);
-		result.Title.Should().Be("Ransomware");
-	}
-
-	[Fact]
-	public async Task CreateCaseAsync_EmptyRequest_SendsEmptyObject()
-	{
-		var stub = Stub(HttpStatusCode.Created, CaseJson);
-		using var client = TestClient.Create(stub);
-
-		var result = await client.Alerts.CreateCaseAsync("~354", new CaseFromAlertRequest(), TestContext.Current.CancellationToken);
-
-		stub.Calls[0].Method.Should().Be(HttpMethod.Post);
-		stub.Calls[0].Uri.AbsolutePath.Should().Be("/api/v1/alert/~354/case");
-		stub.Calls[0].Body.Should().Be("{}");
-		result.Id.Should().Be("~123");
-	}
-
-	[Fact]
-	public async Task MergeIntoCaseAsync_PostsAndMapsCase()
-	{
-		var stub = Stub(HttpStatusCode.OK, CaseJson);
-		using var client = TestClient.Create(stub);
-
-		var result = await client.Alerts.MergeIntoCaseAsync("~354", "~123", TestContext.Current.CancellationToken);
-
-		stub.Calls[0].Method.Should().Be(HttpMethod.Post);
-		stub.Calls[0].Uri.AbsolutePath.Should().Be("/api/v1/alert/~354/merge/~123");
-		stub.Calls[0].Body.Should().BeNull();
-		result.Id.Should().Be("~123");
-		result.Number.Should().Be(7);
-	}
-
-	[Fact]
-	public async Task ImportIntoCaseAsync_PostsAndMapsCase()
-	{
-		var stub = Stub(HttpStatusCode.OK, CaseJson);
-		using var client = TestClient.Create(stub);
-
-		var result = await client.Alerts.ImportIntoCaseAsync("~354", "7", TestContext.Current.CancellationToken);
-
-		stub.Calls[0].Method.Should().Be(HttpMethod.Post);
-		stub.Calls[0].Uri.AbsolutePath.Should().Be("/api/v1/alert/~354/import/7");
-		stub.Calls[0].Body.Should().BeNull();
-		result.Id.Should().Be("~123");
-	}
-
-	[Fact]
-	public async Task BulkMergeIntoCaseAsync_PostsCaseAndAlertIds()
-	{
-		var stub = Stub(HttpStatusCode.OK, CaseJson);
-		using var client = TestClient.Create(stub);
-
-		var result = await client.Alerts.BulkMergeIntoCaseAsync(
-			new AlertBulkMergeRequest { CaseId = "~216513541", AlertIds = ["~1", "~2"] },
-			TestContext.Current.CancellationToken);
-
-		stub.Calls[0].Method.Should().Be(HttpMethod.Post);
-		stub.Calls[0].Uri.AbsolutePath.Should().Be("/api/v1/alert/merge/_bulk");
-		stub.Calls[0].Body.Should().Be("""{"caseId":"~216513541","alertIds":["~1","~2"]}""");
-		result.Number.Should().Be(7);
-	}
-
-	[Fact]
-	public async Task BulkMergeIntoCaseAsync_CaseOnly_OmitsAlertIds()
-	{
-		var stub = Stub(HttpStatusCode.OK, CaseJson);
-		using var client = TestClient.Create(stub);
-
-		await client.Alerts.BulkMergeIntoCaseAsync(new AlertBulkMergeRequest { CaseId = "7" }, TestContext.Current.CancellationToken);
-
-		stub.Calls[0].Body.Should().Be("""{"caseId":"7"}""");
-	}
-
-	[Theory]
-	[InlineData(true)]
-	[InlineData(false)]
-	public async Task FollowAndUnfollowAsync_PostWithoutBody(bool follow)
-	{
-		var stub = Stub(HttpStatusCode.NoContent);
-		using var client = TestClient.Create(stub);
-
-		if (follow)
-		{
-			await client.Alerts.FollowAsync("~354", TestContext.Current.CancellationToken);
-		}
-		else
-		{
-			await client.Alerts.UnfollowAsync("~354", TestContext.Current.CancellationToken);
-		}
-
-		stub.Calls[0].Method.Should().Be(HttpMethod.Post);
-		stub.Calls[0].Uri.AbsolutePath.Should().Be(follow ? "/api/v1/alert/~354/follow" : "/api/v1/alert/~354/unfollow");
-		stub.Calls[0].Body.Should().BeNull();
-	}
-
-	[Fact]
-	public async Task GetSimilarObservablesAsync_MapsObservables()
-	{
-		var stub = Stub(HttpStatusCode.OK, $$$"""
-			[{"_id":"~8529344","_type":"Observable","_createdBy":"lucas@example.com","_updatedBy":"alice@example.com",
-			"_createdAt":1748739600000,"_updatedAt":1776902400000,"dataType":"file","data":null,
-			"startDate":1748739600000,"attachment":{{{AttachmentJson}}},"tlp":2,"tlpLabel":"AMBER","pap":3,"papLabel":"RED",
-			"tags":["Source IP"],"ioc":true,"sighted":true,"sightedAt":1748822400000,
-			"reports":{"VirusTotal_GetReport":{"status":"Success"}},"message":"m","extraData":{"seen":2},"ignoreSimilarity":true,"external":true}]
-			""");
-		using var client = TestClient.Create(stub);
-
-		var result = await client.Alerts.GetSimilarObservablesAsync("~354", "~456", TestContext.Current.CancellationToken);
-
-		stub.Calls[0].Method.Should().Be(HttpMethod.Get);
-		stub.Calls[0].Uri.AbsolutePath.Should().Be("/api/v1/alert/~354/similar/~456/observables");
-		var item = result.Should().ContainSingle().Subject;
-		item.Id.Should().Be("~8529344");
-		item.Type.Should().Be("Observable");
-		item.CreatedBy.Should().Be("lucas@example.com");
-		item.UpdatedBy.Should().Be("alice@example.com");
-		item.CreatedAt.Should().Be(DateTimeOffset.FromUnixTimeMilliseconds(1748739600000));
-		item.UpdatedAt.Should().Be(DateTimeOffset.FromUnixTimeMilliseconds(1776902400000));
-		item.DataType.Should().Be("file");
-		item.Data.Should().BeNull();
-		item.StartDate.Should().Be(DateTimeOffset.FromUnixTimeMilliseconds(1748739600000));
-		item.Attachment!.Name.Should().Be("encrypt.ps1");
-		item.Tlp.Should().Be(Tlp.Amber);
-		item.TlpLabel.Should().Be("AMBER");
-		item.Pap.Should().Be(Pap.Red);
-		item.PapLabel.Should().Be("RED");
-		item.Tags.Should().Equal("Source IP");
-		item.Ioc.Should().BeTrue();
-		item.Sighted.Should().BeTrue();
-		item.SightedAt.Should().Be(DateTimeOffset.FromUnixTimeMilliseconds(1748822400000));
-		item.Message.Should().Be("m");
-		item.Reports["VirusTotal_GetReport"].GetProperty("status").GetString().Should().Be("Success");
-		item.ExtraData["seen"].GetInt32().Should().Be(2);
-		item.IgnoreSimilarity.Should().BeTrue();
-		item.External.Should().BeTrue();
-	}
-
-	[Fact]
-	public async Task AddAttachmentsAsync_UploadsEachFileAsAnAttachmentsPart()
-	{
-		var stub = Stub(HttpStatusCode.Created, $$"""{"attachments":[{{AttachmentJson}}]}""");
-		using var client = TestClient.Create(stub);
-		using var first = new MemoryStream([1, 2, 3]);
-		using var second = new MemoryStream([4, 5]);
-
-		var result = await client.Alerts.AddAttachmentsAsync(
-			"~354",
-			[new StreamPart(first, "encrypt.ps1", "application/x-powershell"), new StreamPart(second, "notes.txt", "text/plain")],
-			canRename: true,
-			TestContext.Current.CancellationToken);
-
-		var call = stub.Calls[0];
-		call.Method.Should().Be(HttpMethod.Post);
-		call.Uri.AbsolutePath.Should().Be("/api/v1/alert/~354/attachments");
-		call.ContentType.Should().Be("multipart/form-data");
-		call.Parts.Should().HaveCount(3);
-		call.Parts[0].Should().Match<RecordedPart>(p => p.Name == "attachments" && p.FileName == "encrypt.ps1" && p.ContentType == "application/x-powershell");
-		call.Parts[0].Bytes.Should().Equal(1, 2, 3);
-		call.Parts[1].Should().Match<RecordedPart>(p => p.Name == "attachments" && p.FileName == "notes.txt" && p.ContentType == "text/plain");
-		call.Parts[1].Bytes.Should().Equal(4, 5);
-		call.Parts[2].Name.Should().Be("canRename");
-		call.Parts[2].FileName.Should().BeNull();
-		call.Parts[2].Text.Should().Be("true");
-		var attachment = result.Attachments.Should().ContainSingle().Subject;
-		attachment.Id.Should().Be("~456789012");
-		attachment.Name.Should().Be("encrypt.ps1");
-		attachment.Size.Should().Be(2048);
-		attachment.StorageId.Should().Be("fake-storage-id");
-	}
-
-	[Fact]
-	public async Task AddAttachmentsAsync_WithoutCanRename_SendsOnlyFiles()
-	{
-		var stub = Stub(HttpStatusCode.Created, """{"attachments":[]}""");
-		using var client = TestClient.Create(stub);
-
-		await client.Alerts.AddAttachmentsAsync(
-			"~354",
-			[new ByteArrayPart([9], "a.bin")],
-			cancellationToken: TestContext.Current.CancellationToken);
-
-		var part = stub.Calls[0].Parts.Should().ContainSingle().Subject;
-		part.Name.Should().Be("attachments");
-		part.FileName.Should().Be("a.bin");
-		part.Bytes.Should().Equal(9);
-	}
-
-	[Fact]
-	public async Task DeleteAttachmentAsync_SendsDelete()
-	{
-		var stub = Stub(HttpStatusCode.NoContent);
-		using var client = TestClient.Create(stub);
-
-		await client.Alerts.DeleteAttachmentAsync("~354", "~456", TestContext.Current.CancellationToken);
-
-		stub.Calls[0].Method.Should().Be(HttpMethod.Delete);
-		stub.Calls[0].Uri.AbsolutePath.Should().Be("/api/v1/alert/~354/attachment/~456");
-		stub.Calls[0].Body.Should().BeNull();
-	}
-
-	[Fact]
-	public async Task GetAsync_NotFound_ThrowsTheHiveApiException()
-	{
-		var stub = Stub(HttpStatusCode.NotFound, """{"type":"NotFoundError","message":"Alert not found"}""");
-		using var client = TestClient.Create(stub);
-
-		var act = () => client.Alerts.GetAsync("~missing", TestContext.Current.CancellationToken);
-
-		(await act.Should().ThrowAsync<TheHiveApiException>())
-			.Which.Should().Match<TheHiveApiException>(e =>
-				e.StatusCode == HttpStatusCode.NotFound && e.ErrorType == "NotFoundError" && e.Message == "Alert not found");
 	}
 }

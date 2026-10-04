@@ -7,11 +7,11 @@ namespace TheHive.Api.Data.CaseReports;
 public static class CaseReportFormats
 {
 	/// <summary>An HTML document.</summary>
-	public const string Html = "html";
+	public static readonly string Html = "html";
 
 	/// <summary>A Markdown document.</summary>
-	public const string Markdown = "markdown";
+	public static readonly string Markdown = "markdown";
 
 	/// <summary>A Word document.</summary>
-	public const string Word = "word";
+	public static readonly string Word = "word";
 }

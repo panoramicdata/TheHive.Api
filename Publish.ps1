@@ -4,6 +4,37 @@
 
 $ErrorActionPreference = 'Stop'
 
+# Status messages go through Write-Information so they can be captured or redirected.
+# $InformationPreference is set here so the messages still show by default when run interactively.
+$InformationPreference = 'Continue'
+
+function Write-Status {
+    param(
+        [Parameter(Position = 0)]
+        [AllowEmptyString()]
+        [string]$Message = '',
+
+        [ValidateSet('Default', 'Red', 'Yellow', 'Cyan', 'Green')]
+        [string]$Colour = 'Default'
+    )
+
+    # $PSStyle exists on PowerShell 7.2+ and strips the escape sequences itself when the
+    # output is redirected. On older hosts the lookups yield $null and the text is uncoloured.
+    $style = switch ($Colour) {
+        'Red' { $PSStyle.Foreground.BrightRed }
+        'Yellow' { $PSStyle.Foreground.BrightYellow }
+        'Cyan' { $PSStyle.Foreground.BrightCyan }
+        'Green' { $PSStyle.Foreground.BrightGreen }
+        default { $null }
+    }
+
+    if ($style) {
+        Write-Information "$style$Message$($PSStyle.Reset)"
+    } else {
+        Write-Information $Message
+    }
+}
+
 # Check for clean working tree (porcelain)
 $status = git status --porcelain
 if ($status) {
@@ -53,8 +84,8 @@ if ($existingTag) {
     exit 1
 }
 
-Write-Host "Tagging as $version ..." -ForegroundColor Cyan
+Write-Status "Tagging as $version ..." -Colour Cyan
 git tag $version
 git push origin $version
 
-Write-Host "✅ Published tag $version — CI will build and push to NuGet." -ForegroundColor Green
+Write-Status "✅ Published tag $version — CI will build and push to NuGet." -Colour Green

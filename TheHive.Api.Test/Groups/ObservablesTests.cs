@@ -9,7 +9,7 @@ public class ObservablesTests
 	private const string FullObservableJson = """
 		{
 			"_id":"~8529344","_type":"Observable","_createdBy":"lucas@example.com","_updatedBy":"alice@example.com",
-			"_createdAt":1748739600000,"_updatedAt":1776902400000,"dataType":"ip","data":"00.01.002.003",
+			"_createdAt":1748739600000,"_updatedAt":1776902400000,"dataType":"domain","data":"c2.example.test",
 			"startDate":1748739600000,"tlp":2,"tlpLabel":"AMBER","pap":3,"papLabel":"RED",
 			"tags":["Source IP"],"ioc":true,"sighted":true,"sightedAt":1748822400000,
 			"reports":{"VirusTotal_GetReport":{"status":"Success"}},
@@ -40,8 +40,8 @@ public class ObservablesTests
 		item.UpdatedBy.Should().Be("alice@example.com");
 		item.CreatedAt.Should().Be(DateTimeOffset.FromUnixTimeMilliseconds(1748739600000));
 		item.UpdatedAt.Should().Be(DateTimeOffset.FromUnixTimeMilliseconds(1776902400000));
-		item.DataType.Should().Be("ip");
-		item.Data.Should().Be("00.01.002.003");
+		item.DataType.Should().Be("domain");
+		item.Data.Should().Be("c2.example.test");
 		item.StartDate.Should().Be(DateTimeOffset.FromUnixTimeMilliseconds(1748739600000));
 		item.Attachment.Should().BeNull();
 		item.Tlp.Should().Be(2);
@@ -67,13 +67,13 @@ public class ObservablesTests
 
 		var result = await client.Observables.CreateInCaseAsync(
 			"~354",
-			new ObservableInput { DataType = "ip", Data = ["00.01.002.003"], Tlp = 2, Ioc = true },
+			new ObservableInput { DataType = "domain", Data = ["c2.example.test"], Tlp = 2, Ioc = true },
 			cancellationToken: TestContext.Current.CancellationToken);
 
 		stub.Calls[0].Method.Should().Be(HttpMethod.Post);
 		stub.Calls[0].Uri.AbsolutePath.Should().Be("/api/v1/case/~354/observable");
 		stub.Calls[0].Uri.Query.Should().BeEmpty();
-		stub.Calls[0].Body.Should().Be("""{"dataType":"ip","data":["00.01.002.003"],"tlp":2,"ioc":true}""");
+		stub.Calls[0].Body.Should().Be("""{"dataType":"domain","data":["c2.example.test"],"tlp":2,"ioc":true}""");
 		AssertFullObservable(result.Should().ContainSingle().Subject);
 	}
 
@@ -85,7 +85,7 @@ public class ObservablesTests
 
 		var result = await client.Observables.CreateInCaseAsync(
 			"7",
-			new ObservableInput { DataType = "ip", Data = ["1.2.3.4"] },
+			new ObservableInput { DataType = "domain", Data = ["c2.example.test"] },
 			"domain",
 			TestContext.Current.CancellationToken);
 
@@ -213,11 +213,9 @@ public class ObservablesTests
 	{
 		var stub = Stub(HttpStatusCode.NoContent);
 		using var client = TestClient.Create(stub);
-		var request = field switch
-		{
-			"message" => new ObservableUpdateRequest { Message = null },
-			_ => new ObservableUpdateRequest { SightedAt = null }
-		};
+		var request = field == "message"
+			? new ObservableUpdateRequest { Message = null }
+			: new ObservableUpdateRequest { SightedAt = null };
 
 		await client.Observables.UpdateAsync("~8529344", request, TestContext.Current.CancellationToken);
 

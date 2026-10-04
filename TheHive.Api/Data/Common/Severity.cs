@@ -4,14 +4,14 @@ namespace TheHive.Api.Data.Common;
 public static class Severity
 {
 	/// <summary>Low severity (1).</summary>
-	public const int Low = 1;
+	public static readonly int Low = 1;
 
 	/// <summary>Medium severity (2), the server default.</summary>
-	public const int Medium = 2;
+	public static readonly int Medium = 2;
 
 	/// <summary>High severity (3).</summary>
-	public const int High = 3;
+	public static readonly int High = 3;
 
 	/// <summary>Critical severity (4).</summary>
-	public const int Critical = 4;
+	public static readonly int Critical = 4;
 }

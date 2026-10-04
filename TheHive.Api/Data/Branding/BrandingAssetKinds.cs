@@ -4,11 +4,11 @@ namespace TheHive.Api.Data.Branding;
 public static class BrandingAssetKinds
 {
 	/// <summary>The logo displayed on the login page.</summary>
-	public const string LoginLogo = "loginLogo";
+	public static readonly string LoginLogo = "loginLogo";
 
 	/// <summary>The logo displayed in the navigation bar.</summary>
-	public const string MenuLogo = "menuLogo";
+	public static readonly string MenuLogo = "menuLogo";
 
 	/// <summary>The icon displayed in the browser tab.</summary>
-	public const string Favicon = "favicon";
+	public static readonly string Favicon = "favicon";
 }

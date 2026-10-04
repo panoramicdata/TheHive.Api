@@ -34,11 +34,17 @@ public sealed class TolerantEnumConverterFactory : JsonConverterFactory
 		}
 
 		public override T Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
-			=> reader.TokenType == JsonTokenType.String
+		{
+			_ = (typeToConvert, options);
+			return reader.TokenType == JsonTokenType.String
 				? _byWireName.GetValueOrDefault(reader.GetString()!)
 				: throw new JsonException("Expected an enum name string.");
+		}
 
 		public override void Write(Utf8JsonWriter writer, T value, JsonSerializerOptions options)
-			=> writer.WriteStringValue(_wireNames.TryGetValue(value, out var wireName) ? wireName : value.ToString());
+		{
+			_ = options;
+			writer.WriteStringValue(_wireNames.TryGetValue(value, out var wireName) ? wireName : value.ToString());
+		}
 	}
 }

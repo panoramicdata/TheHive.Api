@@ -4,23 +4,23 @@ namespace TheHive.Api.Data.Admin;
 public static class LogLevels
 {
 	/// <summary>Logs the most detailed information.</summary>
-	public const string All = "ALL";
+	public static readonly string All = "ALL";
 
 	/// <summary>Logs the most detailed information.</summary>
-	public const string Trace = "TRACE";
+	public static readonly string Trace = "TRACE";
 
 	/// <summary>Logs debugging information.</summary>
-	public const string Debug = "DEBUG";
+	public static readonly string Debug = "DEBUG";
 
 	/// <summary>Logs general information.</summary>
-	public const string Info = "INFO";
+	public static readonly string Info = "INFO";
 
 	/// <summary>Logs warnings and errors.</summary>
-	public const string Warn = "WARN";
+	public static readonly string Warn = "WARN";
 
 	/// <summary>Logs errors only.</summary>
-	public const string Error = "ERROR";
+	public static readonly string Error = "ERROR";
 
 	/// <summary>Turns logging off entirely.</summary>
-	public const string Off = "OFF";
+	public static readonly string Off = "OFF";
 }

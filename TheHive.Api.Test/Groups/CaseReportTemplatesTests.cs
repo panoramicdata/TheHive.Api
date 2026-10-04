@@ -109,6 +109,50 @@ public class CaseReportTemplatesTests
 		future.AdditionalData!["novelty"].GetRawText().Should().Be("""{"level":3}""");
 	}
 
+	private static CaseReportTemplateCreateRequest FullCreateRequest() => new()
+	{
+		Title = "Ransomware Investigation Report",
+		Group = "Incident Response",
+		Description = "Standard template for ransomware incident investigations.",
+		Version = 1,
+		Definition = new CaseReportTemplateDefinition
+		{
+			Widgets =
+			[
+				new CaseReportWidget { Kind = CaseReportWidgetKinds.Text, Title = "Summary", Template = "Case {{case.title}}" },
+				new CaseReportWidget { Kind = CaseReportWidgetKinds.Image, Title = "Company Logo", AttachmentId = "~456789012" },
+				new CaseReportWidget
+				{
+					Kind = CaseReportWidgetKinds.ObservableTable,
+					Title = "Observables",
+					Columns = ["dataType", "data", "tlp"],
+					Filter = JsonSerializer.Deserialize<JsonElement>("""{"_eq":{"_field":"ioc","_value":true}}"""),
+					Sort = [JsonSerializer.SerializeToElement("+_createdAt")],
+					ProtectData = true,
+					MaxElements = 20
+				},
+				new CaseReportWidget
+				{
+					Kind = CaseReportWidgetKinds.TaskList,
+					Fields = ["title", "status"],
+					LogColumns = ["message"],
+					WithTaskLogs = false
+				},
+				new CaseReportWidget
+				{
+					Kind = CaseReportWidgetKinds.Timeline,
+					Events = ["Alert", "Case"],
+					WithCustomEventsDescription = true
+				}
+			],
+			Header = new CaseReportHeader { Template = "Incident Report - {{case.title}}" },
+			Footer = new CaseReportFooter { Template = "Confidential - {{case.title}}" },
+			DateFormat = "yyyy-MM-dd",
+			DateTimeFormat = "yyyy-MM-dd HH:mm",
+			I18n = new CaseReportI18n { Lang = "en" }
+		}
+	};
+
 	[Fact]
 	public async Task CreateAsync_PostsBodyAndMapsEveryField()
 	{
@@ -116,49 +160,7 @@ public class CaseReportTemplatesTests
 		using var client = TestClient.Create(stub);
 
 		var result = await client.CaseReportTemplates.CreateAsync(
-			new CaseReportTemplateCreateRequest
-			{
-				Title = "Ransomware Investigation Report",
-				Group = "Incident Response",
-				Description = "Standard template for ransomware incident investigations.",
-				Version = 1,
-				Definition = new CaseReportTemplateDefinition
-				{
-					Widgets =
-					[
-						new CaseReportWidget { Kind = CaseReportWidgetKinds.Text, Title = "Summary", Template = "Case {{case.title}}" },
-						new CaseReportWidget { Kind = CaseReportWidgetKinds.Image, Title = "Company Logo", AttachmentId = "~456789012" },
-						new CaseReportWidget
-						{
-							Kind = CaseReportWidgetKinds.ObservableTable,
-							Title = "Observables",
-							Columns = ["dataType", "data", "tlp"],
-							Filter = JsonSerializer.Deserialize<JsonElement>("""{"_eq":{"_field":"ioc","_value":true}}"""),
-							Sort = [JsonSerializer.SerializeToElement("+_createdAt")],
-							ProtectData = true,
-							MaxElements = 20
-						},
-						new CaseReportWidget
-						{
-							Kind = CaseReportWidgetKinds.TaskList,
-							Fields = ["title", "status"],
-							LogColumns = ["message"],
-							WithTaskLogs = false
-						},
-						new CaseReportWidget
-						{
-							Kind = CaseReportWidgetKinds.Timeline,
-							Events = ["Alert", "Case"],
-							WithCustomEventsDescription = true
-						}
-					],
-					Header = new CaseReportHeader { Template = "Incident Report - {{case.title}}" },
-					Footer = new CaseReportFooter { Template = "Confidential - {{case.title}}" },
-					DateFormat = "yyyy-MM-dd",
-					DateTimeFormat = "yyyy-MM-dd HH:mm",
-					I18n = new CaseReportI18n { Lang = "en" }
-				}
-			},
+			FullCreateRequest(),
 			TestContext.Current.CancellationToken);
 
 		stub.Calls[0].Method.Should().Be(HttpMethod.Post);
