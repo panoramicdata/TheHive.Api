@@ -13,7 +13,7 @@ public sealed class ObservableAttachmentReference
 	[JsonPropertyName("contentType")]
 	public required string ContentType { get; set; }
 
-	/// <summary>The ID of the attachment in TheHive (1 to 128 characters).</summary>
+	/// <summary>The storage ID of the attachment in TheHive (1 to 128 characters): an uploaded attachment's <see cref="Attachments.Attachment.StorageId"/> (the wire's <c>id</c>, a hex SHA-256), not its <c>~…</c> <see cref="Attachments.Attachment.Id"/>, which TheHive 5.8 rejects with 404 (verified live).</summary>
 	[JsonPropertyName("id")]
 	public required string Id { get; set; }
 
