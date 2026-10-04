@@ -4,7 +4,7 @@ namespace TheHive.Api.Data.Common;
 public static class Pap
 {
 	/// <summary>PAP:CLEAR (0): no restrictions.</summary>
-	public static readonly int Clear = 0;
+	public static int Clear => 0;
 
 	/// <summary>PAP:GREEN (1): active actions allowed.</summary>
 	public static readonly int Green = 1;

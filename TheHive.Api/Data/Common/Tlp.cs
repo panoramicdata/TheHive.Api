@@ -4,7 +4,7 @@ namespace TheHive.Api.Data.Common;
 public static class Tlp
 {
 	/// <summary>TLP:CLEAR (0): no restrictions.</summary>
-	public static readonly int Clear = 0;
+	public static int Clear => 0;
 
 	/// <summary>TLP:GREEN (1): community.</summary>
 	public static readonly int Green = 1;
