@@ -73,11 +73,16 @@ public sealed partial class QueryBuilder
 		return AddStep(new JsonObject { ["_name"] = "filter", [op] = operand });
 	}
 
+	/// <summary>Sorts by a field in ascending order. Consecutive calls add fields to the same <c>sort</c> step, in priority order.</summary>
+	/// <param name="field">The field name.</param>
+	/// <returns>This builder.</returns>
+	public QueryBuilder Sort(string field) => Sort(field, SortDirection.Ascending);
+
 	/// <summary>Sorts by a field. Consecutive calls add fields to the same <c>sort</c> step, in priority order.</summary>
 	/// <param name="field">The field name.</param>
-	/// <param name="direction">The direction; ascending by default.</param>
+	/// <param name="direction">The direction.</param>
 	/// <returns>This builder.</returns>
-	public QueryBuilder Sort(string field, SortDirection direction = SortDirection.Ascending)
+	public QueryBuilder Sort(string field, SortDirection direction)
 	{
 		ArgumentException.ThrowIfNullOrWhiteSpace(field);
 		var wire = direction switch

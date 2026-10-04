@@ -25,7 +25,7 @@ public static class QueryExtensions
 	/// The query returned a single value (number, string or boolean) rather than entities, because its last operation returns a
 	/// value directly (for example <c>countFreetags</c>); read it with <see cref="IQuery.RunAsync"/>.
 	/// </exception>
-	public static async Task<List<T>> RunAsync<T>(this IQuery query, QueryBuilder builder, QueryRunOptions options, CancellationToken cancellationToken = default)
+	public static async Task<List<T>> RunAsync<T>(this IQuery query, QueryBuilder builder, QueryRunOptions options, CancellationToken cancellationToken)
 	{
 		ArgumentNullException.ThrowIfNull(query);
 		ArgumentNullException.ThrowIfNull(options);
@@ -45,7 +45,7 @@ public static class QueryExtensions
 	/// <exception cref="ArgumentException"><paramref name="builder"/> ends with a <c>count</c> step.</exception>
 	/// <exception cref="TheHiveApiException">The server returned an error status.</exception>
 	/// <exception cref="InvalidOperationException">The query returned a single value (number, string or boolean) rather than entities.</exception>
-	public static async Task<QueryPage<T>> RunPageAsync<T>(this IQuery query, QueryBuilder builder, QueryRunOptions options, CancellationToken cancellationToken = default)
+	public static async Task<QueryPage<T>> RunPageAsync<T>(this IQuery query, QueryBuilder builder, QueryRunOptions options, CancellationToken cancellationToken)
 	{
 		ArgumentNullException.ThrowIfNull(query);
 		ArgumentNullException.ThrowIfNull(options);
@@ -74,7 +74,7 @@ public static class QueryExtensions
 	/// <exception cref="ArgumentNullException"><paramref name="query"/>, <paramref name="builder"/> or <paramref name="options"/> is <see langword="null"/>.</exception>
 	/// <exception cref="ArgumentException"><paramref name="builder"/> does not end with a <c>count</c> step.</exception>
 	/// <exception cref="InvalidOperationException">The server returned something other than a number.</exception>
-	public static async Task<long> RunCountAsync(this IQuery query, QueryBuilder builder, QueryRunOptions options, CancellationToken cancellationToken = default)
+	public static async Task<long> RunCountAsync(this IQuery query, QueryBuilder builder, QueryRunOptions options, CancellationToken cancellationToken)
 	{
 		ArgumentNullException.ThrowIfNull(query);
 		ArgumentNullException.ThrowIfNull(builder);
@@ -99,7 +99,7 @@ public static class QueryExtensions
 	/// <param name="options">The export options.</param>
 	/// <param name="cancellationToken">A cancellation token.</param>
 	/// <returns>The file, as for <see cref="IQuery.ExportAsync"/>; dispose it.</returns>
-	public static Task<HttpContent> ExportAsync(this IQuery query, QueryBuilder builder, ExportOptions options, CancellationToken cancellationToken = default)
+	public static Task<HttpContent> ExportAsync(this IQuery query, QueryBuilder builder, ExportOptions options, CancellationToken cancellationToken)
 	{
 		ArgumentNullException.ThrowIfNull(query);
 		ArgumentNullException.ThrowIfNull(builder);
