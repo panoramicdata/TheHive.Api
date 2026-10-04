@@ -6,6 +6,7 @@ using Refit;
 using TheHive.Api.Data.Alerts;
 using TheHive.Api.Data.Attachments;
 using TheHive.Api.Data.Cases;
+using TheHive.Api.Data.Common;
 using TheHive.Api.Data.Observables;
 using TheHive.Api.Querying;
 
@@ -31,7 +32,7 @@ public class AttachmentTests(ITestOutputHelper testOutputHelper, Fixture fixture
 				result = await client.Cases.AddAttachmentsAsync(
 					caseId,
 					[new ByteArrayPart(textBytes, textName, "text/plain"), new StreamPart(stream, binaryName, "application/octet-stream")],
-					cancellationToken: CancellationToken);
+					new(), CancellationToken);
 			}
 
 			result.Attachments.Should().HaveCount(2);
@@ -76,7 +77,7 @@ public class AttachmentTests(ITestOutputHelper testOutputHelper, Fixture fixture
 				CancellationToken)).Id;
 			var (name, bytes) = NewTextFile();
 
-			var result = await client.Alerts.AddAttachmentsAsync(alertId, [new ByteArrayPart(bytes, name, "text/plain")], cancellationToken: CancellationToken);
+			var result = await client.Alerts.AddAttachmentsAsync(alertId, [new ByteArrayPart(bytes, name, "text/plain")], new(), CancellationToken);
 
 			var attachment = result.Attachments.Should().ContainSingle().Which;
 			ShouldDescribe(attachment, name, bytes, "text/plain");
@@ -103,19 +104,19 @@ public class AttachmentTests(ITestOutputHelper testOutputHelper, Fixture fixture
 		try
 		{
 			var (name, bytes) = NewTextFile();
-			var uploaded = (await client.Organisations.UploadAttachmentsAsync([new ByteArrayPart(bytes, name, "text/plain")], cancellationToken: CancellationToken))
+			var uploaded = (await client.Organisations.UploadAttachmentsAsync([new ByteArrayPart(bytes, name, "text/plain")], new(), CancellationToken))
 				.Attachments.Should().ContainSingle().Which;
 			attachmentId = uploaded.Id;
 			ShouldDescribe(uploaded, name, bytes, "text/plain");
 
-			using (var content = await client.Organisations.GetAttachmentAsync(attachmentId, cancellationToken: CancellationToken))
+			using (var content = await client.Organisations.GetAttachmentAsync(attachmentId, new(), CancellationToken))
 			{
 				(await content.ReadAsByteArrayAsync(CancellationToken)).Should().Equal(bytes);
 				content.Headers.ContentType!.MediaType.Should().Be("text/plain");
 			}
 
 			// The server ignores If-None-Match: * (no 304); the ETag itself is a response header, which Task<HttpContent> does not expose.
-			using (var content = await client.Organisations.GetAttachmentAsync(attachmentId, "*", CancellationToken))
+			using (var content = await client.Organisations.GetAttachmentAsync(attachmentId, new ConditionalDownloadOptions { IfNoneMatch = "*" }, CancellationToken))
 			{
 				(await content.ReadAsByteArrayAsync(CancellationToken)).Should().Equal(bytes);
 			}
@@ -130,7 +131,7 @@ public class AttachmentTests(ITestOutputHelper testOutputHelper, Fixture fixture
 			var deletedId = attachmentId;
 			attachmentId = null;
 
-			var act = () => client.Organisations.GetAttachmentAsync(deletedId, cancellationToken: CancellationToken);
+			var act = () => client.Organisations.GetAttachmentAsync(deletedId, new(), CancellationToken);
 			(await act.Should().ThrowAsync<TheHiveApiException>()).Which.StatusCode.Should().Be(HttpStatusCode.NotFound);
 		}
 		finally
@@ -152,15 +153,15 @@ public class AttachmentTests(ITestOutputHelper testOutputHelper, Fixture fixture
 		{
 			caseId = (await client.Cases.CreateAsync(NewCase(), CancellationToken)).Id;
 			var (name, bytes) = NewTextFile();
-			var uploaded = (await client.Organisations.UploadAttachmentsAsync([new ByteArrayPart(bytes, name, "text/plain")], cancellationToken: CancellationToken))
+			var uploaded = (await client.Organisations.UploadAttachmentsAsync([new ByteArrayPart(bytes, name, "text/plain")], new(), CancellationToken))
 				.Attachments.Should().ContainSingle().Which;
 			attachmentId = uploaded.Id;
 
 			// Verified live (TheHive 5.8): the reference id is the storage id (the wire's "id", a hex SHA-256), not the "~..." _id.
-			var byEntityId = () => client.Observables.CreateInCaseAsync(caseId, NewFileObservable(uploaded, uploaded.Id), cancellationToken: CancellationToken);
+			var byEntityId = () => client.Observables.CreateInCaseAsync(caseId, NewFileObservable(uploaded, uploaded.Id), new(), CancellationToken);
 			(await byEntityId.Should().ThrowAsync<TheHiveApiException>()).Which.StatusCode.Should().Be(HttpStatusCode.NotFound);
 
-			var observable = (await client.Observables.CreateInCaseAsync(caseId, NewFileObservable(uploaded, uploaded.StorageId), cancellationToken: CancellationToken))
+			var observable = (await client.Observables.CreateInCaseAsync(caseId, NewFileObservable(uploaded, uploaded.StorageId), new(), CancellationToken))
 				.Should().ContainSingle().Which;
 			observable.DataType.Should().Be("file");
 			var observableAttachment = observable.Attachment!;
@@ -172,13 +173,13 @@ public class AttachmentTests(ITestOutputHelper testOutputHelper, Fixture fixture
 			// asZip omitted and asZip=false both return the file itself.
 			foreach (var asZip in new bool?[] { null, false })
 			{
-				using var content = await client.Observables.DownloadAttachmentAsync(observable.Id, observableAttachment.Id, asZip, CancellationToken);
+				using var content = await client.Observables.DownloadAttachmentAsync(observable.Id, observableAttachment.Id, new ObservableAttachmentDownloadOptions { AsZip = asZip }, CancellationToken);
 				(await content.ReadAsByteArrayAsync(CancellationToken)).Should().Equal(bytes);
 				content.Headers.ContentDisposition!.FileName.Should().Be(name);
 			}
 
 			// asZip=true returns a (password-protected) zip archive named after the file.
-			using (var zip = await client.Observables.DownloadAttachmentAsync(observable.Id, observableAttachment.Id, true, CancellationToken))
+			using (var zip = await client.Observables.DownloadAttachmentAsync(observable.Id, observableAttachment.Id, new ObservableAttachmentDownloadOptions { AsZip = true }, CancellationToken))
 			{
 				var zipBytes = await zip.ReadAsByteArrayAsync(CancellationToken);
 				zipBytes.Take(4).Should().Equal((byte)'P', (byte)'K', 3, 4);
@@ -189,12 +190,12 @@ public class AttachmentTests(ITestOutputHelper testOutputHelper, Fixture fixture
 			}
 
 			// The download also accepts the storage id in place of the attachment _id.
-			using (var content = await client.Observables.DownloadAttachmentAsync(observable.Id, observableAttachment.StorageId, cancellationToken: CancellationToken))
+			using (var content = await client.Observables.DownloadAttachmentAsync(observable.Id, observableAttachment.StorageId, new(), CancellationToken))
 			{
 				(await content.ReadAsByteArrayAsync(CancellationToken)).Should().Equal(bytes);
 			}
 
-			using (var content = await client.TaskLogs.GetObservableAttachmentAsync(observable.Id, observableAttachment.Id, cancellationToken: CancellationToken))
+			using (var content = await client.TaskLogs.GetObservableAttachmentAsync(observable.Id, observableAttachment.Id, new(), CancellationToken))
 			{
 				(await content.ReadAsByteArrayAsync(CancellationToken)).Should().Equal(bytes);
 			}
@@ -206,7 +207,7 @@ public class AttachmentTests(ITestOutputHelper testOutputHelper, Fixture fixture
 			await client.Organisations.DeleteAttachmentAsync(attachmentId, CancellationToken);
 			var deletedId = attachmentId;
 			attachmentId = null;
-			var getAttachment = () => client.Organisations.GetAttachmentAsync(deletedId, cancellationToken: CancellationToken);
+			var getAttachment = () => client.Organisations.GetAttachmentAsync(deletedId, new(), CancellationToken);
 			(await getAttachment.Should().ThrowAsync<TheHiveApiException>()).Which.StatusCode.Should().Be(HttpStatusCode.NotFound);
 		}
 		finally
@@ -268,7 +269,7 @@ public class AttachmentTests(ITestOutputHelper testOutputHelper, Fixture fixture
 
 	private async Task<List<Attachment>> ListAttachmentsAsync(QueryBuilder entity)
 	{
-		var result = await Client.Query.RunAsync(entity.Related("attachments").Build(), cancellationToken: CancellationToken);
+		var result = await Client.Query.RunAsync(entity.Related("attachments").Build(), new(), CancellationToken);
 		return result.Deserialize<List<Attachment>>(TheHiveJson.Options) ?? [];
 	}
 }

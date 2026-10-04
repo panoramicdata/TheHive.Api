@@ -325,8 +325,8 @@ public class EmailIntakeTests
 		stub.Enqueue(HttpStatusCode.NoContent);
 		using var client = TestClient.Create(stub);
 
-		await client.EmailIntake.SyncAsync(cancellationToken: TestContext.Current.CancellationToken);
-		await client.EmailIntake.SyncAsync("~4096", TestContext.Current.CancellationToken);
+		await client.EmailIntake.SyncAsync(new(), TestContext.Current.CancellationToken);
+		await client.EmailIntake.SyncAsync(new EmailIntakeSyncOptions { ConfigId = "~4096" }, TestContext.Current.CancellationToken);
 
 		stub.Calls[0].Method.Should().Be(HttpMethod.Post);
 		stub.Calls[0].Uri.AbsolutePath.Should().Be("/api/v1/connector/email-intake/sync");

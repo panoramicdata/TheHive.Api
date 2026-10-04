@@ -36,7 +36,7 @@ public class AuditTests
 		stub.Enqueue(HttpStatusCode.OK, FlowJson);
 		using var client = TestClient.Create(stub);
 
-		var result = await client.Audit.GetFlowAsync(cancellationToken: TestContext.Current.CancellationToken);
+		var result = await client.Audit.GetFlowAsync(new(), TestContext.Current.CancellationToken);
 
 		stub.Calls[0].Method.Should().Be(HttpMethod.Get);
 		stub.Calls[0].Uri.AbsolutePath.Should().Be("/api/v1/flow");
@@ -71,7 +71,7 @@ public class AuditTests
 		stub.Enqueue(HttpStatusCode.OK, FlowJson);
 		using var client = TestClient.Create(stub);
 
-		var result = await client.Audit.GetFlowAsync(cancellationToken: TestContext.Current.CancellationToken);
+		var result = await client.Audit.GetFlowAsync(new(), TestContext.Current.CancellationToken);
 
 		var entry = result[1].Base;
 		entry.UpdatedBy.Should().BeNull();
@@ -91,7 +91,7 @@ public class AuditTests
 		stub.Enqueue(HttpStatusCode.OK, "[]");
 		using var client = TestClient.Create(stub);
 
-		var result = await client.Audit.GetFlowAsync("~327925760", 25, TestContext.Current.CancellationToken);
+		var result = await client.Audit.GetFlowAsync(new AuditFlowQuery { RootId = "~327925760", Count = 25 }, TestContext.Current.CancellationToken);
 
 		stub.Calls[0].Uri.PathAndQuery.Should().Be("/api/v1/flow?rootId=~327925760&count=25");
 		result.Should().BeEmpty();
@@ -120,7 +120,7 @@ public class AuditTests
 		stub.Enqueue(HttpStatusCode.NotFound, """{"type":"NotFoundError","message":"Case not found"}""");
 		using var client = TestClient.Create(stub);
 
-		var act = () => client.Audit.GetFlowAsync("~0", cancellationToken: TestContext.Current.CancellationToken);
+		var act = () => client.Audit.GetFlowAsync(new AuditFlowQuery { RootId = "~0" }, TestContext.Current.CancellationToken);
 
 		(await act.Should().ThrowAsync<TheHiveApiException>())
 			.Which.Should().Match<TheHiveApiException>(e => e.StatusCode == HttpStatusCode.NotFound && e.ErrorType == "NotFoundError");

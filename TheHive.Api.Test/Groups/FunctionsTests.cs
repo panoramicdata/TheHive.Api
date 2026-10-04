@@ -1,4 +1,5 @@
 using System.Net;
+using TheHive.Api.Data.Common;
 using TheHive.Api.Data.Functions;
 using TheHive.Api.Test.Support;
 
@@ -139,7 +140,7 @@ public class FunctionsTests
 				Config = new() { ["token"] = "fake-key" },
 				Input = new { source = "unit" }
 			},
-			true,
+			new DryRunOptions { DryRun = true },
 			TestContext.Current.CancellationToken);
 
 		stub.Calls[0].Method.Should().Be(HttpMethod.Post);
@@ -156,7 +157,7 @@ public class FunctionsTests
 		var stub = Stub(HttpStatusCode.OK, InvocationJson);
 		using var client = TestClient.Create(stub);
 
-		await client.Functions.TestAsync(new FunctionTestRequest { Definition = "x" }, cancellationToken: TestContext.Current.CancellationToken);
+		await client.Functions.TestAsync(new FunctionTestRequest { Definition = "x" }, new(), TestContext.Current.CancellationToken);
 
 		stub.Calls[0].Uri.Query.Should().BeEmpty();
 		stub.Calls[0].Body.Should().Be("""{"definition":"x"}""");
@@ -168,7 +169,7 @@ public class FunctionsTests
 		var stub = Stub(HttpStatusCode.OK, InvocationJson);
 		using var client = TestClient.Create(stub);
 
-		var result = await client.Functions.InvokeAsync("my function", new { source = "unit" }, false, TestContext.Current.CancellationToken);
+		var result = await client.Functions.InvokeAsync("my function", new { source = "unit" }, new DryRunOptions { DryRun = false }, TestContext.Current.CancellationToken);
 
 		stub.Calls[0].Method.Should().Be(HttpMethod.Post);
 		stub.Calls[0].Uri.AbsolutePath.Should().Be("/api/v1/function/my%20function");
@@ -184,7 +185,7 @@ public class FunctionsTests
 		var stub = Stub(HttpStatusCode.OK, InvocationJson);
 		using var client = TestClient.Create(stub);
 
-		await client.Functions.InvokeAsync("~84123", cancellationToken: TestContext.Current.CancellationToken);
+		await client.Functions.InvokeAsync("~84123", null, new(), TestContext.Current.CancellationToken);
 
 		stub.Calls[0].Uri.AbsolutePath.Should().Be("/api/v1/function/~84123");
 		stub.Calls[0].Uri.Query.Should().BeEmpty();
@@ -212,7 +213,7 @@ public class FunctionsTests
 		var stub = Stub(HttpStatusCode.OK, "{}");
 		using var client = TestClient.Create(stub);
 
-		var result = await client.Functions.InvokeOnObjectAsync("f", "case", "7", cancellationToken: TestContext.Current.CancellationToken);
+		var result = await client.Functions.InvokeOnObjectAsync("f", "case", "7", new(), TestContext.Current.CancellationToken);
 
 		stub.Calls[0].Uri.AbsolutePath.Should().Be("/api/v1/function/f/case/7");
 		stub.Calls[0].Uri.Query.Should().BeEmpty();

@@ -1,5 +1,6 @@
 using Refit;
 using System.Net;
+using TheHive.Api.Data.Common;
 using TheHive.Api.Data.TaskLogs;
 using TheHive.Api.Test.Support;
 
@@ -185,7 +186,7 @@ public class TaskLogsTests
 		stub.EnqueueFile(file, "application/octet-stream", "sample.exe");
 		using var client = TestClient.Create(stub);
 
-		using var content = await client.TaskLogs.GetObservableAttachmentAsync("~8529344", "~456789012", cancellationToken: TestContext.Current.CancellationToken);
+		using var content = await client.TaskLogs.GetObservableAttachmentAsync("~8529344", "~456789012", new(), TestContext.Current.CancellationToken);
 
 		stub.Calls[0].Method.Should().Be(HttpMethod.Get);
 		stub.Calls[0].Uri.AbsolutePath.Should().Be("/api/v1/observable/~8529344/attachment/~456789012");
@@ -202,7 +203,7 @@ public class TaskLogsTests
 		var stub = Stub(HttpStatusCode.NotModified);
 		using var client = TestClient.Create(stub);
 
-		var act = () => client.TaskLogs.GetObservableAttachmentAsync("~8529344", "~456789012", "\"abc123\"", TestContext.Current.CancellationToken);
+		var act = () => client.TaskLogs.GetObservableAttachmentAsync("~8529344", "~456789012", new ConditionalDownloadOptions { IfNoneMatch = "\"abc123\"" }, TestContext.Current.CancellationToken);
 
 		(await act.Should().ThrowAsync<TheHiveApiException>())
 			.Which.StatusCode.Should().Be(HttpStatusCode.NotModified);

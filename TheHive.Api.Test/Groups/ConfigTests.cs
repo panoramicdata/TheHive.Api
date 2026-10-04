@@ -24,7 +24,7 @@ public class ConfigTests
 		var stub = Stub(HttpStatusCode.OK, """{"organisation":"TheOrganization","profile":"analyst","list-views-cases":[],"notification":{"items":[]}}""");
 		using var client = TestClient.Create(stub);
 
-		var result = await client.Config.ListAsync(cancellationToken: TestContext.Current.CancellationToken);
+		var result = await client.Config.ListAsync(new(), TestContext.Current.CancellationToken);
 
 		stub.Calls[0].Method.Should().Be(HttpMethod.Get);
 		stub.Calls[0].Uri.AbsolutePath.Should().Be("/api/v1/config/user");
@@ -41,7 +41,7 @@ public class ConfigTests
 		var stub = Stub(HttpStatusCode.OK, """{"profile":"analyst"}""");
 		using var client = TestClient.Create(stub);
 
-		await client.Config.ListAsync("profile", TestContext.Current.CancellationToken);
+		await client.Config.ListAsync(new UserConfigQuery { Path = "profile" }, TestContext.Current.CancellationToken);
 
 		stub.Calls[0].Uri.PathAndQuery.Should().Be("/api/v1/config/user?path=profile");
 	}

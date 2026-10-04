@@ -157,7 +157,7 @@ public partial class CortexTests
 		var stub = Stub(HttpStatusCode.OK, $"[{AnalyzerJson}]");
 		using var client = TestClient.Create(stub);
 
-		var analyzers = await client.Cortex.ListAnalyzersAsync("all", TestContext.Current.CancellationToken);
+		var analyzers = await client.Cortex.ListAnalyzersAsync(new CortexAnalyzersQuery { Range = "all" }, TestContext.Current.CancellationToken);
 
 		stub.Calls[0].Method.Should().Be(HttpMethod.Get);
 		stub.Calls[0].Uri.AbsolutePath.Should().Be("/api/v1/connector/cortex/analyzer");
@@ -178,7 +178,7 @@ public partial class CortexTests
 		var stub = Stub(HttpStatusCode.OK, "[]");
 		using var client = TestClient.Create(stub);
 
-		var analyzers = await client.Cortex.ListAnalyzersAsync(cancellationToken: TestContext.Current.CancellationToken);
+		var analyzers = await client.Cortex.ListAnalyzersAsync(new(), TestContext.Current.CancellationToken);
 
 		stub.Calls[0].Uri.Query.Should().BeEmpty();
 		analyzers.Should().BeEmpty();

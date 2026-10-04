@@ -7,11 +7,11 @@ namespace TheHive.Api.Interfaces;
 public interface IStatus
 {
 	/// <summary>Gets the status of the instance: version, license validity, connector status and enabled feature flags.</summary>
-	/// <param name="verbose">Whether to also include the cluster state and the database schema version of each module; sent as <c>true</c> or <c>false</c>, and omitted when <see langword="null"/> (the server default is <c>false</c>).</param>
+	/// <param name="query">The <c>verbose</c> flag (<see cref="PlatformStatusQuery.Verbose"/>: whether to also include the cluster state and the database schema version of each module, sent as <c>true</c> or <c>false</c>); pass <c>new()</c> to leave it out (the server default is <c>false</c>).</param>
 	/// <param name="cancellationToken">A cancellation token.</param>
 	/// <returns>The platform status.</returns>
 	[Get("api/v1/status")]
-	Task<PlatformStatus> GetAsync([Query] bool? verbose = null, CancellationToken cancellationToken = default);
+	Task<PlatformStatus> GetAsync([Query] PlatformStatusQuery query, CancellationToken cancellationToken = default);
 
 	/// <summary>
 	/// Gets the platform information that needs no authentication: whether single sign-on is on, the SSO providers, the version and the status of

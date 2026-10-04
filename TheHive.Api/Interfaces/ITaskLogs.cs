@@ -1,4 +1,6 @@
+using System.ComponentModel;
 using Refit;
+using TheHive.Api.Data.Common;
 using TheHive.Api.Data.TaskLogs;
 
 namespace TheHive.Api.Interfaces;
@@ -50,6 +52,35 @@ public interface ITaskLogs
 	/// <summary>Gets the binary content of an attachment linked to an observable (the spec files this operation under the Task Log tag).</summary>
 	/// <param name="observableId">The observable ID preceded by <c>~</c>.</param>
 	/// <param name="attachmentId">The attachment ID preceded by <c>~</c>.</param>
+	/// <param name="options">The <c>If-None-Match</c> header (<see cref="ConditionalDownloadOptions.IfNoneMatch"/>, the <c>ETag</c> of a previous response); pass <c>new()</c> to download unconditionally.
+	/// When it still matches, the server answers 304 and this method throws <see cref="TheHiveApiException"/> with status <c>NotModified</c>.</param>
+	/// <param name="cancellationToken">A cancellation token.</param>
+	/// <returns>
+	/// The file. Read it with <see cref="HttpContent.ReadAsStreamAsync(CancellationToken)"/>; the <c>ETag</c> is not exposed here.
+	/// The caller owns the content and must dispose it.
+	/// </returns>
+	/// <exception cref="ArgumentNullException"><paramref name="options"/> is <see langword="null"/>.</exception>
+	/// <remarks>
+	/// <see cref="TheHiveClientOptions.Timeout"/> bounds only the time until the response headers arrive, not reading the body:
+	/// pass a <see cref="CancellationToken"/> to <c>ReadAs*Async</c> (or the stream reads) so a stalled download cannot hang.
+	/// <para>This is the method to call. It is implemented on the interface and sends the request through the raw transport <see cref="GetObservableAttachmentWithHeadersAsync"/>; a class implementing <see cref="ITaskLogs"/> only has to provide that method.</para>
+	/// </remarks>
+	Task<HttpContent> GetObservableAttachmentAsync(
+		string observableId,
+		string attachmentId,
+		ConditionalDownloadOptions options,
+		CancellationToken cancellationToken = default)
+	{
+		ArgumentNullException.ThrowIfNull(options);
+		return GetObservableAttachmentWithHeadersAsync(observableId, attachmentId, options.IfNoneMatch, cancellationToken);
+	}
+
+	/// <summary>
+	/// The raw transport used by <see cref="GetObservableAttachmentAsync"/>, with a <see langword="null"/> <paramref name="ifNoneMatch"/> left out. Call
+	/// <see cref="GetObservableAttachmentAsync"/> instead; this method exists because Refit cannot turn a property of an object into a request header.
+	/// </summary>
+	/// <param name="observableId">The observable ID preceded by <c>~</c>.</param>
+	/// <param name="attachmentId">The attachment ID preceded by <c>~</c>.</param>
 	/// <param name="ifNoneMatch">The <c>ETag</c> of a previous response, sent as <c>If-None-Match</c>; omitted when <see langword="null"/>.
 	/// When it still matches, the server answers 304 and this method throws <see cref="TheHiveApiException"/> with status <c>NotModified</c>.</param>
 	/// <param name="cancellationToken">A cancellation token.</param>
@@ -57,14 +88,11 @@ public interface ITaskLogs
 	/// The file. Read it with <see cref="HttpContent.ReadAsStreamAsync(CancellationToken)"/>; the <c>ETag</c> is not exposed here.
 	/// The caller owns the content and must dispose it.
 	/// </returns>
-	/// <remarks>
-	/// <see cref="TheHiveClientOptions.Timeout"/> bounds only the time until the response headers arrive, not reading the body:
-	/// pass a <see cref="CancellationToken"/> to <c>ReadAs*Async</c> (or the stream reads) so a stalled download cannot hang.
-	/// </remarks>
+	[EditorBrowsable(EditorBrowsableState.Never)]
 	[Get("api/v1/observable/{observableId}/attachment/{attachmentId}")]
-	Task<HttpContent> GetObservableAttachmentAsync(
+	Task<HttpContent> GetObservableAttachmentWithHeadersAsync(
 		string observableId,
 		string attachmentId,
-		[Header("If-None-Match")] string? ifNoneMatch = null,
-		CancellationToken cancellationToken = default);
+		[Header("If-None-Match")] string? ifNoneMatch,
+		CancellationToken cancellationToken);
 }

@@ -1,5 +1,6 @@
 using Refit;
 using TheHive.Api.Data.AlertFeeders;
+using TheHive.Api.Data.Common;
 using TheHive.Api.Data.Functions;
 
 namespace TheHive.Api.Interfaces;
@@ -40,11 +41,11 @@ public interface IAlertFeeders
 
 	/// <summary>Runs an alert feeder immediately, outside its schedule.</summary>
 	/// <param name="alertFeederName">The name of the alert feeder.</param>
-	/// <param name="dryRun"><see langword="true"/> to simulate the run without creating alerts; omit for the server default (<see langword="false"/>).</param>
+	/// <param name="options">The <c>dryRun</c> flag (<see langword="true"/> to simulate the run without creating alerts; omit for the server default, <see langword="false"/>); pass <c>new()</c> to leave it out.</param>
 	/// <param name="cancellationToken">A cancellation token.</param>
 	/// <returns>The function result: the returned value, duration, stdout and stderr.</returns>
 	[Post("api/v1/connector/alert-feeder/run/{alertFeederName}")]
-	Task<FunctionInvocationResult> RunAsync(string alertFeederName, [Query] bool? dryRun = null, CancellationToken cancellationToken = default);
+	Task<FunctionInvocationResult> RunAsync(string alertFeederName, [Query] DryRunOptions options, CancellationToken cancellationToken = default);
 
 	/// <summary>Tests the HTTP connection of an alert feeder configuration without saving it.</summary>
 	/// <param name="request">The configuration to test.</param>

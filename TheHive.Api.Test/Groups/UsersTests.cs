@@ -1,5 +1,6 @@
 using System.Net;
 using Refit;
+using TheHive.Api.Data.Attachments;
 using TheHive.Api.Data.Common;
 using TheHive.Api.Data.Organisations;
 using TheHive.Api.Data.Users;
@@ -250,7 +251,7 @@ public class UsersTests
 		stub.EnqueueFile(image, "application/octet-stream", "avatar.jpg");
 		using var client = TestClient.Create(stub);
 
-		using var content = await client.Users.GetAvatarAsync("~192024", "fake-avatar-hash", cancellationToken: TestContext.Current.CancellationToken);
+		using var content = await client.Users.GetAvatarAsync("~192024", "fake-avatar-hash", new(), TestContext.Current.CancellationToken);
 
 		stub.Calls[0].Method.Should().Be(HttpMethod.Get);
 		stub.Calls[0].Uri.AbsolutePath.Should().Be("/api/v1/user/~192024/avatar/fake-avatar-hash");
@@ -266,7 +267,7 @@ public class UsersTests
 		var stub = Stub(HttpStatusCode.NotModified);
 		using var client = TestClient.Create(stub);
 
-		var act = () => client.Users.GetAvatarAsync("~192024", "fake-avatar-hash", "\"abc123\"", TestContext.Current.CancellationToken);
+		var act = () => client.Users.GetAvatarAsync("~192024", "fake-avatar-hash", new ConditionalDownloadOptions { IfNoneMatch = "\"abc123\"" }, TestContext.Current.CancellationToken);
 
 		(await act.Should().ThrowAsync<TheHiveApiException>())
 			.Which.StatusCode.Should().Be(HttpStatusCode.NotModified);
@@ -279,7 +280,7 @@ public class UsersTests
 		var stub = Stub(HttpStatusCode.NoContent);
 		using var client = TestClient.Create(stub);
 
-		await client.Users.DeleteAsync("~192024", "The Org", TestContext.Current.CancellationToken);
+		await client.Users.DeleteAsync("~192024", new UserDeleteOptions { Organisation = "The Org" }, TestContext.Current.CancellationToken);
 
 		stub.Calls[0].Method.Should().Be(HttpMethod.Delete);
 		stub.Calls[0].Uri.AbsolutePath.Should().Be("/api/v1/user/~192024/force");
@@ -293,7 +294,7 @@ public class UsersTests
 		var stub = Stub(HttpStatusCode.NoContent);
 		using var client = TestClient.Create(stub);
 
-		await client.Users.DeleteAsync("~192024", cancellationToken: TestContext.Current.CancellationToken);
+		await client.Users.DeleteAsync("~192024", new(), TestContext.Current.CancellationToken);
 
 		stub.Calls[0].Uri.AbsolutePath.Should().Be("/api/v1/user/~192024/force");
 		stub.Calls[0].Uri.Query.Should().BeEmpty();
@@ -421,7 +422,7 @@ public class UsersTests
 
 		var result = await client.Users.UploadTemporaryAttachmentsAsync(
 			[new StreamPart(first, "sample.exe", "application/octet-stream"), new ByteArrayPart([4, 5], "notes.txt", "text/plain")],
-			cancellationToken: TestContext.Current.CancellationToken);
+			new(), TestContext.Current.CancellationToken);
 
 		var call = stub.Calls[0];
 		call.Method.Should().Be(HttpMethod.Post);
@@ -444,7 +445,7 @@ public class UsersTests
 		var stub = Stub(HttpStatusCode.Created, """{"attachments":[]}""");
 		using var client = TestClient.Create(stub);
 
-		await client.Users.UploadTemporaryAttachmentsAsync([new ByteArrayPart([1], "a.bin", "application/octet-stream")], true, TestContext.Current.CancellationToken);
+		await client.Users.UploadTemporaryAttachmentsAsync([new ByteArrayPart([1], "a.bin", "application/octet-stream")], new AttachmentUploadOptions { CanRename = true }, TestContext.Current.CancellationToken);
 
 		var parts = stub.Calls[0].Parts;
 		parts.Should().HaveCount(2);
@@ -457,7 +458,7 @@ public class UsersTests
 		var stub = Stub(HttpStatusCode.Created, """{"attachments":[]}""");
 		using var client = TestClient.Create(stub);
 
-		await client.Users.UploadTemporaryAttachmentsAsync([new ByteArrayPart([1], "a.bin", "application/octet-stream")], cancellationToken: TestContext.Current.CancellationToken);
+		await client.Users.UploadTemporaryAttachmentsAsync([new ByteArrayPart([1], "a.bin", "application/octet-stream")], new(), TestContext.Current.CancellationToken);
 
 		stub.Calls[0].Parts.Should().NotContain(p => p.Name == "canRename");
 	}

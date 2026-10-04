@@ -1,7 +1,9 @@
 using System.Net;
 using System.Text.Json;
 using Refit;
+using TheHive.Api.Data.Attachments;
 using TheHive.Api.Data.CaseReportTemplates;
+using TheHive.Api.Data.Common;
 using TheHive.Api.Test.Support;
 
 namespace TheHive.Api.Test.Groups;
@@ -341,7 +343,7 @@ public class CaseReportTemplatesTests
 		var result = await client.CaseReportTemplates.AddAttachmentsAsync(
 			"~42123",
 			[new StreamPart(first, "logo.png", "image/png"), new StreamPart(second, "banner.jpg", "image/jpeg")],
-			canRename: true,
+			new AttachmentUploadOptions { CanRename = true },
 			TestContext.Current.CancellationToken);
 
 		var call = stub.Calls[0];
@@ -371,7 +373,7 @@ public class CaseReportTemplatesTests
 		await client.CaseReportTemplates.AddAttachmentsAsync(
 			"~42123",
 			[new ByteArrayPart([9], "a.bin")],
-			cancellationToken: TestContext.Current.CancellationToken);
+			new(), TestContext.Current.CancellationToken);
 
 		var part = stub.Calls[0].Parts.Should().ContainSingle().Subject;
 		part.Name.Should().Be("attachments");
@@ -400,7 +402,7 @@ public class CaseReportTemplatesTests
 		stub.EnqueueFile(image, "image/png", "logo.png");
 		using var client = TestClient.Create(stub);
 
-		using var content = await client.CaseReportTemplates.GetAttachmentAsync("~42123", "~456789012", cancellationToken: TestContext.Current.CancellationToken);
+		using var content = await client.CaseReportTemplates.GetAttachmentAsync("~42123", "~456789012", new(), TestContext.Current.CancellationToken);
 
 		stub.Calls[0].Method.Should().Be(HttpMethod.Get);
 		stub.Calls[0].Uri.AbsolutePath.Should().Be("/api/v1/caseReportTemplate/~42123/attachment/~456789012");
@@ -416,7 +418,7 @@ public class CaseReportTemplatesTests
 		var stub = Stub(HttpStatusCode.NotModified);
 		using var client = TestClient.Create(stub);
 
-		var act = () => client.CaseReportTemplates.GetAttachmentAsync("~42123", "~456789012", "\"abc123\"", TestContext.Current.CancellationToken);
+		var act = () => client.CaseReportTemplates.GetAttachmentAsync("~42123", "~456789012", new ConditionalDownloadOptions { IfNoneMatch = "\"abc123\"" }, TestContext.Current.CancellationToken);
 
 		(await act.Should().ThrowAsync<TheHiveApiException>())
 			.Which.StatusCode.Should().Be(HttpStatusCode.NotModified);

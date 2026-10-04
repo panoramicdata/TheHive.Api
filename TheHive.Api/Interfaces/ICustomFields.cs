@@ -21,10 +21,10 @@ public interface ICustomFields
 
 	/// <summary>Deletes a custom field.</summary>
 	/// <param name="customFieldId">The custom field ID preceded by <c>~</c>, or its name.</param>
-	/// <param name="force">Whether to delete the field even when cases or alerts use it; omitted when <see langword="null"/> (the server then refuses to delete a field in use).</param>
+	/// <param name="options">The <c>force</c> flag (<see cref="CustomFieldDeleteOptions.Force"/>: whether to delete the field even when cases or alerts use it); pass <c>new()</c> to leave it out, and the server then refuses to delete a field in use.</param>
 	/// <param name="cancellationToken">A cancellation token.</param>
 	[Delete("api/v1/customField/{customFieldId}")]
-	Task DeleteAsync(string customFieldId, [Query] bool? force = null, CancellationToken cancellationToken = default);
+	Task DeleteAsync(string customFieldId, [Query] CustomFieldDeleteOptions options, CancellationToken cancellationToken = default);
 
 	/// <summary>Updates a custom field; only the properties set on the request change.</summary>
 	/// <param name="customFieldId">The custom field ID preceded by <c>~</c>, or its name.</param>

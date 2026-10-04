@@ -118,7 +118,7 @@ Plan groups: Alerts, Cases, CaseTemplates, Tasks, TaskLogs, Observables, Comment
 | Alert | DELETE | `/api/v1/alert/{alertId}/attachment/{attachmentId}` | `IAlerts.DeleteAttachmentAsync` | `AlertsTests.DeleteAttachmentAsync_SendsDelete` |
 | Alert | GET | `/api/v1/alert/{alertId}/attachment/{attachmentId}` (deprecated) | | |
 | Alert | GET | `/api/v1/alert/{alertId}/attachment/{attachmentId}/download` (deprecated) | | |
-| Alert | POST | `/api/v1/alert/{alertId}/attachments` | `IAlerts.AddAttachmentsAsync` | `AlertsTests.AddAttachmentsAsync_UploadsEachFileAsAnAttachmentsPart`, `AlertsTests.AddAttachmentsAsync_WithoutCanRename_SendsOnlyFiles` |
+| Alert | POST | `/api/v1/alert/{alertId}/attachments` | `IAlerts.AddAttachmentsAsync`, `IAlerts.AddAttachmentsMultipartAsync` | `AlertsTests.AddAttachmentsAsync_UploadsEachFileAsAnAttachmentsPart`, `AlertsTests.AddAttachmentsAsync_WithoutCanRename_SendsOnlyFiles` |
 | Alert | POST | `/api/v1/alert/{alertId}/case` | `IAlerts.CreateCaseAsync` | `AlertsTests.CreateCaseAsync_PostsEveryOverrideAndMapsCase`, `AlertsTests.CreateCaseAsync_EmptyRequest_SendsEmptyObject` |
 | Alert | POST | `/api/v1/alert/{alertId}/follow` | `IAlerts.FollowAsync` | `AlertsTests.FollowAndUnfollowAsync_PostWithoutBody` |
 | Alert | POST | `/api/v1/alert/{alertId}/import/{caseId}` | `IAlerts.ImportIntoCaseAsync` | `AlertsTests.ImportIntoCaseAsync_PostsAndMapsCase` |
@@ -155,7 +155,7 @@ Plan groups: Alerts, Cases, CaseTemplates, Tasks, TaskLogs, Observables, Comment
 | Branding | GET | `/api/v1/branding` | `IBranding.GetAsync` | `BrandingTests.GetAsync_MapsEveryField`, `BrandingTests.GetAsync_NothingConfigured_MapsNulls` |
 | Branding | POST | `/api/v1/branding` | `IBranding.SetAsync`, `IBranding.SetMultipartAsync` | `BrandingTests.SetAsync_UploadsTitleAndEveryImageAsParts`, `BrandingTests.SetAsync_TitleOnly_LeavesOutTheNullParts`, `BrandingTests.SetAsync_FaviconOnly_UploadsJustThatPart`, `BrandingTests.SetAsync_NonSeekableStream_IsUploadedOnce`, `BrandingTests.SetAsync_Forbidden_ThrowsTheHiveApiException`, `BrandingTests.SetAsync_NullRequest_ThrowsWithoutSending`, `BrandingTests.SetAsync_EmptyRequest_SendsAMultipartBodyWithoutParts` |
 | Branding | DELETE | `/api/v1/branding/assets/{kind}` | `IBranding.DeleteAssetAsync` | `BrandingTests.DeleteAssetAsync_SendsDelete`, `BrandingTests.GetAssetAsync_And_DeleteAssetAsync_WriteEachSpecKindToThePathVerbatim` |
-| Branding | GET | `/api/v1/branding/assets/{kind}` | `IBranding.GetAssetAsync` | `BrandingTests.GetAssetAsync_ReturnsExactBytes_WithoutConditionalHeaderByDefault`, `BrandingTests.GetAssetAsync_NotModified_SendsIfNoneMatchAndThrows` |
+| Branding | GET | `/api/v1/branding/assets/{kind}` | `IBranding.GetAssetAsync`, `IBranding.GetAssetWithHeadersAsync` | `BrandingTests.GetAssetAsync_ReturnsExactBytes_WithoutConditionalHeaderByDefault`, `BrandingTests.GetAssetAsync_NotModified_SendsIfNoneMatchAndThrows` |
 | Case | POST | `/api/v1/case` | `ICases.CreateAsync` | `CasesTests.CreateAsync_PostsBodyAndMapsResult`, `CasesTests.CreateAsync_SerializesEveryFieldWithWireNames` |
 | Case | PATCH | `/api/v1/case/_bulk` | `ICases.BulkUpdateAsync` | `CasesTests.BulkUpdateAsync_PatchesIdsAndFields`, `CasesTests.BulkUpdateAsync_SendsOnlyIdsAndSetFields` |
 | Case | POST | `/api/v1/case/_bulk/access` | `ICases.BulkSetAccessAsync` | `CasesTests.BulkSetAccessAsync_PostsIdsAndAccess` |
@@ -167,7 +167,7 @@ Plan groups: Alerts, Cases, CaseTemplates, Tasks, TaskLogs, Observables, Comment
 | Case | GET | `/api/v1/case/{caseId}/attachment/{attachmentId}` (deprecated) | | |
 | Case | PATCH | `/api/v1/case/{caseId}/attachment/{attachmentId}` | `ICases.UpdateAttachmentAsync` | `CasesTests.UpdateAttachmentAsync_PatchesExternalFlag` |
 | Case | GET | `/api/v1/case/{caseId}/attachment/{attachmentId}/download` (deprecated) | | |
-| Case | POST | `/api/v1/case/{caseId}/attachments` | `ICases.AddAttachmentsAsync` | `CasesTests.AddAttachmentsAsync_UploadsEachFileAsAnAttachmentsPart`, `CasesTests.AddAttachmentsAsync_WithoutCanRename_SendsOnlyFiles` |
+| Case | POST | `/api/v1/case/{caseId}/attachments` | `ICases.AddAttachmentsAsync`, `ICases.AddAttachmentsMultipartAsync` | `CasesTests.AddAttachmentsAsync_UploadsEachFileAsAnAttachmentsPart`, `CasesTests.AddAttachmentsAsync_WithoutCanRename_SendsOnlyFiles` |
 | Case | GET | `/api/v1/case/{caseId}/export` | `ICases.ExportAsync` | `CasesTests.ExportAsync_ReturnsArchiveBytesAndFileName`, `CasesTests.ExportAsync_Forbidden_ThrowsTheHiveApiException` |
 | Case | POST | `/api/v1/case/{caseId}/link/case/add` | `ICases.AddCaseLinkAsync` | `CasesTests.CaseLinks_AddAndRemove_PostTypeAndCaseId` |
 | Case | POST | `/api/v1/case/{caseId}/link/case/remove` | `ICases.RemoveCaseLinkAsync` | `CasesTests.CaseLinks_AddAndRemove_PostTypeAndCaseId` |
@@ -197,9 +197,9 @@ Plan groups: Alerts, Cases, CaseTemplates, Tasks, TaskLogs, Observables, Comment
 | Case Report Template | DELETE | `/api/v1/caseReportTemplate/{idOrName}` | `ICaseReportTemplates.DeleteAsync` | `CaseReportTemplatesTests.DeleteAsync_SendsDelete` |
 | Case Report Template | PATCH | `/api/v1/caseReportTemplate/{idOrName}` | `ICaseReportTemplates.UpdateAsync` | `CaseReportTemplatesTests.UpdateAsync_PatchesEveryProperty`, `CaseReportTemplatesTests.UpdateAsync_Empty_SendsEmptyObject` |
 | Case Report Template | GET | `/api/v1/caseReportTemplate/{templateId}` | `ICaseReportTemplates.GetAsync` | `CaseReportTemplatesTests.GetAsync_FullTemplate_MapsEveryField_And_UnmodelledWidgetMembersRoundTrip`, `CaseReportTemplatesTests.GetAsync_NotFound_ThrowsTheHiveApiException` |
-| Case Report Template | POST | `/api/v1/caseReportTemplate/{templateId}/attachment` | `ICaseReportTemplates.AddAttachmentsAsync` | `CaseReportTemplatesTests.AddAttachmentsAsync_UploadsEachFileAsAnAttachmentsPart`, `CaseReportTemplatesTests.AddAttachmentsAsync_WithoutCanRename_SendsOnlyFiles` |
+| Case Report Template | POST | `/api/v1/caseReportTemplate/{templateId}/attachment` | `ICaseReportTemplates.AddAttachmentsAsync`, `ICaseReportTemplates.AddAttachmentsMultipartAsync` | `CaseReportTemplatesTests.AddAttachmentsAsync_UploadsEachFileAsAnAttachmentsPart`, `CaseReportTemplatesTests.AddAttachmentsAsync_WithoutCanRename_SendsOnlyFiles` |
 | Case Report Template | DELETE | `/api/v1/caseReportTemplate/{templateId}/attachment/{attachmentId}` | `ICaseReportTemplates.DeleteAttachmentAsync` | `CaseReportTemplatesTests.DeleteAttachmentAsync_SendsDelete` |
-| Case Report Template | GET | `/api/v1/caseReportTemplate/{templateId}/attachment/{attachmentId}` | `ICaseReportTemplates.GetAttachmentAsync` | `CaseReportTemplatesTests.GetAttachmentAsync_ReturnsExactBytes_WithoutConditionalHeaderByDefault`, `CaseReportTemplatesTests.GetAttachmentAsync_NotModified_SendsIfNoneMatchAndThrows` |
+| Case Report Template | GET | `/api/v1/caseReportTemplate/{templateId}/attachment/{attachmentId}` | `ICaseReportTemplates.GetAttachmentAsync`, `ICaseReportTemplates.GetAttachmentWithHeadersAsync` | `CaseReportTemplatesTests.GetAttachmentAsync_ReturnsExactBytes_WithoutConditionalHeaderByDefault`, `CaseReportTemplatesTests.GetAttachmentAsync_NotModified_SendsIfNoneMatchAndThrows` |
 | Case Report Template | GET | `/api/v1/caseReportTemplate/{templateId}/attachment/{attachmentId}/download` | `ICaseReportTemplates.DownloadAttachmentAsync` | `CaseReportTemplatesTests.DownloadAttachmentAsync_ReturnsExactBytesAndFileName` |
 | CaseStatus | POST | `/api/v1/caseStatus` | `ICaseStatuses.CreateAsync` | `CaseStatusesTests.CreateAsync_PostsBodyAndMapsEveryField`, `CaseStatusesTests.CreateAsync_RequiredOnly_OmitsOptionals_And_AbsentOptionalsMapToDefaults`, `CaseStatusesTests.CaseStatus_Defaults_AreEmptyNotNull` |
 | CaseStatus | DELETE | `/api/v1/caseStatus/{id}` | `ICaseStatuses.DeleteAsync` | `CaseStatusesTests.DeleteAsync_SendsDelete`, `CaseStatusesTests.DeleteAsync_StillAssigned_ThrowsTheHiveApiException` |
@@ -283,14 +283,14 @@ Plan groups: Alerts, Cases, CaseTemplates, Tasks, TaskLogs, Observables, Comment
 | Observable Type | DELETE | `/api/v1/observable/type/{typeId}` | `IObservableTypes.DeleteAsync` | `ObservableTypesTests.DeleteAsync_SendsDelete` |
 | Observable Type | GET | `/api/v1/observable/type/{typeId}` | `IObservableTypes.GetAsync` | `ObservableTypesTests.GetAsync_FullType_MapsEveryField` |
 | Observable Type | PATCH | `/api/v1/observable/type/{typeId}` | `IObservableTypes.UpdateAsync` | `ObservableTypesTests.UpdateAsync_PatchesCaseSensitivity` |
-| Organization | POST | `/api/v1/attachment` | `IOrganisations.UploadAttachmentsAsync` | `OrganisationsTests.UploadAttachmentsAsync_UploadsEachFileAsAnAttachmentsPart_And_ReturnsAttachments` |
+| Organization | POST | `/api/v1/attachment` | `IOrganisations.UploadAttachmentsAsync`, `IOrganisations.UploadAttachmentsMultipartAsync` | `OrganisationsTests.UploadAttachmentsAsync_UploadsEachFileAsAnAttachmentsPart_And_ReturnsAttachments` |
 | Organization | DELETE | `/api/v1/attachment/{attachmentId}` | `IOrganisations.DeleteAttachmentAsync` | `OrganisationsTests.DeleteAttachmentAsync_SendsDelete` |
-| Organization | GET | `/api/v1/attachment/{attachmentId}` | `IOrganisations.GetAttachmentAsync` | `OrganisationsTests.GetAttachmentAsync_ReturnsExactBytes_WithoutConditionalHeaderByDefault` |
+| Organization | GET | `/api/v1/attachment/{attachmentId}` | `IOrganisations.GetAttachmentAsync`, `IOrganisations.GetAttachmentWithHeadersAsync` | `OrganisationsTests.GetAttachmentAsync_ReturnsExactBytes_WithoutConditionalHeaderByDefault` |
 | Organization | GET | `/api/v1/attachment/{attachmentId}/download` | `IOrganisations.DownloadAttachmentAsync` | `OrganisationsTests.DownloadAttachmentAsync_ReturnsExactBytesAndFileName` |
 | Organization | POST | `/api/v1/organisation` | `IOrganisations.CreateAsync` | `OrganisationsTests.CreateAsync_PostsBodyAndMapsEveryField` |
 | Organization | GET | `/api/v1/organisation/{orgId}` | `IOrganisations.GetAsync` | `OrganisationsTests.GetAsync_FullOrganisation_MapsEveryField` |
 | Organization | PATCH | `/api/v1/organisation/{orgId}` | `IOrganisations.UpdateAsync` | `OrganisationsTests.UpdateAsync_PatchesEveryProperty` |
-| Organization | GET | `/api/v1/organisation/{orgId}/avatar/{fileHash}` | `IOrganisations.GetAvatarAsync` | `OrganisationsTests.GetAvatarAsync_ReturnsExactBytes_WithoutConditionalHeaderByDefault` |
+| Organization | GET | `/api/v1/organisation/{orgId}/avatar/{fileHash}` | `IOrganisations.GetAvatarAsync`, `IOrganisations.GetAvatarWithHeadersAsync` | `OrganisationsTests.GetAvatarAsync_ReturnsExactBytes_WithoutConditionalHeaderByDefault` |
 | Organization | DELETE | `/api/v1/organisation/{orgId}/link/{otherOrgId}` | `IOrganisations.UnlinkAsync` | `OrganisationsTests.UnlinkAsync_SendsDelete` |
 | Organization | PUT | `/api/v1/organisation/{orgId}/link/{otherOrgId}` | `IOrganisations.LinkAsync` | `OrganisationsTests.LinkAsync_PutsProfiles` |
 | Organization | GET | `/api/v1/organisation/{orgId}/links` | `IOrganisations.ListLinksAsync` | `OrganisationsTests.ListLinksAsync_GetsAndMapsEveryField` |
@@ -345,7 +345,7 @@ Plan groups: Alerts, Cases, CaseTemplates, Tasks, TaskLogs, Observables, Comment
 | Task Log | GET | `/api/v1/log/{logId}/attachment/{attachmentId}/download` (deprecated) | | |
 | Task Log | POST | `/api/v1/log/{logId}/attachments` | `ITaskLogs.AddAttachmentsAsync` | `TaskLogsTests.AddAttachmentsAsync_UploadsEachFileAsAnAttachmentsPart` |
 | Task Log | DELETE | `/api/v1/log/{logId}/attachments/{attachmentId}` | `ITaskLogs.DeleteAttachmentAsync` | `TaskLogsTests.DeleteAttachmentAsync_SendsDelete` |
-| Task Log | GET | `/api/v1/observable/{observableId}/attachment/{attachmentId}` | `ITaskLogs.GetObservableAttachmentAsync` | `TaskLogsTests.GetObservableAttachmentAsync_ReturnsExactBytes_WithoutConditionalHeaderByDefault` |
+| Task Log | GET | `/api/v1/observable/{observableId}/attachment/{attachmentId}` | `ITaskLogs.GetObservableAttachmentAsync`, `ITaskLogs.GetObservableAttachmentWithHeadersAsync` | `TaskLogsTests.GetObservableAttachmentAsync_ReturnsExactBytes_WithoutConditionalHeaderByDefault` |
 | Task Log | POST | `/api/v1/task/{taskId}/log` | `ITaskLogs.CreateAsync` | `TaskLogsTests.CreateAsync_PostsBodyAndMapsEveryField` |
 | Taxonomy | POST | `/api/v1/taxonomy` | `ITaxonomies.CreateAsync` | `TaxonomiesTests.CreateAsync_PostsBodyAndMapsEveryField` |
 | Taxonomy | DELETE | `/api/v1/taxonomy/{taxonomyId}` | `ITaxonomies.DeleteAsync` | `TaxonomiesTests.DeleteAsync_SendsDelete` |
@@ -367,7 +367,7 @@ Plan groups: Alerts, Cases, CaseTemplates, Tasks, TaskLogs, Observables, Comment
 | User | DELETE | `/api/v1/user/{userId}` (deprecated) | | |
 | User | GET | `/api/v1/user/{userId}` | `IUsers.GetAsync` | `UsersTests.GetAsync_FullUser_MapsEveryField` |
 | User | PATCH | `/api/v1/user/{userId}` | `IUsers.UpdateAsync` | `UsersTests.UpdateAsync_PatchesEveryProperty` |
-| User | GET | `/api/v1/user/{userId}/avatar/{file}` | `IUsers.GetAvatarAsync` | `UsersTests.GetAvatarAsync_ReturnsExactBytes_WithoutConditionalHeaderByDefault` |
+| User | GET | `/api/v1/user/{userId}/avatar/{file}` | `IUsers.GetAvatarAsync`, `IUsers.GetAvatarWithHeadersAsync` | `UsersTests.GetAvatarAsync_ReturnsExactBytes_WithoutConditionalHeaderByDefault` |
 | User | DELETE | `/api/v1/user/{userId}/force` | `IUsers.DeleteAsync` | `UsersTests.DeleteAsync_WithOrganisation_SendsItAsQuery` |
 | User | DELETE | `/api/v1/user/{userId}/key` | `IUsers.RevokeApiKeyAsync` | `UsersTests.RevokeApiKeyAsync_SendsDelete` |
 | User | GET | `/api/v1/user/{userId}/key` | `IUsers.GetApiKeyAsync` | `UsersTests.GetApiKeyAsync_ReturnsPlainTextKey` |
@@ -376,7 +376,7 @@ Plan groups: Alerts, Cases, CaseTemplates, Tasks, TaskLogs, Observables, Comment
 | User | POST | `/api/v1/user/{userId}/password/change` | `IUsers.ChangePasswordAsync` | `UsersTests.ChangePasswordAsync_PostsBothPasswordsInBodyOnly` |
 | User | POST | `/api/v1/user/{userId}/password/set` | `IUsers.SetPasswordAsync` | `UsersTests.SetPasswordAsync_PostsPasswordInBodyOnly` |
 | User | GET | `/api/v1/user/current` | `IUsers.GetCurrentAsync` | `UsersTests.GetCurrentAsync_Gets` |
-| User | POST | `/api/v1/user/current/attachments` | `IUsers.UploadTemporaryAttachmentsAsync` | `UsersTests.UploadTemporaryAttachmentsAsync_UploadsEachFileAsAnAttachmentsPart_And_ReturnsAttachments` |
+| User | POST | `/api/v1/user/current/attachments` | `IUsers.UploadTemporaryAttachmentsAsync`, `IUsers.UploadTemporaryAttachmentsMultipartAsync` | `UsersTests.UploadTemporaryAttachmentsAsync_UploadsEachFileAsAnAttachmentsPart_And_ReturnsAttachments` |
 | Views | POST | `/api/v1/views` | `IViews.CreateAsync` | `ViewsTests.CreateAsync_PostsBodyAndMapsEveryField`, `ViewsTests.CreateAsync_RequiredOnly_OmitsOptionals_And_AbsentOptionalsMapToDefaults`, `ViewsTests.View_Defaults_AreEmptyNotNull` |
 | Views | DELETE | `/api/v1/views/{viewsId}` | `IViews.DeleteAsync` | `ViewsTests.DeleteAsync_SendsDelete` |
 | Views | GET | `/api/v1/views/{viewsId}` | `IViews.GetAsync` | `ViewsTests.GetAsync_FullView_MapsEveryField`, `ViewsTests.GetAsync_UnknownEntity_IsTolerated`, `ViewsTests.GetAsync_NotFound_ThrowsTheHiveApiException` |

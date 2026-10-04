@@ -160,7 +160,7 @@ public partial class CortexTests
 		var stub = Stub(HttpStatusCode.OK, "[]");
 		using var client = TestClient.Create(stub);
 
-		var actions = await client.Cortex.ListActionsAsync("alert", "~9", cancellationToken: TestContext.Current.CancellationToken);
+		var actions = await client.Cortex.ListActionsAsync("alert", "~9", new(), TestContext.Current.CancellationToken);
 
 		stub.Calls[0].Uri.AbsolutePath.Should().Be("/api/v1/responder-execution/alert/~9");
 		stub.Calls[0].Uri.Query.Should().BeEmpty();
@@ -195,7 +195,7 @@ public partial class CortexTests
 		var stub = Stub(HttpStatusCode.OK, "4");
 		using var client = TestClient.Create(stub);
 
-		var count = await client.Cortex.CountActionsAsync("case", "~276824", """{"_eq":{"_field":"status","_value":"Success"}}""", TestContext.Current.CancellationToken);
+		var count = await client.Cortex.CountActionsAsync("case", "~276824", new CortexActionsCountQuery { Filter = """{"_eq":{"_field":"status","_value":"Success"}}""" }, TestContext.Current.CancellationToken);
 
 		stub.Calls[0].Method.Should().Be(HttpMethod.Get);
 		stub.Calls[0].Uri.AbsolutePath.Should().Be("/api/v1/responder-execution/case/~276824/count");
@@ -209,7 +209,7 @@ public partial class CortexTests
 		var stub = Stub(HttpStatusCode.OK, "0");
 		using var client = TestClient.Create(stub);
 
-		var count = await client.Cortex.CountActionsAsync("alert", "~9", cancellationToken: TestContext.Current.CancellationToken);
+		var count = await client.Cortex.CountActionsAsync("alert", "~9", new(), TestContext.Current.CancellationToken);
 
 		stub.Calls[0].Uri.Query.Should().BeEmpty();
 		count.Should().Be(0);

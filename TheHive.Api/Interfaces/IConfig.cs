@@ -11,11 +11,11 @@ namespace TheHive.Api.Interfaces;
 public interface IConfig
 {
 	/// <summary>Lists the configuration of the calling user, merging saved overrides with the TheHive defaults.</summary>
-	/// <param name="path">The key of a single configuration item; omit it (<see langword="null"/>) to return the full configuration.</param>
+	/// <param name="query">The key of a single configuration item (<see cref="UserConfigQuery.Path"/>); pass <c>new()</c> to return the full configuration.</param>
 	/// <param name="cancellationToken">A cancellation token.</param>
 	/// <returns>The configuration as one JSON object (the spec leaves its schema open, so it is raw JSON).</returns>
 	[Get("api/v1/config/user")]
-	Task<JsonElement> ListAsync([Query] string? path = null, CancellationToken cancellationToken = default);
+	Task<JsonElement> ListAsync([Query] UserConfigQuery query, CancellationToken cancellationToken = default);
 
 	/// <summary>Gets one configuration item.</summary>
 	/// <param name="path">The key of the configuration item.</param>

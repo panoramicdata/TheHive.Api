@@ -99,7 +99,7 @@ public class QueryTests
 		var stub = Stub(HttpStatusCode.OK, SpecResponseJson);
 		using var client = TestClient.Create(stub);
 
-		var result = await client.Query.RunAsync(SpecQuery().Build(), "cases", TestContext.Current.CancellationToken);
+		var result = await client.Query.RunAsync(SpecQuery().Build(), new QueryRunOptions { Name = "cases" }, TestContext.Current.CancellationToken);
 
 		stub.Calls[0].Method.Should().Be(HttpMethod.Post);
 		stub.Calls[0].Uri.AbsolutePath.Should().Be("/api/v1/query");
@@ -115,7 +115,7 @@ public class QueryTests
 		var stub = Stub(HttpStatusCode.OK, "[]");
 		using var client = TestClient.Create(stub);
 
-		await client.Query.RunAsync(QueryBuilder.ListCases().Build(), cancellationToken: TestContext.Current.CancellationToken);
+		await client.Query.RunAsync(QueryBuilder.ListCases().Build(), new(), TestContext.Current.CancellationToken);
 
 		stub.Calls[0].Uri.Query.Should().BeEmpty();
 		stub.Calls[0].Body.Should().Be("""{"query":[{"_name":"listCase"}]}""");
@@ -133,7 +133,7 @@ public class QueryTests
 			ExcludeFields = ["details"]
 		};
 
-		await client.Query.RunAsync(request, cancellationToken: TestContext.Current.CancellationToken);
+		await client.Query.RunAsync(request, new(), TestContext.Current.CancellationToken);
 
 		stub.Calls[0].Body.Should().Be("""{"query":[{"_name":"listAuditFromObject","id":"~327925760"}],"includeFields":["action"],"excludeFields":["details"]}""");
 	}
@@ -144,7 +144,7 @@ public class QueryTests
 		var stub = Stub(HttpStatusCode.BadRequest, """{"type":"BadRequest","message":"Invalid query"}""");
 		using var client = TestClient.Create(stub);
 
-		var act = () => client.Query.RunAsync(QueryBuilder.List("listNothing").Build(), cancellationToken: TestContext.Current.CancellationToken);
+		var act = () => client.Query.RunAsync(QueryBuilder.List("listNothing").Build(), new(), TestContext.Current.CancellationToken);
 
 		(await act.Should().ThrowAsync<TheHiveApiException>())
 			.Which.Should().Match<TheHiveApiException>(e => e.StatusCode == HttpStatusCode.BadRequest && e.ErrorType == "BadRequest" && e.Message == "Invalid query");
@@ -156,7 +156,7 @@ public class QueryTests
 		var stub = Stub(HttpStatusCode.OK, SpecResponseJson);
 		using var client = TestClient.Create(stub);
 
-		var cases = await client.Query.RunAsync<Case>(SpecQuery(), "cases", TestContext.Current.CancellationToken);
+		var cases = await client.Query.RunAsync<Case>(SpecQuery(), new QueryRunOptions { Name = "cases" }, TestContext.Current.CancellationToken);
 
 		stub.Calls[0].Uri.Query.Should().Be("?name=cases");
 		stub.Calls[0].Body.Should().Be(SpecRequestJson);
@@ -169,7 +169,7 @@ public class QueryTests
 		var stub = Stub(HttpStatusCode.OK, """{"_id":"~1234","_type":"Case","number":7,"title":"t"}""");
 		using var client = TestClient.Create(stub);
 
-		var cases = await client.Query.RunAsync<Case>(QueryBuilder.GetCase("~1234"), cancellationToken: TestContext.Current.CancellationToken);
+		var cases = await client.Query.RunAsync<Case>(QueryBuilder.GetCase("~1234"), new(), TestContext.Current.CancellationToken);
 
 		stub.Calls[0].Body.Should().Be("""{"query":[{"_name":"getCase","idOrName":"~1234"}]}""");
 		cases.Should().ContainSingle().Which.Number.Should().Be(7);
@@ -181,7 +181,7 @@ public class QueryTests
 		var stub = Stub(HttpStatusCode.OK, "null");
 		using var client = TestClient.Create(stub);
 
-		var cases = await client.Query.RunAsync<Case>(QueryBuilder.ListCases(), cancellationToken: TestContext.Current.CancellationToken);
+		var cases = await client.Query.RunAsync<Case>(QueryBuilder.ListCases(), new(), TestContext.Current.CancellationToken);
 
 		cases.Should().BeEmpty();
 	}
@@ -195,7 +195,7 @@ public class QueryTests
 		var stub = Stub(HttpStatusCode.OK, json);
 		using var client = TestClient.Create(stub);
 
-		var act = () => client.Query.RunAsync<Case>(QueryBuilder.List("countFreetags"), cancellationToken: TestContext.Current.CancellationToken);
+		var act = () => client.Query.RunAsync<Case>(QueryBuilder.List("countFreetags"), new(), TestContext.Current.CancellationToken);
 
 		await act.Should().ThrowAsync<InvalidOperationException>().WithMessage("*single value*IQuery.RunAsync*");
 	}
@@ -206,7 +206,7 @@ public class QueryTests
 		var stub = Stub(HttpStatusCode.OK, "12");
 		using var client = TestClient.Create(stub);
 
-		var act = () => client.Query.RunPageAsync<Case>(QueryBuilder.List("countFreetags"), cancellationToken: TestContext.Current.CancellationToken);
+		var act = () => client.Query.RunPageAsync<Case>(QueryBuilder.List("countFreetags"), new(), TestContext.Current.CancellationToken);
 
 		await act.Should().ThrowAsync<InvalidOperationException>().WithMessage("*single value*");
 	}
@@ -217,7 +217,7 @@ public class QueryTests
 		var stub = Stub(HttpStatusCode.OK, "[]");
 		using var client = TestClient.Create(stub);
 
-		var act = () => client.Query.RunCountAsync(QueryBuilder.ListCases().Count(), cancellationToken: TestContext.Current.CancellationToken);
+		var act = () => client.Query.RunCountAsync(QueryBuilder.ListCases().Count(), new(), TestContext.Current.CancellationToken);
 
 		await act.Should().ThrowAsync<InvalidOperationException>().WithMessage("*not a number*");
 	}
@@ -227,7 +227,7 @@ public class QueryTests
 	{
 		using var client = TestClient.Create(new StubHandler());
 
-		var act = () => client.Query.RunAsync<Case>(QueryBuilder.ListCases().Count(), cancellationToken: TestContext.Current.CancellationToken);
+		var act = () => client.Query.RunAsync<Case>(QueryBuilder.ListCases().Count(), new(), TestContext.Current.CancellationToken);
 
 		(await act.Should().ThrowAsync<ArgumentException>()).WithParameterName("builder").WithMessage("*RunCountAsync*");
 	}
@@ -237,8 +237,8 @@ public class QueryTests
 	{
 		using var client = TestClient.Create(new StubHandler());
 
-		var nullQuery = () => QueryExtensions.RunAsync<Case>(null!, QueryBuilder.ListCases(), cancellationToken: TestContext.Current.CancellationToken);
-		var nullBuilder = () => client.Query.RunAsync<Case>(null!, cancellationToken: TestContext.Current.CancellationToken);
+		var nullQuery = () => QueryExtensions.RunAsync<Case>(null!, QueryBuilder.ListCases(), new(), TestContext.Current.CancellationToken);
+		var nullBuilder = () => client.Query.RunAsync<Case>(null!, new(), TestContext.Current.CancellationToken);
 
 		await nullQuery.Should().ThrowAsync<ArgumentNullException>();
 		await nullBuilder.Should().ThrowAsync<ArgumentNullException>();
@@ -250,7 +250,7 @@ public class QueryTests
 		var stub = Stub(HttpStatusCode.OK, "42");
 		using var client = TestClient.Create(stub);
 
-		var count = await client.Query.RunCountAsync(QueryBuilder.ListCases().Filter("status", "New").Count(), "count", TestContext.Current.CancellationToken);
+		var count = await client.Query.RunCountAsync(QueryBuilder.ListCases().Filter("status", "New").Count(), new QueryRunOptions { Name = "count" }, TestContext.Current.CancellationToken);
 
 		stub.Calls[0].Method.Should().Be(HttpMethod.Post);
 		stub.Calls[0].Uri.AbsolutePath.Should().Be("/api/v1/query");
@@ -264,9 +264,9 @@ public class QueryTests
 	{
 		using var client = TestClient.Create(new StubHandler());
 
-		var act = () => client.Query.RunCountAsync(QueryBuilder.ListCases(), cancellationToken: TestContext.Current.CancellationToken);
-		var nullQuery = () => QueryExtensions.RunCountAsync(null!, QueryBuilder.ListCases().Count(), cancellationToken: TestContext.Current.CancellationToken);
-		var nullBuilder = () => client.Query.RunCountAsync(null!, cancellationToken: TestContext.Current.CancellationToken);
+		var act = () => client.Query.RunCountAsync(QueryBuilder.ListCases(), new(), TestContext.Current.CancellationToken);
+		var nullQuery = () => QueryExtensions.RunCountAsync(null!, QueryBuilder.ListCases().Count(), new(), TestContext.Current.CancellationToken);
+		var nullBuilder = () => client.Query.RunCountAsync(null!, new(), TestContext.Current.CancellationToken);
 
 		(await act.Should().ThrowAsync<ArgumentException>()).WithParameterName("builder").WithMessage("*Count()*");
 		await nullQuery.Should().ThrowAsync<ArgumentNullException>();
@@ -279,7 +279,7 @@ public class QueryTests
 		var stub = Stub(HttpStatusCode.OK, "[]", r => r.Headers.Add("X-Total", "57"));
 		using var client = TestClient.Create(stub);
 
-		using var response = await client.Query.RunUncheckedAsync(SpecQuery().Build(), "cases", TestContext.Current.CancellationToken);
+		using var response = await client.Query.RunUncheckedAsync(SpecQuery().Build(), new QueryRunOptions { Name = "cases" }, TestContext.Current.CancellationToken);
 
 		stub.Calls[0].Method.Should().Be(HttpMethod.Post);
 		stub.Calls[0].Uri.AbsolutePath.Should().Be("/api/v1/query");
@@ -296,7 +296,7 @@ public class QueryTests
 		var stub = Stub(HttpStatusCode.BadRequest, """{"type":"BadRequest","message":"Invalid query"}""");
 		using var client = TestClient.Create(stub);
 
-		using var response = await client.Query.RunUncheckedAsync(QueryBuilder.ListCases().Build(), cancellationToken: TestContext.Current.CancellationToken);
+		using var response = await client.Query.RunUncheckedAsync(QueryBuilder.ListCases().Build(), new(), TestContext.Current.CancellationToken);
 
 		response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
 		stub.Calls[0].Uri.Query.Should().BeEmpty();
@@ -308,7 +308,7 @@ public class QueryTests
 		var stub = Stub(HttpStatusCode.OK, SpecResponseJson, r => r.Headers.Add("X-Total", "57"));
 		using var client = TestClient.Create(stub);
 
-		var page = await client.Query.RunPageAsync<Case>(SpecQuery(), "cases", TestContext.Current.CancellationToken);
+		var page = await client.Query.RunPageAsync<Case>(SpecQuery(), new QueryRunOptions { Name = "cases" }, TestContext.Current.CancellationToken);
 
 		stub.Calls[0].Uri.Query.Should().Be("?name=cases");
 		stub.Calls[0].Body.Should().Be(SpecRequestJson);
@@ -330,7 +330,7 @@ public class QueryTests
 		});
 		using var client = TestClient.Create(stub);
 
-		var page = await client.Query.RunPageAsync<Case>(QueryBuilder.ListCases(), cancellationToken: TestContext.Current.CancellationToken);
+		var page = await client.Query.RunPageAsync<Case>(QueryBuilder.ListCases(), new(), TestContext.Current.CancellationToken);
 
 		page.Items.Should().BeEmpty();
 		page.Total.Should().BeNull();
@@ -342,7 +342,7 @@ public class QueryTests
 		var stub = Stub(HttpStatusCode.Forbidden, """{"type":"AuthorizationError","message":"Not allowed"}""");
 		using var client = TestClient.Create(stub);
 
-		var act = () => client.Query.RunPageAsync<Case>(QueryBuilder.ListCases(), cancellationToken: TestContext.Current.CancellationToken);
+		var act = () => client.Query.RunPageAsync<Case>(QueryBuilder.ListCases(), new(), TestContext.Current.CancellationToken);
 
 		(await act.Should().ThrowAsync<TheHiveApiException>())
 			.Which.Should().Match<TheHiveApiException>(e => e.StatusCode == HttpStatusCode.Forbidden && e.ErrorType == "AuthorizationError" && e.Message == "Not allowed");
@@ -353,8 +353,8 @@ public class QueryTests
 	{
 		using var client = TestClient.Create(new StubHandler());
 
-		var count = () => client.Query.RunPageAsync<Case>(QueryBuilder.ListCases().Count(), cancellationToken: TestContext.Current.CancellationToken);
-		var nullQuery = () => QueryExtensions.RunPageAsync<Case>(null!, QueryBuilder.ListCases(), cancellationToken: TestContext.Current.CancellationToken);
+		var count = () => client.Query.RunPageAsync<Case>(QueryBuilder.ListCases().Count(), new(), TestContext.Current.CancellationToken);
+		var nullQuery = () => QueryExtensions.RunPageAsync<Case>(null!, QueryBuilder.ListCases(), new(), TestContext.Current.CancellationToken);
 
 		await count.Should().ThrowAsync<ArgumentException>();
 		await nullQuery.Should().ThrowAsync<ArgumentNullException>();

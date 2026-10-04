@@ -1,5 +1,7 @@
+using System.ComponentModel;
 using Refit;
 using TheHive.Api.Data.Attachments;
+using TheHive.Api.Data.Common;
 using TheHive.Api.Data.Organisations;
 
 namespace TheHive.Api.Interfaces;
@@ -35,6 +37,35 @@ public interface IOrganisations
 	/// <summary>Streams the avatar image of an organization.</summary>
 	/// <param name="orgId">The organization ID preceded by <c>~</c>, or its name.</param>
 	/// <param name="fileHash">The hash of the avatar file, the last segment of an avatar path such as <c>api/v1/organisation/~1048576/avatar/fake-avatar-hash</c>.</param>
+	/// <param name="options">The <c>If-None-Match</c> header (<see cref="ConditionalDownloadOptions.IfNoneMatch"/>, the <c>ETag</c> of a previous response); pass <c>new()</c> to download unconditionally.
+	/// When it still matches, the server answers 304 and this method throws <see cref="TheHiveApiException"/> with status <c>NotModified</c>.</param>
+	/// <param name="cancellationToken">A cancellation token.</param>
+	/// <returns>
+	/// The image. Read it with <see cref="HttpContent.ReadAsStreamAsync(CancellationToken)"/>; the <c>ETag</c> is not exposed here.
+	/// The caller owns the content and must dispose it.
+	/// </returns>
+	/// <exception cref="ArgumentNullException"><paramref name="options"/> is <see langword="null"/>.</exception>
+	/// <remarks>
+	/// <see cref="TheHiveClientOptions.Timeout"/> bounds only the time until the response headers arrive, not reading the body:
+	/// pass a <see cref="CancellationToken"/> to <c>ReadAs*Async</c> (or the stream reads) so a stalled download cannot hang.
+	/// <para>This is the method to call. It is implemented on the interface and sends the request through the raw transport <see cref="GetAvatarWithHeadersAsync"/>; a class implementing <see cref="IOrganisations"/> only has to provide that method.</para>
+	/// </remarks>
+	Task<HttpContent> GetAvatarAsync(
+		string orgId,
+		string fileHash,
+		ConditionalDownloadOptions options,
+		CancellationToken cancellationToken = default)
+	{
+		ArgumentNullException.ThrowIfNull(options);
+		return GetAvatarWithHeadersAsync(orgId, fileHash, options.IfNoneMatch, cancellationToken);
+	}
+
+	/// <summary>
+	/// The raw transport used by <see cref="GetAvatarAsync"/>, with a <see langword="null"/> <paramref name="ifNoneMatch"/> left out. Call
+	/// <see cref="GetAvatarAsync"/> instead; this method exists because Refit cannot turn a property of an object into a request header.
+	/// </summary>
+	/// <param name="orgId">The organization ID preceded by <c>~</c>, or its name.</param>
+	/// <param name="fileHash">The hash of the avatar file, the last segment of an avatar path such as <c>api/v1/organisation/~1048576/avatar/fake-avatar-hash</c>.</param>
 	/// <param name="ifNoneMatch">The <c>ETag</c> of a previous response, sent as <c>If-None-Match</c>; omitted when <see langword="null"/>.
 	/// When it still matches, the server answers 304 and this method throws <see cref="TheHiveApiException"/> with status <c>NotModified</c>.</param>
 	/// <param name="cancellationToken">A cancellation token.</param>
@@ -42,16 +73,13 @@ public interface IOrganisations
 	/// The image. Read it with <see cref="HttpContent.ReadAsStreamAsync(CancellationToken)"/>; the <c>ETag</c> is not exposed here.
 	/// The caller owns the content and must dispose it.
 	/// </returns>
-	/// <remarks>
-	/// <see cref="TheHiveClientOptions.Timeout"/> bounds only the time until the response headers arrive, not reading the body:
-	/// pass a <see cref="CancellationToken"/> to <c>ReadAs*Async</c> (or the stream reads) so a stalled download cannot hang.
-	/// </remarks>
+	[EditorBrowsable(EditorBrowsableState.Never)]
 	[Get("api/v1/organisation/{orgId}/avatar/{fileHash}")]
-	Task<HttpContent> GetAvatarAsync(
+	Task<HttpContent> GetAvatarWithHeadersAsync(
 		string orgId,
 		string fileHash,
-		[Header("If-None-Match")] string? ifNoneMatch = null,
-		CancellationToken cancellationToken = default);
+		[Header("If-None-Match")] string? ifNoneMatch,
+		CancellationToken cancellationToken);
 
 	/// <summary>Removes the sharing link between two organizations; they can then no longer share cases with each other.</summary>
 	/// <param name="orgId">The organization ID preceded by <c>~</c>, or its name.</param>
@@ -97,16 +125,39 @@ public interface IOrganisations
 	/// </summary>
 	/// <param name="attachments">The files, each sent as a multipart part named <c>attachments</c>. Build each with a file name and,
 	/// ideally, a content type, for example <c>new StreamPart(stream, "sample.exe", "application/octet-stream")</c>; leave the part name unset.</param>
+	/// <param name="options">The <c>canRename</c> form field (<see cref="AttachmentUploadOptions.CanRename"/>: whether the server may rename a file whose name already exists); pass <c>new()</c> to leave it out.</param>
+	/// <param name="cancellationToken">A cancellation token.</param>
+	/// <returns>The attachments created.</returns>
+	/// <exception cref="ArgumentNullException"><paramref name="options"/> is <see langword="null"/>.</exception>
+	/// <remarks>
+	/// <para>Uploads are never retried (see <see cref="TheHiveClientOptions.MaxRetries"/>), so a file is never stored twice; the per-attempt <see cref="TheHiveClientOptions.Timeout"/> covers sending the files, so raise it for large uploads.</para>
+	/// <para>This is the method to call. It is implemented on the interface and sends the request through the raw multipart transport <see cref="UploadAttachmentsMultipartAsync"/>; a class implementing <see cref="IOrganisations"/> only has to provide that method.</para>
+	/// </remarks>
+	Task<AttachmentUploadResult> UploadAttachmentsAsync(
+		IEnumerable<MultipartItem> attachments,
+		AttachmentUploadOptions options,
+		CancellationToken cancellationToken = default)
+	{
+		ArgumentNullException.ThrowIfNull(options);
+		return UploadAttachmentsMultipartAsync(attachments, options.CanRename, cancellationToken);
+	}
+
+	/// <summary>
+	/// The raw multipart transport used by <see cref="UploadAttachmentsAsync"/>, with a <see langword="null"/> <paramref name="canRename"/> left out. Call
+	/// <see cref="UploadAttachmentsAsync"/> instead; this method exists because Refit cannot turn a property of an object into a multipart form field.
+	/// </summary>
+	/// <param name="attachments">The files, each sent as a multipart part named <c>attachments</c>. Build each with a file name and,
+	/// ideally, a content type, for example <c>new StreamPart(stream, "sample.exe", "application/octet-stream")</c>; leave the part name unset.</param>
 	/// <param name="canRename">Whether the server may rename a file whose name already exists; omitted when <see langword="null"/>.</param>
 	/// <param name="cancellationToken">A cancellation token.</param>
 	/// <returns>The attachments created.</returns>
-	/// <remarks>Uploads are never retried (see <see cref="TheHiveClientOptions.MaxRetries"/>), so a file is never stored twice; the per-attempt <see cref="TheHiveClientOptions.Timeout"/> covers sending the files, so raise it for large uploads.</remarks>
+	[EditorBrowsable(EditorBrowsableState.Never)]
 	[Multipart]
 	[Post("api/v1/attachment")]
-	Task<AttachmentUploadResult> UploadAttachmentsAsync(
+	Task<AttachmentUploadResult> UploadAttachmentsMultipartAsync(
 		[AliasAs("attachments")] IEnumerable<MultipartItem> attachments,
-		[AliasAs("canRename")] bool? canRename = null,
-		CancellationToken cancellationToken = default);
+		[AliasAs("canRename")] bool? canRename,
+		CancellationToken cancellationToken);
 
 	/// <summary>Removes a file from the organization (requires <c>manageKnowledgeBase</c>); the stored file may remain if other objects reference it.</summary>
 	/// <param name="attachmentId">The attachment ID preceded by <c>~</c>.</param>
@@ -116,6 +167,33 @@ public interface IOrganisations
 
 	/// <summary>Streams the content of an organization file.</summary>
 	/// <param name="attachmentId">The attachment ID preceded by <c>~</c>.</param>
+	/// <param name="options">The <c>If-None-Match</c> header (<see cref="ConditionalDownloadOptions.IfNoneMatch"/>, the <c>ETag</c> of a previous response); pass <c>new()</c> to download unconditionally.
+	/// When it still matches, the server answers 304 and this method throws <see cref="TheHiveApiException"/> with status <c>NotModified</c>.</param>
+	/// <param name="cancellationToken">A cancellation token.</param>
+	/// <returns>
+	/// The file. Read it with <see cref="HttpContent.ReadAsStreamAsync(CancellationToken)"/>; the <c>ETag</c> is not exposed here.
+	/// The caller owns the content and must dispose it.
+	/// </returns>
+	/// <exception cref="ArgumentNullException"><paramref name="options"/> is <see langword="null"/>.</exception>
+	/// <remarks>
+	/// <see cref="TheHiveClientOptions.Timeout"/> bounds only the time until the response headers arrive, not reading the body:
+	/// pass a <see cref="CancellationToken"/> to <c>ReadAs*Async</c> (or the stream reads) so a stalled download cannot hang.
+	/// <para>This is the method to call. It is implemented on the interface and sends the request through the raw transport <see cref="GetAttachmentWithHeadersAsync"/>; a class implementing <see cref="IOrganisations"/> only has to provide that method.</para>
+	/// </remarks>
+	Task<HttpContent> GetAttachmentAsync(
+		string attachmentId,
+		ConditionalDownloadOptions options,
+		CancellationToken cancellationToken = default)
+	{
+		ArgumentNullException.ThrowIfNull(options);
+		return GetAttachmentWithHeadersAsync(attachmentId, options.IfNoneMatch, cancellationToken);
+	}
+
+	/// <summary>
+	/// The raw transport used by <see cref="GetAttachmentAsync"/>, with a <see langword="null"/> <paramref name="ifNoneMatch"/> left out. Call
+	/// <see cref="GetAttachmentAsync"/> instead; this method exists because Refit cannot turn a property of an object into a request header.
+	/// </summary>
+	/// <param name="attachmentId">The attachment ID preceded by <c>~</c>.</param>
 	/// <param name="ifNoneMatch">The <c>ETag</c> of a previous response, sent as <c>If-None-Match</c>; omitted when <see langword="null"/>.
 	/// When it still matches, the server answers 304 and this method throws <see cref="TheHiveApiException"/> with status <c>NotModified</c>.</param>
 	/// <param name="cancellationToken">A cancellation token.</param>
@@ -123,15 +201,12 @@ public interface IOrganisations
 	/// The file. Read it with <see cref="HttpContent.ReadAsStreamAsync(CancellationToken)"/>; the <c>ETag</c> is not exposed here.
 	/// The caller owns the content and must dispose it.
 	/// </returns>
-	/// <remarks>
-	/// <see cref="TheHiveClientOptions.Timeout"/> bounds only the time until the response headers arrive, not reading the body:
-	/// pass a <see cref="CancellationToken"/> to <c>ReadAs*Async</c> (or the stream reads) so a stalled download cannot hang.
-	/// </remarks>
+	[EditorBrowsable(EditorBrowsableState.Never)]
 	[Get("api/v1/attachment/{attachmentId}")]
-	Task<HttpContent> GetAttachmentAsync(
+	Task<HttpContent> GetAttachmentWithHeadersAsync(
 		string attachmentId,
-		[Header("If-None-Match")] string? ifNoneMatch = null,
-		CancellationToken cancellationToken = default);
+		[Header("If-None-Match")] string? ifNoneMatch,
+		CancellationToken cancellationToken);
 
 	/// <summary>Downloads an organization file, with its name in the <c>Content-Disposition</c> header.</summary>
 	/// <param name="attachmentId">The attachment ID preceded by <c>~</c>.</param>

@@ -39,7 +39,7 @@ public class StatusTests
 		var stub = Stub(HttpStatusCode.OK, FullStatusJson);
 		using var client = TestClient.Create(stub);
 
-		var result = await client.Status.GetAsync(cancellationToken: TestContext.Current.CancellationToken);
+		var result = await client.Status.GetAsync(new(), TestContext.Current.CancellationToken);
 
 		stub.Calls[0].Method.Should().Be(HttpMethod.Get);
 		stub.Calls[0].Uri.AbsolutePath.Should().Be("/api/v1/status");
@@ -65,7 +65,7 @@ public class StatusTests
 		var stub = Stub(HttpStatusCode.OK, MinimalStatusJson);
 		using var client = TestClient.Create(stub);
 
-		var result = await client.Status.GetAsync(cancellationToken: TestContext.Current.CancellationToken);
+		var result = await client.Status.GetAsync(new(), TestContext.Current.CancellationToken);
 
 		result.Config.Should().BeNull();
 		result.Cluster.Should().BeNull();
@@ -82,7 +82,7 @@ public class StatusTests
 		var stub = Stub(HttpStatusCode.OK, MinimalStatusJson);
 		using var client = TestClient.Create(stub);
 
-		await client.Status.GetAsync(verbose, TestContext.Current.CancellationToken);
+		await client.Status.GetAsync(new PlatformStatusQuery { Verbose = verbose }, TestContext.Current.CancellationToken);
 
 		stub.Calls[0].Uri.PathAndQuery.Should().Be("/api/v1/status" + query);
 	}
@@ -152,7 +152,7 @@ public class StatusTests
 		var stub = Stub(HttpStatusCode.Unauthorized, """{"type":"AuthenticationError","message":"Authentication required"}""");
 		using var client = TestClient.Create(stub);
 
-		var act = () => client.Status.GetAsync(cancellationToken: TestContext.Current.CancellationToken);
+		var act = () => client.Status.GetAsync(new(), TestContext.Current.CancellationToken);
 
 		(await act.Should().ThrowAsync<TheHiveApiException>())
 			.Which.Should().Match<TheHiveApiException>(e => e.StatusCode == HttpStatusCode.Unauthorized && e.ErrorType == "AuthenticationError");

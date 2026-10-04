@@ -77,8 +77,8 @@ public interface IEmailIntake
 	Task<List<string>> ListFoldersAsync([Body] EmailIntakeConfigInput request, CancellationToken cancellationToken = default);
 
 	/// <summary>Triggers an immediate email fetch without waiting for the next interval.</summary>
-	/// <param name="configId">The ID of a single mailbox configuration to sync; omit to sync every connected mailbox. The spec describes this <c>configId</c> query parameter only in prose, not as a declared parameter.</param>
+	/// <param name="options">The mailbox configuration to sync (<see cref="EmailIntakeSyncOptions.ConfigId"/>); pass <c>new()</c> to sync every connected mailbox. The spec describes this <c>configId</c> query parameter only in prose, not as a declared parameter.</param>
 	/// <param name="cancellationToken">A cancellation token.</param>
 	[Post("api/v1/connector/email-intake/sync")]
-	Task SyncAsync([Query] string? configId = null, CancellationToken cancellationToken = default);
+	Task SyncAsync([Query] EmailIntakeSyncOptions options, CancellationToken cancellationToken = default);
 }

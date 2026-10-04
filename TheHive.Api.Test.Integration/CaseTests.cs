@@ -100,7 +100,7 @@ public class CaseTests(ITestOutputHelper testOutputHelper, Fixture fixture) : Te
 			var observables = await client.Observables.CreateInCaseAsync(
 				caseId,
 				new ObservableInput { DataType = "domain", Data = [data], Message = "integration observable" },
-				cancellationToken: CancellationToken);
+				new(), CancellationToken);
 			observables.Should().ContainSingle();
 			var fetchedObservable = await client.Observables.GetAsync(observables[0].Id, CancellationToken);
 			fetchedObservable.DataType.Should().Be("domain");
