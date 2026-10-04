@@ -20,7 +20,7 @@ public sealed class OptionalConverterFactory : JsonConverterFactory
 
 	private sealed class OptionalConverter<T> : JsonConverter<Optional<T>>
 	{
-		public override Optional<T> Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+		public override Optional<T> Read(ref Utf8JsonReader reader, Type _, JsonSerializerOptions options)
 			=> new(JsonSerializer.Deserialize<T>(ref reader, options)!);
 
 		public override void Write(Utf8JsonWriter writer, Optional<T> value, JsonSerializerOptions options)

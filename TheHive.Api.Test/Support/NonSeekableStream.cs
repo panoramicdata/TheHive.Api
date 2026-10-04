@@ -36,6 +36,7 @@ internal sealed class NonSeekableStream(byte[] data) : Stream
 
 	public override void Flush()
 	{
+		// Nothing to flush: the stream is read-only, and Stream.Flush must not throw on a stream that cannot be written.
 	}
 
 	public override long Seek(long offset, SeekOrigin origin) => throw new NotSupportedException();

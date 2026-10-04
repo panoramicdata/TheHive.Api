@@ -101,7 +101,7 @@ public class FilterBuilderTests
 		var id = () => FilterStep(f => f.Id(""));
 
 		has.Should().Throw<ArgumentException>().WithParameterName("field");
-		id.Should().Throw<ArgumentException>().WithParameterName("id");
+		id.Should().Throw<ArgumentException>().WithParameterName("entityId");
 	}
 
 	[Fact]

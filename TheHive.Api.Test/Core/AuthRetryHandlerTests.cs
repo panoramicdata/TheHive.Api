@@ -422,7 +422,7 @@ public class AuthRetryHandlerTests
 	{
 		public int Calls { get; private set; }
 
-		protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
+		protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage _, CancellationToken cancellationToken)
 		{
 			Calls++;
 			await Task.Delay(Timeout.InfiniteTimeSpan, cancellationToken);
@@ -432,7 +432,7 @@ public class AuthRetryHandlerTests
 
 	private sealed class ThrowingHandler : HttpMessageHandler
 	{
-		protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
+		protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage _, CancellationToken cancellationToken)
 			=> throw new OperationCanceledException("inner gave up");
 	}
 
@@ -493,7 +493,7 @@ public class AuthRetryHandlerTests
 
 	private sealed class CustomContent : HttpContent
 	{
-		protected override Task SerializeToStreamAsync(Stream stream, System.Net.TransportContext? context)
+		protected override Task SerializeToStreamAsync(Stream stream, System.Net.TransportContext? _)
 			=> stream.WriteAsync("custom"u8.ToArray()).AsTask();
 
 		protected override bool TryComputeLength(out long length)

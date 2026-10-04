@@ -126,12 +126,12 @@ public sealed class FilterBuilder
 	}
 
 	/// <summary>The entity has the ID (<c>_id</c>).</summary>
-	/// <param name="id">The ID preceded by <c>~</c>.</param>
+	/// <param name="entityId">The ID preceded by <c>~</c>.</param>
 	/// <returns>This builder.</returns>
-	public FilterBuilder Id(string id)
+	public FilterBuilder Id(string entityId)
 	{
-		ArgumentException.ThrowIfNullOrWhiteSpace(id);
-		return Add("_id", id);
+		ArgumentException.ThrowIfNullOrWhiteSpace(entityId);
+		return Add("_id", entityId);
 	}
 
 	/// <summary>Matches any entity (<c>_any</c>).</summary>

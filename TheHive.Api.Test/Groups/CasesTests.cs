@@ -443,7 +443,7 @@ public class CasesTests
 	private const string ObservableJson = $$$"""
 		{
 			"_id":"~8529344","_type":"Observable","_createdBy":"lucas@example.com","_updatedBy":"alice@example.com",
-			"_createdAt":1748739600000,"_updatedAt":1776902400000,"dataType":"ip","data":"00.01.002.003",
+			"_createdAt":1748739600000,"_updatedAt":1776902400000,"dataType":"domain","data":"c2.example.test",
 			"startDate":1748739600000,"attachment":{{{AttachmentJson}}},"tlp":2,"tlpLabel":"AMBER","pap":3,"papLabel":"RED",
 			"tags":["Source IP"],"ioc":true,"sighted":true,"sightedAt":1748822400000,
 			"reports":{"VirusTotal_GetReport":{"status":"Success"}},
@@ -737,8 +737,8 @@ public class CasesTests
 		full.UpdatedBy.Should().Be("alice@example.com");
 		full.CreatedAt.Should().Be(DateTimeOffset.FromUnixTimeMilliseconds(1748739600000));
 		full.UpdatedAt.Should().Be(DateTimeOffset.FromUnixTimeMilliseconds(1776902400000));
-		full.DataType.Should().Be("ip");
-		full.Data.Should().Be("00.01.002.003");
+		full.DataType.Should().Be("domain");
+		full.Data.Should().Be("c2.example.test");
 		full.StartDate.Should().Be(DateTimeOffset.FromUnixTimeMilliseconds(1748739600000));
 		AssertFullAttachment(full.Attachment!);
 		full.Tlp.Should().Be(Tlp.Amber);

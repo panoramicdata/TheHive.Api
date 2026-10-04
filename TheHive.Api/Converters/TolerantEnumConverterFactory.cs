@@ -33,12 +33,12 @@ public sealed class TolerantEnumConverterFactory : JsonConverterFactory
 			}
 		}
 
-		public override T Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+		public override T Read(ref Utf8JsonReader reader, Type _, JsonSerializerOptions options)
 			=> reader.TokenType == JsonTokenType.String
 				? _byWireName.GetValueOrDefault(reader.GetString()!)
 				: throw new JsonException("Expected an enum name string.");
 
-		public override void Write(Utf8JsonWriter writer, T value, JsonSerializerOptions options)
+		public override void Write(Utf8JsonWriter writer, T value, JsonSerializerOptions _)
 			=> writer.WriteStringValue(_wireNames.TryGetValue(value, out var wireName) ? wireName : value.ToString());
 	}
 }
