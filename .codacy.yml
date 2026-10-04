@@ -3,3 +3,8 @@ exclude_paths:
   - "**/bin/**"
   - "**/obj/**"
   - "TheHive.Api.Test.Integration/**"
+duplication:
+  exclude_paths:
+    # Unit tests are deliberately repetitive (arrange/act/assert per endpoint);
+    # duplication there is not a maintainability problem. Production code stays analysed.
+    - "TheHive.Api.Test/**"
