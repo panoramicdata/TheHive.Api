@@ -3,7 +3,7 @@ using Refit;
 namespace TheHive.Api.Data.CustomFields;
 
 /// <summary>
-/// The optional query-string flag of <c>ICustomFields.DeleteAsync</c>. Pass an empty instance (<c>new()</c>) to leave it out.
+/// The optional query-string flag of <see cref="Interfaces.ICustomFields.DeleteAsync"/>. Pass an empty instance (<c>new()</c>) to leave it out.
 /// </summary>
 public sealed class CustomFieldDeleteOptions
 {

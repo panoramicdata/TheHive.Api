@@ -3,7 +3,7 @@ using Refit;
 namespace TheHive.Api.Data.Observables;
 
 /// <summary>
-/// The optional query-string flag of <c>IObservables.DownloadAttachmentAsync</c>. Pass an empty instance (<c>new()</c>) to download the file itself.
+/// The optional query-string flag of <see cref="Interfaces.IObservables.DownloadAttachmentAsync"/>. Pass an empty instance (<c>new()</c>) to download the file itself.
 /// </summary>
 public sealed class ObservableAttachmentDownloadOptions
 {

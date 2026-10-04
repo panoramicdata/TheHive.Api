@@ -3,7 +3,7 @@ using Refit;
 namespace TheHive.Api.Data.Cortex;
 
 /// <summary>
-/// The optional query-string parameter of <c>ICortex.CountActionsAsync</c>. Pass an empty instance (<c>new()</c>) to count every action.
+/// The optional query-string parameter of <see cref="Interfaces.ICortex.CountActionsAsync"/>. Pass an empty instance (<c>new()</c>) to count every action.
 /// </summary>
 public sealed class CortexActionsCountQuery
 {

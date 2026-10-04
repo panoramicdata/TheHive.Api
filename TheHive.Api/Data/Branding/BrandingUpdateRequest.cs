@@ -3,7 +3,7 @@ using Refit;
 namespace TheHive.Api.Data.Branding;
 
 /// <summary>
-/// The multipart form of <c>IBranding.SetAsync</c>: the browser tab title and the login logo, navigation bar logo and favicon. Every property is
+/// The multipart form of <see cref="Interfaces.IBranding.SetAsync"/>: the browser tab title and the login logo, navigation bar logo and favicon. Every property is
 /// optional; a <see langword="null"/> one is left out of the request and keeps its current value.
 /// </summary>
 /// <remarks>

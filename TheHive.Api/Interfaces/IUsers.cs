@@ -93,7 +93,7 @@ public interface IUsers
 	/// Deleting from all organizations (no <see cref="UserDeleteOptions.Organisation"/>) needs the <c>X-Organisation: admin</c> header.
 	/// </summary>
 	/// <param name="userId">The user ID preceded by <c>~</c>, or the user login.</param>
-	/// <param name="options">The organization to remove the user from (<see cref="UserDeleteOptions.Organisation"/>, its name or ID); pass <c>new()</c> to delete the user from all organizations.</param>
+	/// <param name="options">The organization to remove the user from (<see cref="UserDeleteOptions.Organisation"/>, its name or ID); pass <c>new()</c> to delete the user from all organizations. A <see langword="null"/> options object is treated as empty (no query string), so it too is the broadest delete: the user is removed from every organization.</param>
 	/// <param name="cancellationToken">A cancellation token.</param>
 	[Delete("api/v1/user/{userId}/force")]
 	Task DeleteAsync(string userId, [Query] UserDeleteOptions options, CancellationToken cancellationToken);

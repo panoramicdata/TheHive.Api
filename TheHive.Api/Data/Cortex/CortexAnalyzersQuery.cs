@@ -3,7 +3,7 @@ using Refit;
 namespace TheHive.Api.Data.Cortex;
 
 /// <summary>
-/// The optional query-string parameter of <c>ICortex.ListAnalyzersAsync</c>. Pass an empty instance (<c>new()</c>) for Cortex's default range.
+/// The optional query-string parameter of <see cref="Interfaces.ICortex.ListAnalyzersAsync"/>. Pass an empty instance (<c>new()</c>) for Cortex's default range.
 /// </summary>
 public sealed class CortexAnalyzersQuery
 {

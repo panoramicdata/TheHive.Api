@@ -3,7 +3,7 @@ using Refit;
 namespace TheHive.Api.Data.Cortex;
 
 /// <summary>
-/// The optional query-string parameters of <c>ICortex.ListActionsAsync</c>: a filter, sort criteria and a page. Each property is sent as the
+/// The optional query-string parameters of <see cref="Interfaces.ICortex.ListActionsAsync"/>: a filter, sort criteria and a page. Each property is sent as the
 /// query parameter of the same wire name and is left out when <see langword="null"/>.
 /// </summary>
 public sealed class CortexActionsQuery

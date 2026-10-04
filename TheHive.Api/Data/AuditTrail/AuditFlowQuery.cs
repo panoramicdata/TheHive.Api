@@ -3,7 +3,7 @@ using Refit;
 namespace TheHive.Api.Data.AuditTrail;
 
 /// <summary>
-/// The optional query-string parameters of <c>IAudit.GetFlowAsync</c>. Each property is sent as the query parameter of the same wire name and is
+/// The optional query-string parameters of <see cref="Interfaces.IAudit.GetFlowAsync"/>. Each property is sent as the query parameter of the same wire name and is
 /// left out when <see langword="null"/>; pass an empty instance (<c>new()</c>) for the most recent entries across all visible object types.
 /// </summary>
 public sealed class AuditFlowQuery

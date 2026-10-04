@@ -3,7 +3,7 @@ using Refit;
 namespace TheHive.Api.Data.Status;
 
 /// <summary>
-/// The optional query-string flag of <c>IStatus.GetAsync</c>. Pass an empty instance (<c>new()</c>) for the server default.
+/// The optional query-string flag of <see cref="Interfaces.IStatus.GetAsync"/>. Pass an empty instance (<c>new()</c>) for the server default.
 /// </summary>
 public sealed class PlatformStatusQuery
 {

@@ -3,7 +3,7 @@ using Refit;
 namespace TheHive.Api.Data.Common;
 
 /// <summary>
-/// The optional <c>dryRun</c> query-string flag of <c>IFunctions.TestAsync</c>, <c>IFunctions.InvokeAsync</c> and <c>IAlertFeeders.RunAsync</c>. Pass an
+/// The optional <c>dryRun</c> query-string flag of <see cref="Interfaces.IFunctions.TestAsync"/>, <see cref="Interfaces.IFunctions.InvokeAsync"/> and <see cref="Interfaces.IAlertFeeders.RunAsync"/>. Pass an
 /// empty instance (<c>new()</c>) to leave it out.
 /// </summary>
 public sealed class DryRunOptions

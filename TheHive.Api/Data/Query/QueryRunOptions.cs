@@ -3,8 +3,8 @@ using Refit;
 namespace TheHive.Api.Data.Query;
 
 /// <summary>
-/// The optional query-string parameter of <c>IQuery.RunAsync</c>, <c>IQuery.RunUncheckedAsync</c> and the typed helpers in
-/// <c>Querying.QueryExtensions</c>. Pass an empty instance (<c>new()</c>) to leave it out.
+/// The optional query-string parameter of <see cref="Interfaces.IQuery.RunAsync"/>, <see cref="Interfaces.IQuery.RunUncheckedAsync"/> and the typed helpers in
+/// <see cref="Querying.QueryExtensions"/>. Pass an empty instance (<c>new()</c>) to leave it out.
 /// </summary>
 public sealed class QueryRunOptions
 {

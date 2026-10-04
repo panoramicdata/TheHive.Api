@@ -3,7 +3,7 @@ using Refit;
 namespace TheHive.Api.Data.Users;
 
 /// <summary>
-/// The optional query-string parameter of <c>IUsers.DeleteAsync</c>. Pass an empty instance (<c>new()</c>) to delete the user from all organizations.
+/// The optional query-string parameter of <see cref="Interfaces.IUsers.DeleteAsync"/>. Pass an empty instance (<c>new()</c>) to delete the user from all organizations.
 /// </summary>
 public sealed class UserDeleteOptions
 {

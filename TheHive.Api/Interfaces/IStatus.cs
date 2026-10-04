@@ -7,7 +7,7 @@ namespace TheHive.Api.Interfaces;
 public interface IStatus
 {
 	/// <summary>Gets the status of the instance: version, license validity, connector status and enabled feature flags.</summary>
-	/// <param name="query">The <c>verbose</c> flag (<see cref="PlatformStatusQuery.Verbose"/>: whether to also include the cluster state and the database schema version of each module, sent as <c>true</c> or <c>false</c>); pass <c>new()</c> to leave it out (the server default is <c>false</c>).</param>
+	/// <param name="query">The <c>verbose</c> flag (<see cref="PlatformStatusQuery.Verbose"/>: whether to also include the cluster state and the database schema version of each module, sent as <c>true</c> or <c>false</c>); pass <c>new()</c> to leave it out (the server default is <c>false</c>). A <see langword="null"/> query object is treated as empty (no query string).</param>
 	/// <param name="cancellationToken">A cancellation token.</param>
 	/// <returns>The platform status.</returns>
 	[Get("api/v1/status")]

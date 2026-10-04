@@ -3,7 +3,7 @@ using Refit;
 namespace TheHive.Api.Data.EmailIntake;
 
 /// <summary>
-/// The optional query-string parameter of <c>IEmailIntake.SyncAsync</c>. Pass an empty instance (<c>new()</c>) to sync every connected mailbox.
+/// The optional query-string parameter of <see cref="Interfaces.IEmailIntake.SyncAsync"/>. Pass an empty instance (<c>new()</c>) to sync every connected mailbox.
 /// </summary>
 public sealed class EmailIntakeSyncOptions
 {

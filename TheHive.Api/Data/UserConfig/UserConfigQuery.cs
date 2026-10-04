@@ -3,7 +3,7 @@ using Refit;
 namespace TheHive.Api.Data.UserConfig;
 
 /// <summary>
-/// The optional query-string parameter of <c>IConfig.ListAsync</c>. Pass an empty instance (<c>new()</c>) to return the full configuration.
+/// The optional query-string parameter of <see cref="Interfaces.IConfig.ListAsync"/>. Pass an empty instance (<c>new()</c>) to return the full configuration.
 /// </summary>
 public sealed class UserConfigQuery
 {

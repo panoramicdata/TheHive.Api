@@ -3,7 +3,7 @@ using Refit;
 namespace TheHive.Api.Data.CaseReports;
 
 /// <summary>
-/// The query-string parameters of <c>ICaseReports.RenderTemplateAsync</c>, which renders a saved case report template without saving the result.
+/// The query-string parameters of <see cref="Interfaces.ICaseReports.RenderTemplateAsync"/>, which renders a saved case report template without saving the result.
 /// Each property is sent as the query parameter of the same wire name; the optional ones are left out when <see langword="null"/>.
 /// </summary>
 public sealed class CaseReportRenderQuery
