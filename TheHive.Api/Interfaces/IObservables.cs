@@ -9,7 +9,7 @@ public interface IObservables
 	/// <summary>Adds one or more observables to a case (requires <c>manageObservable</c>).</summary>
 	/// <param name="caseId">The case ID preceded by <c>~</c>, or the case number.</param>
 	/// <param name="request">The observable to create; one observable is created per value in <c>Data</c>.
-	/// Only the JSON form is modelled: for a file observable, reference an attachment already stored in TheHive. That needs an existing attachment ID from the organization attachment upload (<c>POST /api/v1/attachment</c>, see <see cref="IOrganisations.UploadAttachmentsAsync"/>).</param>
+	/// Only the JSON form is modelled: for a file observable, reference an attachment already stored in TheHive. That needs the storage ID (<c>Attachment.StorageId</c>, not the <c>~…</c> <c>_id</c>) of a file from the organization attachment upload (<c>POST /api/v1/attachment</c>, see <see cref="IOrganisations.UploadAttachmentsAsync"/>).</param>
 	/// <param name="dataType">The observable type, used by the server only when <c>request.DataType</c> is missing; omitted when <see langword="null"/>.</param>
 	/// <param name="cancellationToken">A cancellation token.</param>
 	/// <returns>The created observables.</returns>
@@ -23,7 +23,7 @@ public interface IObservables
 	/// <summary>Adds one or more observables to an alert (requires <c>manageObservable</c>).</summary>
 	/// <param name="alertId">The alert ID preceded by <c>~</c>.</param>
 	/// <param name="request">The observable to create; one observable is created per value in <c>Data</c>.
-	/// Only the JSON form is modelled: for a file observable, reference an attachment already stored in TheHive. That needs an existing attachment ID from the organization attachment upload (<c>POST /api/v1/attachment</c>, see <see cref="IOrganisations.UploadAttachmentsAsync"/>).</param>
+	/// Only the JSON form is modelled: for a file observable, reference an attachment already stored in TheHive. That needs the storage ID (<c>Attachment.StorageId</c>, not the <c>~…</c> <c>_id</c>) of a file from the organization attachment upload (<c>POST /api/v1/attachment</c>, see <see cref="IOrganisations.UploadAttachmentsAsync"/>).</param>
 	/// <param name="dataType">The observable type, used by the server only when <c>request.DataType</c> is missing; omitted when <see langword="null"/>.</param>
 	/// <param name="cancellationToken">A cancellation token.</param>
 	/// <returns>The created observables.</returns>
@@ -63,7 +63,7 @@ public interface IObservables
 	/// <summary>Downloads the file attached to a file-type observable.</summary>
 	/// <param name="observableId">The observable ID preceded by <c>~</c>.</param>
 	/// <param name="attachmentId">The attachment ID preceded by <c>~</c>.</param>
-	/// <param name="asZip">When <see langword="true"/>, the file is wrapped in a password-protected ZIP archive (default password <c>malware</c>); omitted when <see langword="null"/>. The spec allows an empty value, so the server may treat the mere presence of the parameter as significant: pass <see langword="null"/> rather than <see langword="false"/> when you do not want a zip.</param>
+	/// <param name="asZip">When <see langword="true"/>, the file is wrapped in a password-protected ZIP archive (default password <c>malware</c>) named <c>{name}.zip</c>, content type <c>application/zip</c>; omitted when <see langword="null"/>. Verified against TheHive 5.8: <see langword="false"/> and <see langword="null"/> both return the file itself.</param>
 	/// <param name="cancellationToken">A cancellation token.</param>
 	/// <returns>
 	/// The file. Read it with <see cref="HttpContent.ReadAsStreamAsync(CancellationToken)"/>; the suggested file name is in

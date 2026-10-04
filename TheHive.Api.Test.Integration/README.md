@@ -3,7 +3,7 @@
 Smoke tests that run the client against a real TheHive 5 instance. They are not part of CI or of unit test coverage.
 
 - Read-only: current user, permission list.
-- Mutating (safe for a shared dev instance): case lifecycle (create, get, update, clear a field, delete, 404), a case with a task, observable and comment, an alert lifecycle, and a custom field lifecycle. Everything created is named `[TheHive.Api integration] <guid>` (custom fields `itest<guid>`) and deleted in a `finally` block.
+- Mutating (safe for a shared dev instance): case lifecycle (create, get, update, clear a field, delete, 404), a case with a task, observable and comment, an alert lifecycle, a custom field lifecycle, case and alert attachment uploads (multipart, including a non-seekable stream), an organization attachment used as a file observable and downloaded with and without `asZip`, a case merge, and an unshare `DELETE` with a JSON body. The read-only license challenge (text/plain) runs in the `admin` organization and is never printed. Everything created is named `[TheHive.Api integration] <guid>` (custom fields `itest<guid>`) and deleted in a `finally` block.
 
 ## Configuration
 
