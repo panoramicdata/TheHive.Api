@@ -4,47 +4,47 @@ namespace TheHive.Api.Data.CaseReportTemplates;
 public static class CaseReportWidgetKinds
 {
 	/// <summary>A Mustache text block.</summary>
-	public const string Text = "Text";
+	public static readonly string Text = "Text";
 
 	/// <summary>An image from a template attachment.</summary>
-	public const string Image = "Image";
+	public static readonly string Image = "Image";
 
 	/// <summary>The case custom fields, as a table.</summary>
-	public const string CustomFields = "CustomFields";
+	public static readonly string CustomFields = "CustomFields";
 
 	/// <summary>The case custom fields, as a list.</summary>
-	public const string CustomFieldsList = "CustomFieldsList";
+	public static readonly string CustomFieldsList = "CustomFieldsList";
 
 	/// <summary>A table of alerts.</summary>
-	public const string AlertTable = "AlertTable";
+	public static readonly string AlertTable = "AlertTable";
 
 	/// <summary>A list of alerts.</summary>
-	public const string AlertList = "AlertList";
+	public static readonly string AlertList = "AlertList";
 
 	/// <summary>A table of observables.</summary>
-	public const string ObservableTable = "ObservableTable";
+	public static readonly string ObservableTable = "ObservableTable";
 
 	/// <summary>A list of observables.</summary>
-	public const string ObservableList = "ObservableList";
+	public static readonly string ObservableList = "ObservableList";
 
 	/// <summary>A table of tasks.</summary>
-	public const string TaskTable = "TaskTable";
+	public static readonly string TaskTable = "TaskTable";
 
 	/// <summary>A list of tasks, optionally with their logs.</summary>
-	public const string TaskList = "TaskList";
+	public static readonly string TaskList = "TaskList";
 
 	/// <summary>A table of TTPs.</summary>
-	public const string TTPTable = "TTPTable";
+	public static readonly string TTPTable = "TTPTable";
 
 	/// <summary>A list of TTPs.</summary>
-	public const string TTPList = "TTPList";
+	public static readonly string TTPList = "TTPList";
 
 	/// <summary>The case timeline.</summary>
-	public const string Timeline = "Timeline";
+	public static readonly string Timeline = "Timeline";
 
 	/// <summary>The case comments.</summary>
-	public const string Comments = "Comments";
+	public static readonly string Comments = "Comments";
 
 	/// <summary>The case pages.</summary>
-	public const string Pages = "Pages";
+	public static readonly string Pages = "Pages";
 }

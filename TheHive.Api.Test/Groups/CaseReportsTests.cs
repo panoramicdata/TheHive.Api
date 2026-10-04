@@ -210,10 +210,15 @@ public class CaseReportsTests
 		stub.Calls[0].Uri.Query.Should().Be("?format=markdown&caseReportTemplateId=~84512");
 	}
 
+	public static TheoryData<string, CaseReportFormat> FormatConstants => new()
+	{
+		{ CaseReportFormats.Html, CaseReportFormat.Html },
+		{ CaseReportFormats.Markdown, CaseReportFormat.Markdown },
+		{ CaseReportFormats.Word, CaseReportFormat.Word },
+	};
+
 	[Theory]
-	[InlineData(CaseReportFormats.Html, CaseReportFormat.Html)]
-	[InlineData(CaseReportFormats.Markdown, CaseReportFormat.Markdown)]
-	[InlineData(CaseReportFormats.Word, CaseReportFormat.Word)]
+	[MemberData(nameof(FormatConstants))]
 	public void CaseReportFormats_MatchTheEnumWireValues(string constant, CaseReportFormat format) =>
 		JsonSerializer.Serialize(format, TheHiveJson.Options).Should().Be($"\"{constant}\"");
 

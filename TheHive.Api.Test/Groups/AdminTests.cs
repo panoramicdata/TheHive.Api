@@ -20,14 +20,19 @@ public class AdminTests
 		stub.Calls[0].Body.Should().BeNull();
 	}
 
+	public static TheoryData<string, string> SpecLevels => new()
+	{
+		{ LogLevels.All, "ALL" },
+		{ LogLevels.Trace, "TRACE" },
+		{ LogLevels.Debug, "DEBUG" },
+		{ LogLevels.Info, "INFO" },
+		{ LogLevels.Warn, "WARN" },
+		{ LogLevels.Error, "ERROR" },
+		{ LogLevels.Off, "OFF" },
+	};
+
 	[Theory]
-	[InlineData(LogLevels.All, "ALL")]
-	[InlineData(LogLevels.Trace, "TRACE")]
-	[InlineData(LogLevels.Debug, "DEBUG")]
-	[InlineData(LogLevels.Info, "INFO")]
-	[InlineData(LogLevels.Warn, "WARN")]
-	[InlineData(LogLevels.Error, "ERROR")]
-	[InlineData(LogLevels.Off, "OFF")]
+	[MemberData(nameof(SpecLevels))]
 	public async Task SetLogLevelAsync_WritesEachSpecLevelToThePathVerbatim(string level, string wire)
 	{
 		var stub = new StubHandler();

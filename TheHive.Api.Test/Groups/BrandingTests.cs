@@ -149,10 +149,15 @@ public class BrandingTests
 		stub.Calls[0].Body.Should().BeNull();
 	}
 
+	public static TheoryData<string, string> SpecKinds => new()
+	{
+		{ BrandingAssetKinds.LoginLogo, "loginLogo" },
+		{ BrandingAssetKinds.MenuLogo, "menuLogo" },
+		{ BrandingAssetKinds.Favicon, "favicon" },
+	};
+
 	[Theory]
-	[InlineData(BrandingAssetKinds.LoginLogo, "loginLogo")]
-	[InlineData(BrandingAssetKinds.MenuLogo, "menuLogo")]
-	[InlineData(BrandingAssetKinds.Favicon, "favicon")]
+	[MemberData(nameof(SpecKinds))]
 	public async Task GetAssetAsync_And_DeleteAssetAsync_WriteEachSpecKindToThePathVerbatim(string kind, string wire)
 	{
 		var stub = new StubHandler();
