@@ -32,6 +32,46 @@ public class TaxonomiesTests
 		return stub;
 	}
 
+	private static TaxonomyCreateRequest FullCreateRequest() => new()
+	{
+		Namespace = "tlp",
+		Description = "Traffic Light Protocol for information sharing",
+		Version = 6,
+		Exclusive = true,
+		Predicates =
+		[
+			new TaxonomyPredicate
+			{
+				Value = "white",
+				Expanded = "TLP:WHITE",
+				Exclusive = false,
+				Description = "Disclosure is not limited.",
+				Colour = "#ffffff"
+			},
+			new TaxonomyPredicate { Value = "amber" }
+		],
+		Values =
+		[
+			new TaxonomyValue
+			{
+				Predicate = "amber",
+				Entry =
+				[
+					new TaxonomyEntry
+					{
+						Value = "strict",
+						Expanded = "Recipients may share information only within their organization.",
+						Colour = "#ffa800",
+						Description = "Restricted.",
+						NumericalValue = 50
+					},
+					new TaxonomyEntry { Value = "plain" }
+				]
+			},
+			new TaxonomyValue { Predicate = "red" }
+		]
+	};
+
 	[Fact]
 	public async Task CreateAsync_PostsBodyAndMapsEveryField()
 	{
@@ -39,45 +79,7 @@ public class TaxonomiesTests
 		using var client = TestClient.Create(stub);
 
 		var item = await client.Taxonomies.CreateAsync(
-			new TaxonomyCreateRequest
-			{
-				Namespace = "tlp",
-				Description = "Traffic Light Protocol for information sharing",
-				Version = 6,
-				Exclusive = true,
-				Predicates =
-				[
-					new TaxonomyPredicate
-					{
-						Value = "white",
-						Expanded = "TLP:WHITE",
-						Exclusive = false,
-						Description = "Disclosure is not limited.",
-						Colour = "#ffffff"
-					},
-					new TaxonomyPredicate { Value = "amber" }
-				],
-				Values =
-				[
-					new TaxonomyValue
-					{
-						Predicate = "amber",
-						Entry =
-						[
-							new TaxonomyEntry
-							{
-								Value = "strict",
-								Expanded = "Recipients may share information only within their organization.",
-								Colour = "#ffa800",
-								Description = "Restricted.",
-								NumericalValue = 50
-							},
-							new TaxonomyEntry { Value = "plain" }
-						]
-					},
-					new TaxonomyValue { Predicate = "red" }
-				]
-			},
+			FullCreateRequest(),
 			TestContext.Current.CancellationToken);
 
 		stub.Calls[0].Method.Should().Be(HttpMethod.Post);

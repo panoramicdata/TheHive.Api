@@ -67,18 +67,8 @@ public partial class AlertsTests
 		return stub;
 	}
 
-	[Fact]
-	public async Task GetAsync_MapsEveryAlertField()
+	private static void AssertFullAlert(Alert result)
 	{
-		var stub = Stub(HttpStatusCode.OK, FullAlertJson);
-		using var client = TestClient.Create(stub);
-
-		var result = await client.Alerts.GetAsync("~354", TestContext.Current.CancellationToken);
-
-		stub.Calls.Should().ContainSingle();
-		stub.Calls[0].Method.Should().Be(HttpMethod.Get);
-		stub.Calls[0].Uri.AbsolutePath.Should().Be("/api/v1/alert/~354");
-		stub.Calls[0].Body.Should().BeNull();
 		result.Id.Should().Be("~354");
 		result.EntityType.Should().Be("Alert");
 		result.CreatedBy.Should().Be("lucas@example.com");
@@ -122,6 +112,21 @@ public partial class AlertsTests
 		result.TimeToTriage.Should().Be(12);
 		result.TimeToQualify.Should().Be(13);
 		result.TimeToAcknowledge.Should().Be(14);
+	}
+
+	[Fact]
+	public async Task GetAsync_MapsEveryAlertField()
+	{
+		var stub = Stub(HttpStatusCode.OK, FullAlertJson);
+		using var client = TestClient.Create(stub);
+
+		var result = await client.Alerts.GetAsync("~354", TestContext.Current.CancellationToken);
+
+		stub.Calls.Should().ContainSingle();
+		stub.Calls[0].Method.Should().Be(HttpMethod.Get);
+		stub.Calls[0].Uri.AbsolutePath.Should().Be("/api/v1/alert/~354");
+		stub.Calls[0].Body.Should().BeNull();
+		AssertFullAlert(result);
 	}
 
 	[Fact]
@@ -199,57 +204,59 @@ public partial class AlertsTests
 		result.Id.Should().Be("~354");
 	}
 
+	private static AlertCreateRequest FullCreateRequest() => new()
+	{
+		Type = "Endpoint Detection",
+		Source = "EDR",
+		SourceRef = "MDATP-1",
+		ExternalLink = "https://example.com/a",
+		Title = "t",
+		Description = "d",
+		Severity = Severity.Critical,
+		Date = DateTimeOffset.FromUnixTimeMilliseconds(1718532000000),
+		Tags = ["x"],
+		Flag = true,
+		Tlp = Tlp.Red,
+		Pap = Pap.Red,
+		CustomFields = [new CustomFieldInput { Name = "threat-type", Value = "Malware", Order = 0 }],
+		Summary = "sum",
+		Status = "New",
+		Assignee = "lucas@example.com",
+		CaseTemplate = "Ransomware",
+		Observables =
+		[
+			new ObservableInput
+			{
+				DataType = "file",
+				Data = ["a", "b"],
+				Message = "m",
+				StartDate = DateTimeOffset.FromUnixTimeMilliseconds(1),
+				Attachment = [new ObservableAttachmentReference { Name = "x.exe", ContentType = "application/octet-stream", Id = "~1", External = true }],
+				Tlp = Tlp.Green,
+				Pap = Pap.Green,
+				Tags = ["t"],
+				Ioc = true,
+				Sighted = false,
+				SightedAt = DateTimeOffset.FromUnixTimeMilliseconds(2),
+				IgnoreSimilarity = true,
+				IsZip = true,
+				ZipPassword = "infected"
+			},
+			new ObservableInput { DataType = "hostname", Data = ["CORP-LAPTOP-056"] }
+		],
+		Procedures =
+		[
+			new ProcedureInput { PatternId = "T1486", OccurDate = DateTimeOffset.FromUnixTimeMilliseconds(3), Tactic = "impact", Description = "pd" },
+			new ProcedureInput { PatternId = "T1059", OccurDate = DateTimeOffset.FromUnixTimeMilliseconds(4) }
+		]
+	};
+
 	[Fact]
 	public async Task CreateAsync_SerializesEveryFieldWithWireNames()
 	{
 		var stub = Stub(HttpStatusCode.Created, FullAlertJson);
 		using var client = TestClient.Create(stub);
-		var request = new AlertCreateRequest
-		{
-			Type = "Endpoint Detection",
-			Source = "EDR",
-			SourceRef = "MDATP-1",
-			ExternalLink = "https://example.com/a",
-			Title = "t",
-			Description = "d",
-			Severity = Severity.Critical,
-			Date = DateTimeOffset.FromUnixTimeMilliseconds(1718532000000),
-			Tags = ["x"],
-			Flag = true,
-			Tlp = Tlp.Red,
-			Pap = Pap.Red,
-			CustomFields = [new CustomFieldInput { Name = "threat-type", Value = "Malware", Order = 0 }],
-			Summary = "sum",
-			Status = "New",
-			Assignee = "lucas@example.com",
-			CaseTemplate = "Ransomware",
-			Observables =
-			[
-				new ObservableInput
-				{
-					DataType = "file",
-					Data = ["a", "b"],
-					Message = "m",
-					StartDate = DateTimeOffset.FromUnixTimeMilliseconds(1),
-					Attachment = [new ObservableAttachmentReference { Name = "x.exe", ContentType = "application/octet-stream", Id = "~1", External = true }],
-					Tlp = Tlp.Green,
-					Pap = Pap.Green,
-					Tags = ["t"],
-					Ioc = true,
-					Sighted = false,
-					SightedAt = DateTimeOffset.FromUnixTimeMilliseconds(2),
-					IgnoreSimilarity = true,
-					IsZip = true,
-					ZipPassword = "infected"
-				},
-				new ObservableInput { DataType = "hostname", Data = ["CORP-LAPTOP-056"] }
-			],
-			Procedures =
-			[
-				new ProcedureInput { PatternId = "T1486", OccurDate = DateTimeOffset.FromUnixTimeMilliseconds(3), Tactic = "impact", Description = "pd" },
-				new ProcedureInput { PatternId = "T1059", OccurDate = DateTimeOffset.FromUnixTimeMilliseconds(4) }
-			]
-		};
+		var request = FullCreateRequest();
 
 		await client.Alerts.CreateAsync(request, TestContext.Current.CancellationToken);
 
