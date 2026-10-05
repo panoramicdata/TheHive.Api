@@ -1,6 +1,6 @@
 # Contributing
 
-Thank you for your interest in contributing to TheHive.Api!
+Thank you for your interest in contributing to this project!
 
 ## How to Contribute
 
@@ -8,9 +8,8 @@ Thank you for your interest in contributing to TheHive.Api!
 2. **Create a branch** for your feature or fix (`git checkout -b feature/my-feature`)
 3. **Make your changes** following the coding standards below
 4. **Write or update tests** as appropriate
-5. **Ensure the build passes** with zero errors, zero warnings, and zero messages
-6. **Run the unit tests** and the coverage check (see Testing)
-7. **Submit a Pull Request** against the `main` branch with a clear description of what changed and why
+5. **Ensure the build passes** with zero errors, zero warnings, and zero messages, and run the unit tests and the coverage check (see Testing)
+6. **Submit a Pull Request** against the `main` branch with a clear description of what changed and why
 
 Use short, imperative commit messages in the style `feat: ...`, `fix: ...`, `docs: ...`, `test: ...`, `chore: ...`. Do not commit directly to `main`, and do not force-push or rewrite published history. Only the repository owner publishes releases (see [PUBLISHING.md](PUBLISHING.md)).
 
@@ -19,7 +18,7 @@ Follow `.editorconfig`: tabs for C#, XML, MSBuild and JSON, spaces for YAML, and
 ## Coding Standards
 
 - All public members must have XML documentation comments
-- Use `System.Text.Json` - do not introduce `Newtonsoft.Json`
+- Use `System.Text.Json` — do not introduce `Newtonsoft.Json`
 - Use Refit for HTTP client interfaces
 - Use file-scoped namespaces
 - Use the `required` keyword for DTO properties where appropriate
@@ -58,8 +57,9 @@ The long-form conventions (uploads, downloads, DELETE with a body, connectors an
 
 ## Testing
 
-- Use xunit v3 (Microsoft Testing Platform runner) for all tests
+- Use xUnit v3 for all tests (Microsoft Testing Platform runner)
 - Use AwesomeAssertions for fluent assertions
+- Ensure all existing tests pass before submitting a PR
 - Do not skip, delete or weaken tests to make a build pass; the unit test project fails on any skip
 - Every method needs a test asserting verb, path and body, and a full JSON sample mapped into the model
 - Keep **100% line and branch coverage**:
