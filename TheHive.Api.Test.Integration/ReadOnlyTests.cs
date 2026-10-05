@@ -31,7 +31,7 @@ public class ReadOnlyTests(ITestOutputHelper testOutputHelper, Fixture fixture) 
 	[Fact]
 	public async Task GetStatus_ReturnsVersionAndLicense()
 	{
-		var status = await Client.Status.GetAsync(cancellationToken: CancellationToken);
+		var status = await Client.Status.GetAsync(new(), CancellationToken);
 
 		status.Version.Should().NotBeNullOrWhiteSpace();
 		status.License.Plan.Should().NotBeNullOrWhiteSpace();

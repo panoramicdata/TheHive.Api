@@ -12,9 +12,9 @@ public interface IQuery
 {
 	/// <summary>Runs a query and returns the raw result.</summary>
 	/// <param name="request">The query.</param>
-	/// <param name="name">
-	/// An optional label for the query, sent as the <c>name</c> query-string parameter. Not in the spec; TheHive 5.8.0 accepts it
-	/// (checked against a live server).
+	/// <param name="options">
+	/// A label for the query (<see cref="QueryRunOptions.Name"/>), sent as the <c>name</c> query-string parameter; pass <c>new()</c> to leave it out. Not in
+	/// the spec; TheHive 5.8.0 accepts it (checked against a live server).
 	/// </param>
 	/// <param name="cancellationToken">A cancellation token.</param>
 	/// <returns>
@@ -22,7 +22,7 @@ public interface IQuery
 	/// <c>page</c> step asks for one), also a one-item array for <c>getXxx</c> queries on TheHive 5.8.0, or a bare number for a <c>count</c> query.
 	/// </returns>
 	[Post("api/v1/query")]
-	Task<JsonElement> RunAsync([Body] QueryRequest request, [Query] string? name = null, CancellationToken cancellationToken = default);
+	Task<JsonElement> RunAsync([Body] QueryRequest request, [Query] QueryRunOptions options, CancellationToken cancellationToken);
 
 	/// <summary>
 	/// UNCHECKED: runs a query and returns the raw response <b>without checking its status</b>. This is the only kind of member
@@ -31,7 +31,7 @@ public interface IQuery
 	/// can be read; prefer <see cref="Querying.QueryExtensions.RunPageAsync"/>, which reads it and throws on errors.
 	/// </summary>
 	/// <param name="request">The query.</param>
-	/// <param name="name">An optional label for the query, as for <see cref="RunAsync"/>.</param>
+	/// <param name="options">A label for the query, as for <see cref="RunAsync"/>; pass <c>new()</c> to leave it out.</param>
 	/// <param name="cancellationToken">A cancellation token.</param>
 	/// <returns>
 	/// The raw response; the caller must dispose it and must check <see cref="HttpResponseMessage.IsSuccessStatusCode"/> before
@@ -41,8 +41,8 @@ public interface IQuery
 	[Post("api/v1/query")]
 	Task<HttpResponseMessage> RunUncheckedAsync(
 		[Body] QueryRequest request,
-		[Query] string? name = null,
-		CancellationToken cancellationToken = default);
+		[Query] QueryRunOptions options,
+		CancellationToken cancellationToken);
 
 	/// <summary>
 	/// Runs a query and downloads the results as a file (an unstable route: breaking changes can happen in future releases).
@@ -60,11 +60,11 @@ public interface IQuery
 	/// per-attempt timeout does not cover reading the body.
 	/// </returns>
 	[Get("api/v1/export")]
-	Task<HttpContent> ExportAsync([Query] string query, [Query] string options, CancellationToken cancellationToken = default);
+	Task<HttpContent> ExportAsync([Query] string query, [Query] string options, CancellationToken cancellationToken);
 
 	/// <summary>Lists the fields available for CSV export, by model (an unstable route).</summary>
 	/// <param name="cancellationToken">A cancellation token.</param>
 	/// <returns>The exportable fields of each model.</returns>
 	[Get("api/v1/export/_fields")]
-	Task<ExportFieldsMapping> GetExportFieldsAsync(CancellationToken cancellationToken = default);
+	Task<ExportFieldsMapping> GetExportFieldsAsync(CancellationToken cancellationToken);
 }

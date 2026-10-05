@@ -1,6 +1,7 @@
 using System.Net;
 using System.Text.Json;
 using TheHive.Api.Data.AlertFeeders;
+using TheHive.Api.Data.Common;
 using TheHive.Api.Test.Support;
 
 namespace TheHive.Api.Test.Groups;
@@ -299,7 +300,7 @@ public partial class AlertFeedersTests
 		var stub = Stub(HttpStatusCode.OK, """{"result":null,"durationMillis":12,"stdout":"out","stderr":"err"}""");
 		using var client = TestClient.Create(stub);
 
-		var result = await client.AlertFeeders.RunAsync("threat-feed", true, TestContext.Current.CancellationToken);
+		var result = await client.AlertFeeders.RunAsync("threat-feed", new DryRunOptions { DryRun = true }, TestContext.Current.CancellationToken);
 
 		stub.Calls[0].Method.Should().Be(HttpMethod.Post);
 		stub.Calls[0].Uri.AbsolutePath.Should().Be("/api/v1/connector/alert-feeder/run/threat-feed");
@@ -316,7 +317,7 @@ public partial class AlertFeedersTests
 		var stub = Stub(HttpStatusCode.OK, "{}");
 		using var client = TestClient.Create(stub);
 
-		await client.AlertFeeders.RunAsync("f", cancellationToken: TestContext.Current.CancellationToken);
+		await client.AlertFeeders.RunAsync("f", new(), TestContext.Current.CancellationToken);
 
 		stub.Calls[0].Uri.Query.Should().BeEmpty();
 	}

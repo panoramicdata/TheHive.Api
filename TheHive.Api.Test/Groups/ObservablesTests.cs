@@ -68,7 +68,7 @@ public class ObservablesTests
 		var result = await client.Observables.CreateInCaseAsync(
 			"~354",
 			new ObservableInput { DataType = "domain", Data = ["c2.example.test"], Tlp = 2, Ioc = true },
-			cancellationToken: TestContext.Current.CancellationToken);
+			new(), TestContext.Current.CancellationToken);
 
 		stub.Calls[0].Method.Should().Be(HttpMethod.Post);
 		stub.Calls[0].Uri.AbsolutePath.Should().Be("/api/v1/case/~354/observable");
@@ -86,7 +86,7 @@ public class ObservablesTests
 		var result = await client.Observables.CreateInCaseAsync(
 			"7",
 			new ObservableInput { DataType = "domain", Data = ["c2.example.test"] },
-			"domain",
+			new ObservableCreateOptions { DataType = "domain" },
 			TestContext.Current.CancellationToken);
 
 		stub.Calls[0].Uri.AbsolutePath.Should().Be("/api/v1/case/7/observable");
@@ -109,7 +109,8 @@ public class ObservablesTests
 				IsZip = true,
 				ZipPassword = "infected"
 			},
-			cancellationToken: TestContext.Current.CancellationToken);
+			new(),
+			TestContext.Current.CancellationToken);
 
 		stub.Calls[0].Method.Should().Be(HttpMethod.Post);
 		stub.Calls[0].Uri.AbsolutePath.Should().Be("/api/v1/alert/~354/observable");
@@ -129,7 +130,7 @@ public class ObservablesTests
 		await client.Observables.CreateInAlertAsync(
 			"~354",
 			new ObservableInput { DataType = "ip" },
-			"hostname",
+			new ObservableCreateOptions { DataType = "hostname" },
 			TestContext.Current.CancellationToken);
 
 		stub.Calls[0].Uri.Query.Should().Be("?dataType=hostname");
@@ -258,7 +259,7 @@ public class ObservablesTests
 		stub.EnqueueFile(file, "application/octet-stream", "sample.exe");
 		using var client = TestClient.Create(stub);
 
-		using var content = await client.Observables.DownloadAttachmentAsync("~8529344", "~456789012", cancellationToken: TestContext.Current.CancellationToken);
+		using var content = await client.Observables.DownloadAttachmentAsync("~8529344", "~456789012", new(), TestContext.Current.CancellationToken);
 
 		stub.Calls[0].Method.Should().Be(HttpMethod.Get);
 		stub.Calls[0].Uri.AbsolutePath.Should().Be("/api/v1/observable/~8529344/attachment/~456789012/download");
@@ -276,7 +277,7 @@ public class ObservablesTests
 		stub.EnqueueFile(zip, "application/octet-stream", "sample.zip");
 		using var client = TestClient.Create(stub);
 
-		using var content = await client.Observables.DownloadAttachmentAsync("~8529344", "~456789012", asZip: true, cancellationToken: TestContext.Current.CancellationToken);
+		using var content = await client.Observables.DownloadAttachmentAsync("~8529344", "~456789012", new ObservableAttachmentDownloadOptions { AsZip = true }, TestContext.Current.CancellationToken);
 
 		stub.Calls[0].Uri.Query.Should().Be("?asZip=true");
 		(await content.ReadAsByteArrayAsync(TestContext.Current.CancellationToken)).Should().Equal(zip);
@@ -289,7 +290,7 @@ public class ObservablesTests
 		stub.EnqueueFile([1], "application/octet-stream", "a.bin");
 		using var client = TestClient.Create(stub);
 
-		using var content = await client.Observables.DownloadAttachmentAsync("~1", "~2", asZip: false, cancellationToken: TestContext.Current.CancellationToken);
+		using var content = await client.Observables.DownloadAttachmentAsync("~1", "~2", new ObservableAttachmentDownloadOptions { AsZip = false }, TestContext.Current.CancellationToken);
 
 		stub.Calls[0].Uri.Query.Should().Be("?asZip=false");
 	}

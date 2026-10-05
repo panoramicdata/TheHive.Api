@@ -1,5 +1,6 @@
 using System.Net;
 using Refit;
+using TheHive.Api.Data.Attachments;
 using TheHive.Api.Data.Common;
 using TheHive.Api.Data.Organisations;
 using TheHive.Api.Test.Support;
@@ -193,7 +194,7 @@ public class OrganisationsTests
 		stub.EnqueueFile(image, "application/octet-stream", "avatar.png");
 		using var client = TestClient.Create(stub);
 
-		using var content = await client.Organisations.GetAvatarAsync("~128458762", "fake-avatar-hash", cancellationToken: TestContext.Current.CancellationToken);
+		using var content = await client.Organisations.GetAvatarAsync("~128458762", "fake-avatar-hash", new(), TestContext.Current.CancellationToken);
 
 		stub.Calls[0].Method.Should().Be(HttpMethod.Get);
 		stub.Calls[0].Uri.AbsolutePath.Should().Be("/api/v1/organisation/~128458762/avatar/fake-avatar-hash");
@@ -209,7 +210,7 @@ public class OrganisationsTests
 		var stub = Stub(HttpStatusCode.NotModified);
 		using var client = TestClient.Create(stub);
 
-		var act = () => client.Organisations.GetAvatarAsync("~128458762", "fake-avatar-hash", "\"abc123\"", TestContext.Current.CancellationToken);
+		var act = () => client.Organisations.GetAvatarAsync("~128458762", "fake-avatar-hash", new ConditionalDownloadOptions { IfNoneMatch = "\"abc123\"" }, TestContext.Current.CancellationToken);
 
 		(await act.Should().ThrowAsync<TheHiveApiException>())
 			.Which.StatusCode.Should().Be(HttpStatusCode.NotModified);
@@ -363,7 +364,7 @@ public class OrganisationsTests
 
 		var result = await client.Organisations.UploadAttachmentsAsync(
 			[new StreamPart(first, "sample.exe", "application/octet-stream"), new ByteArrayPart([4, 5], "notes.txt", "text/plain")],
-			cancellationToken: TestContext.Current.CancellationToken);
+			new(), TestContext.Current.CancellationToken);
 
 		var call = stub.Calls[0];
 		call.Method.Should().Be(HttpMethod.Post);
@@ -388,7 +389,7 @@ public class OrganisationsTests
 		var stub = Stub(HttpStatusCode.Created, """{"attachments":[]}""");
 		using var client = TestClient.Create(stub);
 
-		await client.Organisations.UploadAttachmentsAsync([new ByteArrayPart([1], "a.bin", "application/octet-stream")], true, TestContext.Current.CancellationToken);
+		await client.Organisations.UploadAttachmentsAsync([new ByteArrayPart([1], "a.bin", "application/octet-stream")], new AttachmentUploadOptions { CanRename = true }, TestContext.Current.CancellationToken);
 
 		var parts = stub.Calls[0].Parts;
 		parts.Should().HaveCount(2);
@@ -402,7 +403,7 @@ public class OrganisationsTests
 		var stub = Stub(HttpStatusCode.Created, """{"attachments":[]}""");
 		using var client = TestClient.Create(stub);
 
-		await client.Organisations.UploadAttachmentsAsync([new ByteArrayPart([1], "a.bin", "application/octet-stream")], cancellationToken: TestContext.Current.CancellationToken);
+		await client.Organisations.UploadAttachmentsAsync([new ByteArrayPart([1], "a.bin", "application/octet-stream")], new(), TestContext.Current.CancellationToken);
 
 		stub.Calls[0].Parts.Should().NotContain(p => p.Name == "canRename");
 	}
@@ -428,7 +429,7 @@ public class OrganisationsTests
 		stub.EnqueueFile(file, "application/octet-stream", "sample.exe");
 		using var client = TestClient.Create(stub);
 
-		using var content = await client.Organisations.GetAttachmentAsync("~456789012", cancellationToken: TestContext.Current.CancellationToken);
+		using var content = await client.Organisations.GetAttachmentAsync("~456789012", new(), TestContext.Current.CancellationToken);
 
 		stub.Calls[0].Method.Should().Be(HttpMethod.Get);
 		stub.Calls[0].Uri.AbsolutePath.Should().Be("/api/v1/attachment/~456789012");
@@ -444,7 +445,7 @@ public class OrganisationsTests
 		var stub = Stub(HttpStatusCode.NotModified);
 		using var client = TestClient.Create(stub);
 
-		var act = () => client.Organisations.GetAttachmentAsync("~456789012", "\"abc123\"", TestContext.Current.CancellationToken);
+		var act = () => client.Organisations.GetAttachmentAsync("~456789012", new ConditionalDownloadOptions { IfNoneMatch = "\"abc123\"" }, TestContext.Current.CancellationToken);
 
 		(await act.Should().ThrowAsync<TheHiveApiException>())
 			.Which.StatusCode.Should().Be(HttpStatusCode.NotModified);

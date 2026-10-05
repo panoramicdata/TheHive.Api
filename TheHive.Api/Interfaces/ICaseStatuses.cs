@@ -15,18 +15,18 @@ public interface ICaseStatuses
 	/// <param name="cancellationToken">A cancellation token.</param>
 	/// <returns>The created status.</returns>
 	[Post("api/v1/caseStatus")]
-	Task<CaseStatus> CreateAsync([Body] CaseStatusCreateRequest request, CancellationToken cancellationToken = default);
+	Task<CaseStatus> CreateAsync([Body] CaseStatusCreateRequest request, CancellationToken cancellationToken);
 
 	/// <summary>Deletes a case status; predefined statuses and statuses still assigned to cases cannot be deleted (hide them instead).</summary>
 	/// <param name="id">The status ID preceded by <c>~</c>, or the status value.</param>
 	/// <param name="cancellationToken">A cancellation token.</param>
 	[Delete("api/v1/caseStatus/{id}")]
-	Task DeleteAsync(string id, CancellationToken cancellationToken = default);
+	Task DeleteAsync(string id, CancellationToken cancellationToken);
 
 	/// <summary>Updates the order, description, colour or visibility of a case status.</summary>
 	/// <param name="id">The status ID preceded by <c>~</c>, or the status value.</param>
 	/// <param name="request">The properties to change.</param>
 	/// <param name="cancellationToken">A cancellation token.</param>
 	[Patch("api/v1/caseStatus/{id}")]
-	Task UpdateAsync(string id, [Body] CaseStatusUpdateRequest request, CancellationToken cancellationToken = default);
+	Task UpdateAsync(string id, [Body] CaseStatusUpdateRequest request, CancellationToken cancellationToken);
 }

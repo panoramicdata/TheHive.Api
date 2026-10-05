@@ -15,40 +15,40 @@ public interface IPatterns
 	/// <param name="cancellationToken">A cancellation token.</param>
 	/// <returns>The created catalog.</returns>
 	[Post("api/v1/catalog")]
-	Task<PatternCatalog> CreateCatalogAsync([Body] PatternCatalogCreateRequest request, CancellationToken cancellationToken = default);
+	Task<PatternCatalog> CreateCatalogAsync([Body] PatternCatalogCreateRequest request, CancellationToken cancellationToken);
 
 	/// <summary>Deletes a technique catalog.</summary>
 	/// <param name="catalogId">The catalog ID preceded by <c>~</c>, or the catalog name.</param>
 	/// <param name="cancellationToken">A cancellation token.</param>
 	[Delete("api/v1/catalog/{catalogId}")]
-	Task DeleteCatalogAsync(string catalogId, CancellationToken cancellationToken = default);
+	Task DeleteCatalogAsync(string catalogId, CancellationToken cancellationToken);
 
 	/// <summary>Updates a technique catalog.</summary>
 	/// <param name="catalogId">The catalog ID preceded by <c>~</c>, or the catalog name.</param>
 	/// <param name="request">The properties to change.</param>
 	/// <param name="cancellationToken">A cancellation token.</param>
 	[Patch("api/v1/catalog/{catalogId}")]
-	Task UpdateCatalogAsync(string catalogId, [Body] PatternCatalogUpdateRequest request, CancellationToken cancellationToken = default);
+	Task UpdateCatalogAsync(string catalogId, [Body] PatternCatalogUpdateRequest request, CancellationToken cancellationToken);
 
 	/// <summary>Deletes a technique.</summary>
 	/// <param name="patternId">The technique ID preceded by <c>~</c>, or its MITRE identifier.</param>
 	/// <param name="cancellationToken">A cancellation token.</param>
 	[Delete("api/v1/pattern/{patternId}")]
-	Task DeleteAsync(string patternId, CancellationToken cancellationToken = default);
+	Task DeleteAsync(string patternId, CancellationToken cancellationToken);
 
 	/// <summary>Gets a technique.</summary>
 	/// <param name="patternId">The technique ID preceded by <c>~</c>, or its MITRE identifier.</param>
 	/// <param name="cancellationToken">A cancellation token.</param>
 	/// <returns>The technique.</returns>
 	[Get("api/v1/pattern/{patternId}")]
-	Task<Pattern> GetAsync(string patternId, CancellationToken cancellationToken = default);
+	Task<Pattern> GetAsync(string patternId, CancellationToken cancellationToken);
 
 	/// <summary>Lists the techniques linked to a case.</summary>
 	/// <param name="caseId">The case ID preceded by <c>~</c>, or the case number.</param>
 	/// <param name="cancellationToken">A cancellation token.</param>
 	/// <returns>The techniques.</returns>
 	[Get("api/v1/pattern/case/{caseId}")]
-	Task<List<Pattern>> ListForCaseAsync(string caseId, CancellationToken cancellationToken = default);
+	Task<List<Pattern>> ListForCaseAsync(string caseId, CancellationToken cancellationToken);
 
 	/// <summary>
 	/// Imports MITRE ATT&amp;CK techniques into a catalog from the URL of a catalog JSON file (<see cref="PatternImportRequest.Url"/>). The server fetches the URL.
@@ -58,7 +58,7 @@ public interface IPatterns
 	/// <param name="cancellationToken">A cancellation token.</param>
 	/// <returns>The import result.</returns>
 	[Post("api/v1/pattern/import/attack")]
-	Task<PatternImportResult> ImportAsync([Body] PatternImportRequest request, CancellationToken cancellationToken = default);
+	Task<PatternImportResult> ImportAsync([Body] PatternImportRequest request, CancellationToken cancellationToken);
 
 	/// <summary>
 	/// Imports MITRE ATT&amp;CK techniques into a catalog from an uploaded JSON file (the multipart form of the same operation as
@@ -73,5 +73,5 @@ public interface IPatterns
 	Task<PatternImportResult> ImportFileAsync(
 		[AliasAs("_json")] PatternImportRequest request,
 		[AliasAs("file")] MultipartItem file,
-		CancellationToken cancellationToken = default);
+		CancellationToken cancellationToken);
 }

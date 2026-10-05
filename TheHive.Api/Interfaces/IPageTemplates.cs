@@ -15,18 +15,18 @@ public interface IPageTemplates
 	/// <param name="cancellationToken">A cancellation token.</param>
 	/// <returns>The created page template.</returns>
 	[Post("api/v1/pageTemplate")]
-	Task<Page> CreateAsync([Body] PageCreateRequest request, CancellationToken cancellationToken = default);
+	Task<Page> CreateAsync([Body] PageCreateRequest request, CancellationToken cancellationToken);
 
 	/// <summary>Updates a page template (requires <c>managePageTemplate</c>); only the properties set on the request change.</summary>
 	/// <param name="pageTemplateId">The page template ID preceded by <c>~</c>.</param>
 	/// <param name="request">The properties to change.</param>
 	/// <param name="cancellationToken">A cancellation token.</param>
 	[Patch("api/v1/pageTemplate/{pageTemplateId}")]
-	Task UpdateAsync(string pageTemplateId, [Body] PageUpdateRequest request, CancellationToken cancellationToken = default);
+	Task UpdateAsync(string pageTemplateId, [Body] PageUpdateRequest request, CancellationToken cancellationToken);
 
 	/// <summary>Deletes a page template (requires <c>managePageTemplate</c>).</summary>
 	/// <param name="pageTemplateId">The page template ID preceded by <c>~</c>.</param>
 	/// <param name="cancellationToken">A cancellation token.</param>
 	[Delete("api/v1/pageTemplate/{pageTemplateId}")]
-	Task DeleteAsync(string pageTemplateId, CancellationToken cancellationToken = default);
+	Task DeleteAsync(string pageTemplateId, CancellationToken cancellationToken);
 }

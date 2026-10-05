@@ -1,3 +1,4 @@
+using System.ComponentModel;
 using Refit;
 using TheHive.Api.Data.Alerts;
 using TheHive.Api.Data.Attachments;
@@ -14,39 +15,39 @@ public interface IAlerts
 	/// <param name="cancellationToken">A cancellation token.</param>
 	/// <returns>The created alert.</returns>
 	[Post("api/v1/alert")]
-	Task<Alert> CreateAsync([Body] AlertCreateRequest request, CancellationToken cancellationToken = default);
+	Task<Alert> CreateAsync([Body] AlertCreateRequest request, CancellationToken cancellationToken);
 
 	/// <summary>Gets an alert.</summary>
 	/// <param name="alertId">The alert ID preceded by <c>~</c>.</param>
 	/// <param name="cancellationToken">A cancellation token.</param>
 	/// <returns>The alert.</returns>
 	[Get("api/v1/alert/{alertId}")]
-	Task<Alert> GetAsync(string alertId, CancellationToken cancellationToken = default);
+	Task<Alert> GetAsync(string alertId, CancellationToken cancellationToken);
 
 	/// <summary>Updates the fields set on <paramref name="request"/>; other fields keep their values.</summary>
 	/// <param name="alertId">The alert ID preceded by <c>~</c>.</param>
 	/// <param name="request">The fields to change.</param>
 	/// <param name="cancellationToken">A cancellation token.</param>
 	[Patch("api/v1/alert/{alertId}")]
-	Task UpdateAsync(string alertId, [Body] AlertUpdateRequest request, CancellationToken cancellationToken = default);
+	Task UpdateAsync(string alertId, [Body] AlertUpdateRequest request, CancellationToken cancellationToken);
 
 	/// <summary>Permanently deletes an alert. This cannot be undone; consider closing it instead.</summary>
 	/// <param name="alertId">The alert ID preceded by <c>~</c>.</param>
 	/// <param name="cancellationToken">A cancellation token.</param>
 	[Delete("api/v1/alert/{alertId}")]
-	Task DeleteAsync(string alertId, CancellationToken cancellationToken = default);
+	Task DeleteAsync(string alertId, CancellationToken cancellationToken);
 
 	/// <summary>Applies the same field updates to several alerts; fields not set keep their values.</summary>
 	/// <param name="request">The alert IDs and the fields to change.</param>
 	/// <param name="cancellationToken">A cancellation token.</param>
 	[Patch("api/v1/alert/_bulk")]
-	Task BulkUpdateAsync([Body] AlertBulkUpdateRequest request, CancellationToken cancellationToken = default);
+	Task BulkUpdateAsync([Body] AlertBulkUpdateRequest request, CancellationToken cancellationToken);
 
 	/// <summary>Permanently deletes several alerts. This cannot be undone.</summary>
 	/// <param name="request">The IDs of the alerts to delete.</param>
 	/// <param name="cancellationToken">A cancellation token.</param>
 	[Post("api/v1/alert/delete/_bulk")]
-	Task BulkDeleteAsync([Body] AlertBulkDeleteRequest request, CancellationToken cancellationToken = default);
+	Task BulkDeleteAsync([Body] AlertBulkDeleteRequest request, CancellationToken cancellationToken);
 
 	/// <summary>Creates a case from an alert; the alert's observables, procedures, attachments, comments and custom fields are copied and the alert is linked to the new case.</summary>
 	/// <param name="alertId">The alert ID preceded by <c>~</c>.</param>
@@ -54,7 +55,7 @@ public interface IAlerts
 	/// <param name="cancellationToken">A cancellation token.</param>
 	/// <returns>The created case.</returns>
 	[Post("api/v1/alert/{alertId}/case")]
-	Task<Case> CreateCaseAsync(string alertId, [Body] CaseFromAlertRequest request, CancellationToken cancellationToken = default);
+	Task<Case> CreateCaseAsync(string alertId, [Body] CaseFromAlertRequest request, CancellationToken cancellationToken);
 
 	/// <summary>Merges an alert into an existing case: its data is copied, its description is appended to the case description, and the alert is linked to the case and set to the <c>Imported</c> status.</summary>
 	/// <param name="alertId">The alert ID preceded by <c>~</c>.</param>
@@ -62,7 +63,7 @@ public interface IAlerts
 	/// <param name="cancellationToken">A cancellation token.</param>
 	/// <returns>The updated case.</returns>
 	[Post("api/v1/alert/{alertId}/merge/{caseId}")]
-	Task<Case> MergeIntoCaseAsync(string alertId, string caseId, CancellationToken cancellationToken = default);
+	Task<Case> MergeIntoCaseAsync(string alertId, string caseId, CancellationToken cancellationToken);
 
 	/// <summary>Imports an alert's observables and procedures into an existing case, without appending the alert description; the alert is linked to the case and set to the <c>Imported</c> status.</summary>
 	/// <param name="alertId">The alert ID preceded by <c>~</c>.</param>
@@ -70,26 +71,26 @@ public interface IAlerts
 	/// <param name="cancellationToken">A cancellation token.</param>
 	/// <returns>The updated case.</returns>
 	[Post("api/v1/alert/{alertId}/import/{caseId}")]
-	Task<Case> ImportIntoCaseAsync(string alertId, string caseId, CancellationToken cancellationToken = default);
+	Task<Case> ImportIntoCaseAsync(string alertId, string caseId, CancellationToken cancellationToken);
 
 	/// <summary>Merges several alerts into an existing case (50 at most by default).</summary>
 	/// <param name="request">The case and the alerts to merge into it.</param>
 	/// <param name="cancellationToken">A cancellation token.</param>
 	/// <returns>The updated case.</returns>
 	[Post("api/v1/alert/merge/_bulk")]
-	Task<Case> BulkMergeIntoCaseAsync([Body] AlertBulkMergeRequest request, CancellationToken cancellationToken = default);
+	Task<Case> BulkMergeIntoCaseAsync([Body] AlertBulkMergeRequest request, CancellationToken cancellationToken);
 
 	/// <summary>Follows an alert so TheHive resumes automatic updates from MISP when the event changes.</summary>
 	/// <param name="alertId">The alert ID preceded by <c>~</c>.</param>
 	/// <param name="cancellationToken">A cancellation token.</param>
 	[Post("api/v1/alert/{alertId}/follow")]
-	Task FollowAsync(string alertId, CancellationToken cancellationToken = default);
+	Task FollowAsync(string alertId, CancellationToken cancellationToken);
 
 	/// <summary>Stops following an alert, so changes in its MISP event no longer update it.</summary>
 	/// <param name="alertId">The alert ID preceded by <c>~</c>.</param>
 	/// <param name="cancellationToken">A cancellation token.</param>
 	[Post("api/v1/alert/{alertId}/unfollow")]
-	Task UnfollowAsync(string alertId, CancellationToken cancellationToken = default);
+	Task UnfollowAsync(string alertId, CancellationToken cancellationToken);
 
 	/// <summary>Lists the observables an alert shares with another alert or case (at most 100 by default).</summary>
 	/// <param name="alertId">The alert ID preceded by <c>~</c>.</param>
@@ -97,28 +98,53 @@ public interface IAlerts
 	/// <param name="cancellationToken">A cancellation token.</param>
 	/// <returns>The shared observables.</returns>
 	[Get("api/v1/alert/{alertId}/similar/{alertOrCaseId}/observables")]
-	Task<List<Observable>> GetSimilarObservablesAsync(string alertId, string alertOrCaseId, CancellationToken cancellationToken = default);
+	Task<List<Observable>> GetSimilarObservablesAsync(string alertId, string alertOrCaseId, CancellationToken cancellationToken);
 
 	/// <summary>Uploads one or more files to an alert as attachments. The spec requires at least one file; an empty list gets a 400 from the server.</summary>
-	/// <remarks>Uploads are never retried (see <see cref="TheHiveClientOptions.MaxRetries"/>), so a file is never stored twice; the per-attempt <see cref="TheHiveClientOptions.Timeout"/> covers sending the files, so raise it for large uploads.</remarks>
+	/// <remarks>
+	/// <para>Uploads are never retried (see <see cref="TheHiveClientOptions.MaxRetries"/>), so a file is never stored twice; the per-attempt <see cref="TheHiveClientOptions.Timeout"/> covers sending the files, so raise it for large uploads.</para>
+	/// <para>This is the method to call. It is implemented on the interface and sends the request through the raw multipart transport <see cref="AddAttachmentsMultipartAsync"/>; a class implementing <see cref="IAlerts"/> only has to provide that method.</para>
+	/// </remarks>
+	/// <param name="alertId">The alert ID preceded by <c>~</c>.</param>
+	/// <param name="attachments">The files, each sent as a multipart part named <c>attachments</c>. Build each with a file name and,
+	/// ideally, a content type, for example <c>new StreamPart(stream, "report.pdf", "application/pdf")</c>; leave the part name unset.</param>
+	/// <param name="options">The <c>canRename</c> form field (<see cref="AttachmentUploadOptions.CanRename"/>: whether the server may rename a file whose name already exists); pass <c>new()</c> to leave it out.</param>
+	/// <param name="cancellationToken">A cancellation token.</param>
+	/// <returns>The attachments created.</returns>
+	/// <exception cref="ArgumentNullException"><paramref name="options"/> is <see langword="null"/>.</exception>
+	Task<AttachmentUploadResult> AddAttachmentsAsync(
+		string alertId,
+		IEnumerable<MultipartItem> attachments,
+		AttachmentUploadOptions options,
+		CancellationToken cancellationToken)
+	{
+		ArgumentNullException.ThrowIfNull(options);
+		return AddAttachmentsMultipartAsync(alertId, attachments, options.CanRename, cancellationToken);
+	}
+
+	/// <summary>
+	/// The raw multipart transport used by <see cref="AddAttachmentsAsync"/>, with a <see langword="null"/> <paramref name="canRename"/> left out. Call
+	/// <see cref="AddAttachmentsAsync"/> instead; this method exists because Refit cannot turn a property of an object into a multipart form field.
+	/// </summary>
 	/// <param name="alertId">The alert ID preceded by <c>~</c>.</param>
 	/// <param name="attachments">The files, each sent as a multipart part named <c>attachments</c>. Build each with a file name and,
 	/// ideally, a content type, for example <c>new StreamPart(stream, "report.pdf", "application/pdf")</c>; leave the part name unset.</param>
 	/// <param name="canRename">Whether the server may rename a file whose name already exists; omitted when <see langword="null"/>.</param>
 	/// <param name="cancellationToken">A cancellation token.</param>
 	/// <returns>The attachments created.</returns>
+	[EditorBrowsable(EditorBrowsableState.Never)]
 	[Multipart]
 	[Post("api/v1/alert/{alertId}/attachments")]
-	Task<AttachmentUploadResult> AddAttachmentsAsync(
+	Task<AttachmentUploadResult> AddAttachmentsMultipartAsync(
 		string alertId,
 		[AliasAs("attachments")] IEnumerable<MultipartItem> attachments,
-		[AliasAs("canRename")] bool? canRename = null,
-		CancellationToken cancellationToken = default);
+		[AliasAs("canRename")] bool? canRename,
+		CancellationToken cancellationToken);
 
 	/// <summary>Removes an attachment from an alert.</summary>
 	/// <param name="alertId">The alert ID preceded by <c>~</c>.</param>
 	/// <param name="attachmentId">The attachment ID preceded by <c>~</c>.</param>
 	/// <param name="cancellationToken">A cancellation token.</param>
 	[Delete("api/v1/alert/{alertId}/attachment/{attachmentId}")]
-	Task DeleteAttachmentAsync(string alertId, string attachmentId, CancellationToken cancellationToken = default);
+	Task DeleteAttachmentAsync(string alertId, string attachmentId, CancellationToken cancellationToken);
 }

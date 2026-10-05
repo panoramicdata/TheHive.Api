@@ -3,7 +3,7 @@ using Refit;
 namespace TheHive.Api.Data.Functions;
 
 /// <summary>
-/// The optional query-string flags of <c>IFunctions.InvokeOnObjectAsync</c>. Each property is sent as the query parameter of the same wire name,
+/// The optional query-string flags of <see cref="Interfaces.IFunctions.InvokeOnObjectAsync"/>. Each property is sent as the query parameter of the same wire name,
 /// as lowercase <c>true</c>/<c>false</c>, and is left out when <see langword="null"/>.
 /// </summary>
 public sealed class FunctionInvocationOptions

@@ -29,12 +29,12 @@ public class QueryTests(ITestOutputHelper testOutputHelper, Fixture fixture) : T
 			var byTitle = QueryBuilder.ListCases().Filter("title", title);
 
 			// _eq, with a query name
-			var found = await client.Query.RunAsync<Case>(byTitle, "integration-test", CancellationToken);
+			var found = await client.Query.RunAsync<Case>(byTitle, new QueryRunOptions { Name = "integration-test" }, CancellationToken);
 			found.Should().ContainSingle().Which.Title.Should().Be(title);
 			found[0].Id.Should().Be(caseId);
 
 			// count
-			(await client.Query.RunCountAsync(QueryBuilder.ListCases().Filter("title", title).Count(), cancellationToken: CancellationToken))
+			(await client.Query.RunCountAsync(QueryBuilder.ListCases().Filter("title", title).Count(), new(), CancellationToken))
 				.Should().Be(1);
 
 			// _in, _and, _or, _not
@@ -79,15 +79,15 @@ public class QueryTests(ITestOutputHelper testOutputHelper, Fixture fixture) : T
 			// sort, page with total, select
 			var page = await client.Query.RunPageAsync<Case>(
 				QueryBuilder.ListCases().Filter("title", title).Sort("_createdAt", SortDirection.Descending).Sort("title").Page(0, 5, "total").Select("title", "_id"),
-				"integration-test",
+				new QueryRunOptions { Name = "integration-test" },
 				CancellationToken);
 			page.Total.Should().Be(1);
 			page.Items.Should().ContainSingle().Which.Title.Should().Be(title);
 
 			// get, related, raw result
-			var single = await client.Query.RunAsync<Case>(QueryBuilder.GetCase(caseId), cancellationToken: CancellationToken);
+			var single = await client.Query.RunAsync<Case>(QueryBuilder.GetCase(caseId), new(), CancellationToken);
 			single.Should().ContainSingle().Which.Id.Should().Be(caseId);
-			var tasks = await client.Query.RunAsync(QueryBuilder.GetCase(caseId).Related("tasks").Build(), cancellationToken: CancellationToken);
+			var tasks = await client.Query.RunAsync(QueryBuilder.GetCase(caseId).Related("tasks").Build(), new(), CancellationToken);
 			tasks.ValueKind.Should().Be(JsonValueKind.Array);
 			tasks.GetArrayLength().Should().Be(0);
 
@@ -115,5 +115,5 @@ public class QueryTests(ITestOutputHelper testOutputHelper, Fixture fixture) : T
 		fields.FieldsByModel["Case"].Should().Contain(f => f.FieldPath == "title");
 	}
 
-	private Task<long> CountAsync(QueryBuilder builder) => Client.Query.RunCountAsync(builder.Count(), cancellationToken: CancellationToken);
+	private Task<long> CountAsync(QueryBuilder builder) => Client.Query.RunCountAsync(builder.Count(), new(), CancellationToken);
 }

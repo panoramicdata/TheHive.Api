@@ -19,6 +19,7 @@
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 		<PackageTags>TheHive;StrangeBee;SOAR;IncidentResponse;API;Client;PanoramicData</PackageTags>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
+		<PackageReleaseNotes>Breaking changes since 5.8.9: every method now takes a required CancellationToken as its last parameter (pass CancellationToken.None if you do not need cancellation), and operations with optional query, header or multipart parameters take an options object instead (pass new() when you have no options). The requests sent are unchanged. The hidden *MultipartAsync and *WithHeadersAsync methods exist only because Refit cannot map an object to multipart form fields or headers; call the public methods. See "Breaking changes" in the README: https://github.com/panoramicdata/TheHive.Api#breaking-changes</PackageReleaseNotes>
 	</PropertyGroup>
 
 	<ItemGroup>

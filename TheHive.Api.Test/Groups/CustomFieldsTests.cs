@@ -180,7 +180,7 @@ public class CustomFieldsTests
 		var stub = Stub(HttpStatusCode.NoContent);
 		using var client = TestClient.Create(stub);
 
-		await client.CustomFields.DeleteAsync("~123456789", cancellationToken: TestContext.Current.CancellationToken);
+		await client.CustomFields.DeleteAsync("~123456789", new(), TestContext.Current.CancellationToken);
 
 		stub.Calls[0].Method.Should().Be(HttpMethod.Delete);
 		stub.Calls[0].Uri.AbsolutePath.Should().Be("/api/v1/customField/~123456789");
@@ -194,7 +194,7 @@ public class CustomFieldsTests
 		var stub = Stub(HttpStatusCode.NoContent);
 		using var client = TestClient.Create(stub);
 
-		await client.CustomFields.DeleteAsync("~123456789", true, TestContext.Current.CancellationToken);
+		await client.CustomFields.DeleteAsync("~123456789", new CustomFieldDeleteOptions { Force = true }, TestContext.Current.CancellationToken);
 
 		stub.Calls[0].Uri.Query.Should().Be("?force=true");
 	}
@@ -221,7 +221,7 @@ public class CustomFieldsTests
 		var stub = Stub(HttpStatusCode.BadRequest, """{"type":"BadRequest","message":"Custom field is in use"}""");
 		using var client = TestClient.Create(stub);
 
-		var act = () => client.CustomFields.DeleteAsync("threat-type", cancellationToken: TestContext.Current.CancellationToken);
+		var act = () => client.CustomFields.DeleteAsync("threat-type", new(), TestContext.Current.CancellationToken);
 
 		(await act.Should().ThrowAsync<TheHiveApiException>())
 			.Which.Should().Match<TheHiveApiException>(e => e.StatusCode == HttpStatusCode.BadRequest && e.ErrorType == "BadRequest");

@@ -14,5 +14,5 @@ public interface IAdmin
 	/// <param name="level">The level: one of the <see cref="Data.Admin.LogLevels"/> constants (<c>ALL</c>, <c>TRACE</c>, <c>DEBUG</c>, <c>INFO</c>, <c>WARN</c>, <c>ERROR</c>, <c>OFF</c>).</param>
 	/// <param name="cancellationToken">A cancellation token.</param>
 	[Put("api/v1/admin/log/set/{packageName}/{level}")]
-	Task SetLogLevelAsync(string packageName, string level, CancellationToken cancellationToken = default);
+	Task SetLogLevelAsync(string packageName, string level, CancellationToken cancellationToken);
 }

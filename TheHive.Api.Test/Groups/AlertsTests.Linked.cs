@@ -146,7 +146,7 @@ public partial class AlertsTests
 		var result = await client.Alerts.AddAttachmentsAsync(
 			"~354",
 			[new StreamPart(first, "encrypt.ps1", "application/x-powershell"), new StreamPart(second, "notes.txt", "text/plain")],
-			canRename: true,
+			new AttachmentUploadOptions { CanRename = true },
 			TestContext.Current.CancellationToken);
 
 		var call = stub.Calls[0];
@@ -177,7 +177,7 @@ public partial class AlertsTests
 		await client.Alerts.AddAttachmentsAsync(
 			"~354",
 			[new ByteArrayPart([9], "a.bin")],
-			cancellationToken: TestContext.Current.CancellationToken);
+			new(), TestContext.Current.CancellationToken);
 
 		var part = stub.Calls[0].Parts.Should().ContainSingle().Subject;
 		part.Name.Should().Be("attachments");

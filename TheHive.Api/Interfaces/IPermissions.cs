@@ -10,5 +10,5 @@ public interface IPermissions
 	/// <param name="cancellationToken">A cancellation token.</param>
 	/// <returns>The permissions; use their <see cref="PermissionDescription.Name"/> in profile permission lists.</returns>
 	[Get("api/v1/permission")]
-	Task<List<PermissionDescription>> ListAsync(CancellationToken cancellationToken = default);
+	Task<List<PermissionDescription>> ListAsync(CancellationToken cancellationToken);
 }

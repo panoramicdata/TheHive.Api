@@ -77,7 +77,7 @@ public class AlertAndCustomFieldTests(ITestOutputHelper testOutputHelper, Fixtur
 			found.Name.Should().Be(name);
 			found.Type.Should().Be(CustomFieldType.String);
 
-			await client.CustomFields.DeleteAsync(fieldId, cancellationToken: CancellationToken);
+			await client.CustomFields.DeleteAsync(fieldId, new(), CancellationToken);
 			var deletedId = fieldId;
 			fieldId = null;
 
@@ -88,7 +88,7 @@ public class AlertAndCustomFieldTests(ITestOutputHelper testOutputHelper, Fixtur
 		{
 			if (fieldId is not null)
 			{
-				await TryCleanupAsync(() => client.CustomFields.DeleteAsync(fieldId, force: true, cancellationToken: CancellationToken.None));
+				await TryCleanupAsync(() => client.CustomFields.DeleteAsync(fieldId, new CustomFieldDeleteOptions { Force = true }, CancellationToken.None));
 			}
 		}
 	}

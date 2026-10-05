@@ -13,22 +13,24 @@ public static class QueryExtensions
 	/// <typeparam name="T">The result type, for example <see cref="Data.Cases.Case"/> for <see cref="QueryBuilder.ListCases"/>.</typeparam>
 	/// <param name="query">The query operations.</param>
 	/// <param name="builder">The query; it must not end with <see cref="QueryBuilder.Count"/> (use <see cref="RunCountAsync"/>).</param>
-	/// <param name="name">An optional label for the query, sent as the <c>name</c> query-string parameter.</param>
+	/// <param name="options">A label for the query (<see cref="QueryRunOptions.Name"/>), sent as the <c>name</c> query-string parameter; pass <c>new()</c> to leave it out.</param>
 	/// <param name="cancellationToken">A cancellation token.</param>
 	/// <returns>
 	/// The results; a JSON <c>null</c> gives an empty list and a single object a one-item list (TheHive 5.8.0 answers
 	/// <c>getXxx</c> with an array).
 	/// </returns>
+	/// <exception cref="ArgumentNullException"><paramref name="query"/>, <paramref name="builder"/> or <paramref name="options"/> is <see langword="null"/>.</exception>
 	/// <exception cref="ArgumentException"><paramref name="builder"/> ends with a <c>count</c> step.</exception>
 	/// <exception cref="InvalidOperationException">
 	/// The query returned a single value (number, string or boolean) rather than entities, because its last operation returns a
 	/// value directly (for example <c>countFreetags</c>); read it with <see cref="IQuery.RunAsync"/>.
 	/// </exception>
-	public static async Task<List<T>> RunAsync<T>(this IQuery query, QueryBuilder builder, string? name = null, CancellationToken cancellationToken = default)
+	public static async Task<List<T>> RunAsync<T>(this IQuery query, QueryBuilder builder, QueryRunOptions options, CancellationToken cancellationToken)
 	{
 		ArgumentNullException.ThrowIfNull(query);
+		ArgumentNullException.ThrowIfNull(options);
 		ThrowIfCount(builder);
-		var result = await query.RunAsync(builder.Build(), name, cancellationToken).ConfigureAwait(false);
+		var result = await query.RunAsync(builder.Build(), options, cancellationToken).ConfigureAwait(false);
 		return ToList<T>(result);
 	}
 
@@ -36,17 +38,19 @@ public static class QueryExtensions
 	/// <typeparam name="T">The result type.</typeparam>
 	/// <param name="query">The query operations.</param>
 	/// <param name="builder">The query, usually ending with <see cref="QueryBuilder.Page"/> whose <c>extraData</c> includes <c>total</c>.</param>
-	/// <param name="name">An optional label for the query, sent as the <c>name</c> query-string parameter.</param>
+	/// <param name="options">A label for the query (<see cref="QueryRunOptions.Name"/>), sent as the <c>name</c> query-string parameter; pass <c>new()</c> to leave it out.</param>
 	/// <param name="cancellationToken">A cancellation token.</param>
 	/// <returns>The results, and the total when the server sent it.</returns>
+	/// <exception cref="ArgumentNullException"><paramref name="query"/>, <paramref name="builder"/> or <paramref name="options"/> is <see langword="null"/>.</exception>
 	/// <exception cref="ArgumentException"><paramref name="builder"/> ends with a <c>count</c> step.</exception>
 	/// <exception cref="TheHiveApiException">The server returned an error status.</exception>
 	/// <exception cref="InvalidOperationException">The query returned a single value (number, string or boolean) rather than entities.</exception>
-	public static async Task<QueryPage<T>> RunPageAsync<T>(this IQuery query, QueryBuilder builder, string? name = null, CancellationToken cancellationToken = default)
+	public static async Task<QueryPage<T>> RunPageAsync<T>(this IQuery query, QueryBuilder builder, QueryRunOptions options, CancellationToken cancellationToken)
 	{
 		ArgumentNullException.ThrowIfNull(query);
+		ArgumentNullException.ThrowIfNull(options);
 		ThrowIfCount(builder);
-		using var response = await query.RunUncheckedAsync(builder.Build(), name, cancellationToken).ConfigureAwait(false);
+		using var response = await query.RunUncheckedAsync(builder.Build(), options, cancellationToken).ConfigureAwait(false);
 		var error = await TheHiveErrorMapper.CreateAsync(response).ConfigureAwait(false);
 		if (error is not null)
 		{
@@ -64,21 +68,23 @@ public static class QueryExtensions
 	/// <summary>Runs a query that ends with <see cref="QueryBuilder.Count"/> and returns the number.</summary>
 	/// <param name="query">The query operations.</param>
 	/// <param name="builder">The query; it must end with <see cref="QueryBuilder.Count"/>.</param>
-	/// <param name="name">An optional label for the query, sent as the <c>name</c> query-string parameter.</param>
+	/// <param name="options">A label for the query (<see cref="QueryRunOptions.Name"/>), sent as the <c>name</c> query-string parameter; pass <c>new()</c> to leave it out.</param>
 	/// <param name="cancellationToken">A cancellation token.</param>
 	/// <returns>The number of results.</returns>
+	/// <exception cref="ArgumentNullException"><paramref name="query"/>, <paramref name="builder"/> or <paramref name="options"/> is <see langword="null"/>.</exception>
 	/// <exception cref="ArgumentException"><paramref name="builder"/> does not end with a <c>count</c> step.</exception>
 	/// <exception cref="InvalidOperationException">The server returned something other than a number.</exception>
-	public static async Task<long> RunCountAsync(this IQuery query, QueryBuilder builder, string? name = null, CancellationToken cancellationToken = default)
+	public static async Task<long> RunCountAsync(this IQuery query, QueryBuilder builder, QueryRunOptions options, CancellationToken cancellationToken)
 	{
 		ArgumentNullException.ThrowIfNull(query);
 		ArgumentNullException.ThrowIfNull(builder);
+		ArgumentNullException.ThrowIfNull(options);
 		if (!builder.EndsWithCount)
 		{
 			throw new ArgumentException("End the query with Count() to count its results.", nameof(builder));
 		}
 
-		var result = await query.RunAsync(builder.Build(), name, cancellationToken).ConfigureAwait(false);
+		var result = await query.RunAsync(builder.Build(), options, cancellationToken).ConfigureAwait(false);
 		return result.ValueKind == JsonValueKind.Number
 			? result.GetInt64()
 			: throw new InvalidOperationException($"The count query returned {result.ValueKind}, not a number.");
@@ -93,7 +99,7 @@ public static class QueryExtensions
 	/// <param name="options">The export options.</param>
 	/// <param name="cancellationToken">A cancellation token.</param>
 	/// <returns>The file, as for <see cref="IQuery.ExportAsync"/>; dispose it.</returns>
-	public static Task<HttpContent> ExportAsync(this IQuery query, QueryBuilder builder, ExportOptions options, CancellationToken cancellationToken = default)
+	public static Task<HttpContent> ExportAsync(this IQuery query, QueryBuilder builder, ExportOptions options, CancellationToken cancellationToken)
 	{
 		ArgumentNullException.ThrowIfNull(query);
 		ArgumentNullException.ThrowIfNull(builder);

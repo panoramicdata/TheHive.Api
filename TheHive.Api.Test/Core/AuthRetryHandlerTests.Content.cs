@@ -133,7 +133,7 @@ public partial class AuthRetryHandlerTests
 		using var client = TestClient.Create(stub, o => o.MaxRetries = 3);
 		using var file = new MemoryStream([1, 2, 3]);
 
-		var act = () => client.Cases.AddAttachmentsAsync("~1", [new Refit.StreamPart(file, "a.txt", "text/plain")], cancellationToken: TestContext.Current.CancellationToken);
+		var act = () => client.Cases.AddAttachmentsAsync("~1", [new Refit.StreamPart(file, "a.txt", "text/plain")], new(), TestContext.Current.CancellationToken);
 
 		await act.Should().ThrowAsync<TheHiveApiException>();
 		stub.Calls.Should().ContainSingle();

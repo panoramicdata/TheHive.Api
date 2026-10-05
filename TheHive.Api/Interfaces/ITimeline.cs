@@ -15,18 +15,18 @@ public interface ITimeline
 	/// <param name="cancellationToken">A cancellation token.</param>
 	/// <returns>The created event.</returns>
 	[Post("api/v1/case/{caseId}/customEvent")]
-	Task<CustomEvent> CreateCustomEventAsync(string caseId, [Body] CustomEventCreateRequest request, CancellationToken cancellationToken = default);
+	Task<CustomEvent> CreateCustomEventAsync(string caseId, [Body] CustomEventCreateRequest request, CancellationToken cancellationToken);
 
 	/// <summary>Updates a custom event; only the properties set on the request change.</summary>
 	/// <param name="eventId">The custom event ID preceded by <c>~</c>.</param>
 	/// <param name="request">The properties to change.</param>
 	/// <param name="cancellationToken">A cancellation token.</param>
 	[Patch("api/v1/customEvent/{eventId}")]
-	Task UpdateCustomEventAsync(string eventId, [Body] CustomEventUpdateRequest request, CancellationToken cancellationToken = default);
+	Task UpdateCustomEventAsync(string eventId, [Body] CustomEventUpdateRequest request, CancellationToken cancellationToken);
 
 	/// <summary>Deletes a custom event.</summary>
 	/// <param name="eventId">The custom event ID preceded by <c>~</c>.</param>
 	/// <param name="cancellationToken">A cancellation token.</param>
 	[Delete("api/v1/customEvent/{eventId}")]
-	Task DeleteCustomEventAsync(string eventId, CancellationToken cancellationToken = default);
+	Task DeleteCustomEventAsync(string eventId, CancellationToken cancellationToken);
 }

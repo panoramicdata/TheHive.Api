@@ -1,6 +1,7 @@
 using Refit;
 using System.Net;
 using TheHive.Api.Data.Branding;
+using TheHive.Api.Data.Common;
 using TheHive.Api.Test.Support;
 
 namespace TheHive.Api.Test.Groups;
@@ -165,7 +166,7 @@ public class BrandingTests
 		stub.Enqueue(HttpStatusCode.NoContent, "");
 		using var client = TestClient.Create(stub);
 
-		using var content = await client.Branding.GetAssetAsync(kind, cancellationToken: TestContext.Current.CancellationToken);
+		using var content = await client.Branding.GetAssetAsync(kind, new(), TestContext.Current.CancellationToken);
 		await client.Branding.DeleteAssetAsync(kind, TestContext.Current.CancellationToken);
 
 		stub.Calls[0].Uri.AbsolutePath.Should().Be($"/api/v1/branding/assets/{wire}");
@@ -180,7 +181,7 @@ public class BrandingTests
 		stub.EnqueueFile(image, "application/octet-stream", "menuLogo.png");
 		using var client = TestClient.Create(stub);
 
-		using var content = await client.Branding.GetAssetAsync(BrandingAssetKinds.MenuLogo, cancellationToken: TestContext.Current.CancellationToken);
+		using var content = await client.Branding.GetAssetAsync(BrandingAssetKinds.MenuLogo, new(), TestContext.Current.CancellationToken);
 
 		stub.Calls[0].Method.Should().Be(HttpMethod.Get);
 		stub.Calls[0].Uri.AbsolutePath.Should().Be("/api/v1/branding/assets/menuLogo");
@@ -197,7 +198,7 @@ public class BrandingTests
 		var stub = Stub(HttpStatusCode.NotModified);
 		using var client = TestClient.Create(stub);
 
-		var act = () => client.Branding.GetAssetAsync(BrandingAssetKinds.Favicon, "\"abc123\"", TestContext.Current.CancellationToken);
+		var act = () => client.Branding.GetAssetAsync(BrandingAssetKinds.Favicon, new ConditionalDownloadOptions { IfNoneMatch = "\"abc123\"" }, TestContext.Current.CancellationToken);
 
 		(await act.Should().ThrowAsync<TheHiveApiException>())
 			.Which.StatusCode.Should().Be(HttpStatusCode.NotModified);
