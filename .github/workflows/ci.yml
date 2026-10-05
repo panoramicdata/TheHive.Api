@@ -10,6 +10,8 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      CODACY_PROJECT_TOKEN: ${{ secrets.CODACY_PROJECT_TOKEN }}
 
     steps:
       - uses: actions/checkout@v7
@@ -29,6 +31,13 @@ jobs:
 
       - name: Test with coverage
         run: dotnet test --project TheHive.Api.Test -c Release --no-build --coverage --coverage-output-format cobertura --coverage-output coverage.cobertura.xml --coverage-settings coverage.settings.xml
+
+      - name: Upload coverage to Codacy
+        if: ${{ env.CODACY_PROJECT_TOKEN != '' }}
+        uses: codacy/codacy-coverage-reporter-action@v1.3.0
+        with:
+          project-token: ${{ secrets.CODACY_PROJECT_TOKEN }}
+          coverage-reports: '**/coverage.cobertura.xml'
 
       - name: Self-test the coverage gate
         shell: pwsh

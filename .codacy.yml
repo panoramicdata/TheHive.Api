@@ -3,8 +3,9 @@ exclude_paths:
   - "**/bin/**"
   - "**/obj/**"
   - "TheHive.Api.Test.Integration/**"
-duplication:
-  exclude_paths:
-    # Unit tests are deliberately repetitive (arrange/act/assert per endpoint);
-    # duplication there is not a maintainability problem. Production code stays analysed.
-    - "TheHive.Api.Test/**"
+engines:
+  # Agentlinter grades AI-agent instruction files. SECURITY.md is not one, and the only finding it raises
+  # there (no-pii-exposure) is the security contact address, which a security policy must publish.
+  agentlinter:
+    exclude_paths:
+      - "SECURITY.md"
