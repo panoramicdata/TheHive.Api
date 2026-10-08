@@ -11,8 +11,20 @@ public sealed class TheHiveClient : IDisposable
 
 	/// <summary>Creates a client.</summary>
 	/// <param name="options">Connection options.</param>
-	public TheHiveClient(TheHiveClientOptions options) : this(options, new HttpClientHandler())
+	public TheHiveClient(TheHiveClientOptions options) : this(options, CreateDefaultHandler(options))
 	{
+	}
+
+	internal static HttpClientHandler CreateDefaultHandler(TheHiveClientOptions options)
+	{
+		ArgumentNullException.ThrowIfNull(options);
+		var handler = new HttpClientHandler();
+		if (options.IgnoreCertificateErrors)
+		{
+			handler.ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator;
+		}
+
+		return handler;
 	}
 
 	internal TheHiveClient(TheHiveClientOptions options, HttpMessageHandler inner)

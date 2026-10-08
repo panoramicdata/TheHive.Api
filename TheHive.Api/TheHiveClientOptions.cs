@@ -14,6 +14,9 @@ public class TheHiveClientOptions
 	/// <summary>Optional organisation name, sent as <c>X-Organisation</c>.</summary>
 	public string? Organisation { get; set; }
 
+	/// <summary>Accept any server certificate. Only for self-hosted servers on an internal or self-signed certificate.</summary>
+	public bool IgnoreCertificateErrors { get; set; }
+
 	/// <summary>
 	/// HTTP timeout per attempt, covering sending the request body and receiving the response headers (so large uploads
 	/// need a larger value). It does not include retry back-off or <c>Retry-After</c> waits, nor reading a downloaded body
@@ -56,5 +59,5 @@ public class TheHiveClientOptions
 	}
 
 	/// <inheritdoc />
-	public override string ToString() => $"TheHiveClientOptions {{ BaseUrl = {BaseUrl}, ApiKey = ***, Organisation = {Organisation} }}";
+	public override string ToString() => $"TheHiveClientOptions {{ BaseUrl = {BaseUrl}, ApiKey = ***, Organisation = {Organisation}, IgnoreCertificateErrors = {IgnoreCertificateErrors} }}";
 }
