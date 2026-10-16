@@ -26,11 +26,11 @@ public sealed class AlertFeederTestRequest
 	[JsonPropertyName("interval")]
 	public required Interval Interval { get; set; }
 
-	/// <summary>The HTTP request body to send; used when the method is <c>POST</c>. The spec declares a string, but its own examples and curl samples send a JSON object, so this is raw JSON: a string is written as a JSON string and an object as an object, and either form reads (verify against a live server). Build it with <c>JsonSerializer.SerializeToElement</c>; a default (undefined) <see cref="JsonElement"/> cannot be written, so leave the property <see langword="null"/> to omit it.</summary>
+	/// <summary>The HTTP request body to send (see the <see cref="AlertFeederCreateRequest.Body"/> notes).</summary>
 	[JsonPropertyName("body")]
 	public JsonElement? Body { get; set; }
 
-	/// <summary>The HTTP headers to include in the request. Header values can be secrets: they travel only in this request body.</summary>
+	/// <summary>The HTTP headers to include in the request (header values can be secrets; they travel only in this request body).</summary>
 	[JsonPropertyName("headers")]
 	public List<AlertFeederHeader>? Headers { get; set; }
 
@@ -38,7 +38,7 @@ public sealed class AlertFeederTestRequest
 	[JsonPropertyName("enabled")]
 	public bool? Enabled { get; set; }
 
-	/// <summary>The authentication configuration; omitting it or using <c>none</c> means no authentication (secrets travel only in this request body).</summary>
+	/// <summary>The authentication configuration (secrets travel only in this request body; omitting it or using <c>none</c> means no authentication).</summary>
 	[JsonPropertyName("auth")]
 	public AlertFeederAuth? Auth { get; set; }
 

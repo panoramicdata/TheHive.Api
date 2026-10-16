@@ -17,75 +17,75 @@ public sealed class CaseCreateRequest
 	[JsonPropertyName("description")]
 	public required string Description { get; set; }
 
-	/// <summary>The severity, 1 (low) to 4 (critical); see <see cref="Common.Severity"/>. The server default is 2.</summary>
+	/// <summary>The severity (1 = low, 4 = critical; see <see cref="Common.Severity"/>). Server default: 2.</summary>
 	[JsonPropertyName("severity")]
 	public int? Severity { get; set; }
 
-	/// <summary>When the incident started. The server default is now.</summary>
+	/// <summary>Incident start date; when omitted the server stamps it with now.</summary>
 	[JsonPropertyName("startDate")]
 	public DateTimeOffset? StartDate { get; set; }
 
-	/// <summary>When the incident ended.</summary>
+	/// <summary>The date the incident ended.</summary>
 	[JsonPropertyName("endDate")]
 	public DateTimeOffset? EndDate { get; set; }
 
-	/// <summary>The tags; unknown tags are created.</summary>
+	/// <summary>List of tags; any unknown tag gets created.</summary>
 	[JsonPropertyName("tags")]
 	public List<string>? Tags { get; set; }
 
-	/// <summary>Whether to flag the case.</summary>
+	/// <summary>Flag the case.</summary>
 	[JsonPropertyName("flag")]
 	public bool? Flag { get; set; }
 
-	/// <summary>The Traffic Light Protocol level, 0 to 4; see <see cref="Common.Tlp"/>. The server default is 2.</summary>
+	/// <summary>Traffic Light Protocol level 0–4 (<see cref="Common.Tlp"/>). Server default: 2.</summary>
 	[JsonPropertyName("tlp")]
 	public int? Tlp { get; set; }
 
-	/// <summary>The Permissible Actions Protocol level, 0 to 3; see <see cref="Common.Pap"/>. The server default is 2.</summary>
+	/// <summary>Permissible Actions Protocol level 0–3 (<see cref="Common.Pap"/>). Server default: 2.</summary>
 	[JsonPropertyName("pap")]
 	public int? Pap { get; set; }
 
-	/// <summary>The name of an existing case status. The server default is <c>New</c>.</summary>
+	/// <summary>Existing case status to use; defaults to <c>New</c>.</summary>
 	[JsonPropertyName("status")]
 	public string? Status { get; set; }
 
-	/// <summary>The summary of the investigation findings.</summary>
+	/// <summary>Investigation findings in a summary.</summary>
 	[JsonPropertyName("summary")]
 	public string? Summary { get; set; }
 
-	/// <summary>The login of the user to assign; unassigned when omitted.</summary>
+	/// <summary>Login of the assignee; leave out for no owner.</summary>
 	[JsonPropertyName("assignee")]
 	public string? Assignee { get; set; }
 
-	/// <summary>The access control settings; the organization default applies when omitted.</summary>
+	/// <summary>Access-control settings; the organization's default is used when not given.</summary>
 	[JsonPropertyName("access")]
 	public Access? Access { get; set; }
 
-	/// <summary>The custom field values to set.</summary>
+	/// <summary>Values for the custom fields to be created.</summary>
 	[JsonPropertyName("customFields")]
 	public List<CustomFieldInput>? CustomFields { get; set; }
 
-	/// <summary>The name or ID of a case template to apply.</summary>
+	/// <summary>Case template to apply, referenced by name or ID.</summary>
 	[JsonPropertyName("caseTemplate")]
 	public string? CaseTemplate { get; set; }
 
-	/// <summary>The tasks to create; the template's tasks apply when omitted.</summary>
+	/// <summary>Tasks to create alongside the case; absent means the template's tasks are used.</summary>
 	[JsonPropertyName("tasks")]
 	public List<CaseTaskCreateRequest>? Tasks { get; set; }
 
-	/// <summary>The pages to create; the template's pages apply when omitted.</summary>
+	/// <summary>Pages to create alongside the case; absent means the template's pages are used.</summary>
 	[JsonPropertyName("pages")]
 	public List<PageCreateRequest>? Pages { get; set; }
 
-	/// <summary>Per-organization sharing settings that override the organization-level sharing rules.</summary>
+	/// <summary>Org-specific sharing settings that take precedence over the global sharing rules.</summary>
 	[JsonPropertyName("sharingParameters")]
 	public List<ShareSettings>? SharingParameters { get; set; }
 
-	/// <summary>The task-sharing rule for the owner organization.</summary>
+	/// <summary>Sharing rule for tasks of the owner org.</summary>
 	[JsonPropertyName("taskRule")]
 	public SharingRule? TaskRule { get; set; }
 
-	/// <summary>The observable-sharing rule for the owner organization.</summary>
+	/// <summary>Sharing rule for observables of the owner org.</summary>
 	[JsonPropertyName("observableRule")]
 	public SharingRule? ObservableRule { get; set; }
 }

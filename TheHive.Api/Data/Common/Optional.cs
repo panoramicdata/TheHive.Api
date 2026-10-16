@@ -21,7 +21,7 @@ public readonly struct Optional<T> : IOptional, IEquatable<Optional<T>>
 	/// <summary>Whether a value (possibly <see langword="null"/>) was set.</summary>
 	public bool HasValue { get; }
 
-	/// <summary>The value; <see langword="default"/> when <see cref="HasValue"/> is <see langword="false"/>.</summary>
+	/// <summary>The value; the type's default when <see cref="HasValue"/> is <see langword="false"/>.</summary>
 	public T Value { get; }
 
 	/// <summary>Sets a value, so <c>request.Summary = null</c> sends <c>"summary":null</c>.</summary>

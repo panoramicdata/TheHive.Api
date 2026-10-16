@@ -9,11 +9,11 @@ public sealed class CaseStatus
 {
 	/// <summary>The internal identifier (for example <c>~84123</c>).</summary>
 	[JsonPropertyName("_id")]
-	public string Id { get; set; } = string.Empty;
+	public string Id { get; set; } = "";
 
 	/// <summary>The object type, always <c>CaseStatus</c>.</summary>
 	[JsonPropertyName("_type")]
-	public string Type { get; set; } = string.Empty;
+	public string Type { get; set; } = "";
 
 	/// <summary>When the status was last updated, if it has been updated.</summary>
 	[JsonPropertyName("_updatedAt")]
@@ -43,7 +43,7 @@ public sealed class CaseStatus
 	[JsonPropertyName("order")]
 	public int? Order { get; set; }
 
-	/// <summary>A human-readable description, if any.</summary>
+	/// <summary>A human-readable description of the status, if any.</summary>
 	[JsonPropertyName("description")]
 	public string? Description { get; set; }
 
@@ -53,9 +53,9 @@ public sealed class CaseStatus
 
 	/// <summary>Whether the status is hidden from the UI dropdown; hidden statuses stay usable through the API.</summary>
 	[JsonPropertyName("hidden")]
-	public bool Hidden { get; set; }
+	public bool Hidden { get; set; } = false;
 
 	/// <summary>Extra data fields, populated when specific keys are requested.</summary>
 	[JsonPropertyName("extraData")]
-	public Dictionary<string, JsonElement> ExtraData { get; set; } = [];
+	public Dictionary<string, JsonElement> ExtraData { get; set; } = new();
 }
