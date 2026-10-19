@@ -9,7 +9,7 @@ A strongly typed .NET 10 client for the [TheHive 5](https://strangebee.com/thehi
 
 It covers every non-deprecated operation of the TheHive 5.8.0 OpenAPI specification (264 operations across 41 groups), exposes each group as a [Refit](https://github.com/reactiveui/refit)-backed interface, uses `System.Text.Json`, and handles bearer authentication, the organisation header and transient-failure retries for you.
 
-> **Status:** nothing has been published to NuGet yet. Until the first release, build from source.
+The package is published on NuGet as [TheHive.Api](https://www.nuget.org/packages/TheHive.Api).
 
 ## Installation
 
