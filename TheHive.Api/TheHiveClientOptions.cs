@@ -39,6 +39,9 @@ public class TheHiveClientOptions
 	/// <summary>The longest single wait before a retry. Both the exponential back-off and a server-supplied <c>Retry-After</c> are clamped to it, so a huge header cannot stall a caller. Must be greater than zero.</summary>
 	public TimeSpan MaxRetryDelay { get; set; } = TimeSpan.FromSeconds(30);
 
+	/// <summary>Refuse every request other than GET, HEAD, OPTIONS and the read-only query POST. Read on every request.</summary>
+	public bool IsReadOnly { get; set; }
+
 	/// <summary>Optional logger. The API key and request query strings (which may hold secrets such as an export password) are never logged.</summary>
 	public ILogger? Logger { get; set; }
 
