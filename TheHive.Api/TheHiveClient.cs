@@ -40,7 +40,7 @@ public sealed class TheHiveClient : IDisposable
 	private static HttpClient CreateHttpClient(TheHiveClientOptions options, HttpMessageHandler inner)
 	{
 		var baseUrl = options.BaseUrl.EndsWith('/') ? options.BaseUrl : options.BaseUrl + "/";
-		return new HttpClient(new Handlers.AuthRetryHandler(options) { InnerHandler = inner })
+		return new HttpClient(new Handlers.ReadOnlyHandler(options) { InnerHandler = new Handlers.AuthRetryHandler(options) { InnerHandler = inner } })
 		{
 			BaseAddress = new Uri(baseUrl),
 			// The per-attempt timeout is applied inside AuthRetryHandler so retries and Retry-After waits are not cut short.
