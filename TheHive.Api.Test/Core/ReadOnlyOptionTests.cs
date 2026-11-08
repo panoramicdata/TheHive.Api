@@ -74,4 +74,17 @@ public class ReadOnlyOptionTests
 		thrown.Which.InnerException.Should().BeOfType<InvalidOperationException>();
 		stub.Calls.Should().BeEmpty();
 	}
+
+	[Fact]
+	public async Task RequestWithoutUri_IsRefused_WhenIsReadOnly()
+	{
+		var stub = new StubHandler();
+		using var invoker = new HttpMessageInvoker(new TheHive.Api.Handlers.ReadOnlyHandler(new TheHiveClientOptions { IsReadOnly = true }) { InnerHandler = stub });
+		using var request = new HttpRequestMessage(HttpMethod.Post, (Uri?)null);
+
+		var act = () => invoker.SendAsync(request, TestContext.Current.CancellationToken);
+
+		await act.Should().ThrowAsync<InvalidOperationException>();
+		stub.Calls.Should().BeEmpty();
+	}
 }
