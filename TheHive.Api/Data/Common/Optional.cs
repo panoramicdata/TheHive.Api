@@ -5,7 +5,7 @@ namespace TheHive.Api.Data.Common;
 /// (sent as an explicit JSON <c>null</c>, which TheHive treats as "clear this field").
 /// </summary>
 /// <typeparam name="T">The value type; use a nullable type (for example <c>string?</c> or <c>DateTimeOffset?</c>) so the value can be cleared.</typeparam>
-public readonly struct Optional<T> : IOptional, IEquatable<Optional<T>>
+public readonly struct Optional<T> : IOptional
 {
 	/// <summary>Creates a set value.</summary>
 	/// <param name="value">The value, which may be <see langword="null"/>.</param>

@@ -53,7 +53,7 @@ public sealed class CaseStatus
 
 	/// <summary>Whether the status is hidden from the UI dropdown; hidden statuses stay usable through the API.</summary>
 	[JsonPropertyName("hidden")]
-	public bool Hidden { get; set; } = false;
+	public bool Hidden { get; set; }
 
 	/// <summary>Extra data fields, populated when specific keys are requested.</summary>
 	[JsonPropertyName("extraData")]
