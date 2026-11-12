@@ -1,5 +1,6 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using TheHive.Api.Data.Common;
 
 namespace TheHive.Api.Data.Users;
 
@@ -7,29 +8,9 @@ namespace TheHive.Api.Data.Users;
 /// A user account (the spec's <c>OutputUser</c>). It carries no secrets: the API key, password and MFA secret are never returned,
 /// only <see cref="HasKey"/>, <see cref="HasPassword"/> and <see cref="HasMfa"/>. The spec's output has no <c>_type</c> property.
 /// </summary>
-public sealed class User
+public sealed class User : TheHiveAuditedEntity
 {
-	/// <summary>The internal identifier (for example <c>~192024</c>).</summary>
-	[JsonPropertyName("_id")]
-	public string Id { get; set; } = string.Empty;
-
-	/// <summary>The login of the user who created the account.</summary>
-	[JsonPropertyName("_createdBy")]
-	public string CreatedBy { get; set; } = string.Empty;
-
-	/// <summary>The login of the user who last updated the account, if it has been updated.</summary>
-	[JsonPropertyName("_updatedBy")]
-	public string? UpdatedBy { get; set; }
-
-	/// <summary>When the account was created.</summary>
-	[JsonPropertyName("_createdAt")]
-	public DateTimeOffset CreatedAt { get; set; }
-
-	/// <summary>When the account was last updated, if it has been updated.</summary>
-	[JsonPropertyName("_updatedAt")]
-	public DateTimeOffset? UpdatedAt { get; set; }
-
-	/// <summary>The login, always a valid email address; it can be used instead of <see cref="Id"/>.</summary>
+	/// <summary>The login, always a valid email address; it can be used instead of <see cref="TheHive.Api.Data.Common.TheHiveAuditedEntity.Id"/>.</summary>
 	[JsonPropertyName("login")]
 	public string Login { get; set; } = string.Empty;
 

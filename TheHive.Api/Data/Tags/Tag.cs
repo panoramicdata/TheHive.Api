@@ -1,35 +1,12 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using TheHive.Api.Data.Common;
 
 namespace TheHive.Api.Data.Tags;
 
 /// <summary>A tag, custom or from a taxonomy (the spec's <c>OutputTag</c>).</summary>
-public sealed class Tag
+public sealed class Tag : TheHiveEntity
 {
-	/// <summary>The internal identifier (for example <c>~83456</c>).</summary>
-	[JsonPropertyName("_id")]
-	public string Id { get; set; } = string.Empty;
-
-	/// <summary>The entity type, always <c>Tag</c>.</summary>
-	[JsonPropertyName("_type")]
-	public string Type { get; set; } = string.Empty;
-
-	/// <summary>The login of the user who created the tag.</summary>
-	[JsonPropertyName("_createdBy")]
-	public string CreatedBy { get; set; } = string.Empty;
-
-	/// <summary>The login of the user who last updated the tag, if it has been updated.</summary>
-	[JsonPropertyName("_updatedBy")]
-	public string? UpdatedBy { get; set; }
-
-	/// <summary>When the tag was created.</summary>
-	[JsonPropertyName("_createdAt")]
-	public DateTimeOffset CreatedAt { get; set; }
-
-	/// <summary>When the tag was last updated, if it has been updated.</summary>
-	[JsonPropertyName("_updatedAt")]
-	public DateTimeOffset? UpdatedAt { get; set; }
-
 	/// <summary>The namespace: <c>_freetags_</c> for custom tags, the taxonomy namespace for taxonomy tags.</summary>
 	[JsonPropertyName("namespace")]
 	public string Namespace { get; set; } = string.Empty;

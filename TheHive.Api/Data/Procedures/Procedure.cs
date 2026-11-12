@@ -1,31 +1,12 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using TheHive.Api.Data.Common;
 
 namespace TheHive.Api.Data.Procedures;
 
 /// <summary>A procedure: how an ATT&amp;CK technique was applied in an incident (the spec's <c>OutputProcedure</c>).</summary>
-public sealed class Procedure
+public sealed class Procedure : TheHiveAuditedEntity
 {
-	/// <summary>The internal identifier (for example <c>~234567890</c>).</summary>
-	[JsonPropertyName("_id")]
-	public string Id { get; set; } = string.Empty;
-
-	/// <summary>When the procedure was created.</summary>
-	[JsonPropertyName("_createdAt")]
-	public DateTimeOffset CreatedAt { get; set; }
-
-	/// <summary>The login of the user who created the procedure.</summary>
-	[JsonPropertyName("_createdBy")]
-	public string CreatedBy { get; set; } = string.Empty;
-
-	/// <summary>When the procedure was last updated, if it has been updated.</summary>
-	[JsonPropertyName("_updatedAt")]
-	public DateTimeOffset? UpdatedAt { get; set; }
-
-	/// <summary>The login of the user who last updated the procedure, if it has been updated.</summary>
-	[JsonPropertyName("_updatedBy")]
-	public string? UpdatedBy { get; set; }
-
 	/// <summary>How the technique was applied in this incident, if described.</summary>
 	[JsonPropertyName("description")]
 	public string? Description { get; set; }

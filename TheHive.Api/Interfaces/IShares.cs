@@ -41,13 +41,13 @@ public interface IShares
 	Task UnshareCaseAsync(string caseId, [Body] ShareRemoveRequest request, CancellationToken cancellationToken);
 
 	/// <summary>Removes a single share by its ID, revoking the organization's access to the case and its tasks and observables.</summary>
-	/// <param name="shareId">The share ID preceded by <c>~</c>; see <see cref="Share.Id"/>.</param>
+	/// <param name="shareId">The share ID preceded by <c>~</c>; see <see cref="TheHive.Api.Data.Common.TheHiveAuditedEntity.Id"/>.</param>
 	/// <param name="cancellationToken">A cancellation token.</param>
 	[Delete("api/v1/case/share/{shareId}")]
 	Task DeleteAsync(string shareId, CancellationToken cancellationToken);
 
 	/// <summary>Updates the permission profile of a share.</summary>
-	/// <param name="shareId">The share ID preceded by <c>~</c>; see <see cref="Share.Id"/>.</param>
+	/// <param name="shareId">The share ID preceded by <c>~</c>; see <see cref="TheHive.Api.Data.Common.TheHiveAuditedEntity.Id"/>.</param>
 	/// <param name="request">The new profile.</param>
 	/// <param name="cancellationToken">A cancellation token.</param>
 	[Patch("api/v1/case/share/{shareId}")]

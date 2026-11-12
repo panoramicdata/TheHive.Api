@@ -5,33 +5,9 @@ using TheHive.Api.Data.Common;
 namespace TheHive.Api.Data.Organisations;
 
 /// <summary>An organization (the spec's <c>OutputOrganisation</c>).</summary>
-public sealed class Organisation
+public sealed class Organisation : TheHiveEntity
 {
-	/// <summary>The internal identifier (for example <c>~128458762</c>).</summary>
-	[JsonPropertyName("_id")]
-	public string Id { get; set; } = string.Empty;
-
-	/// <summary>The entity type, always <c>Organisation</c>.</summary>
-	[JsonPropertyName("_type")]
-	public string Type { get; set; } = string.Empty;
-
-	/// <summary>The login of the user who created the organization.</summary>
-	[JsonPropertyName("_createdBy")]
-	public string CreatedBy { get; set; } = string.Empty;
-
-	/// <summary>The login of the user who last updated the organization, if it has been updated.</summary>
-	[JsonPropertyName("_updatedBy")]
-	public string? UpdatedBy { get; set; }
-
-	/// <summary>When the organization was created.</summary>
-	[JsonPropertyName("_createdAt")]
-	public DateTimeOffset CreatedAt { get; set; }
-
-	/// <summary>When the organization was last updated, if it has been updated.</summary>
-	[JsonPropertyName("_updatedAt")]
-	public DateTimeOffset? UpdatedAt { get; set; }
-
-	/// <summary>The unique name, which can be used instead of <see cref="Id"/>.</summary>
+	/// <summary>The unique name, which can be used instead of <see cref="TheHive.Api.Data.Common.TheHiveAuditedEntity.Id"/>.</summary>
 	[JsonPropertyName("name")]
 	public string Name { get; set; } = string.Empty;
 

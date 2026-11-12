@@ -1,35 +1,12 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using TheHive.Api.Data.Common;
 
 namespace TheHive.Api.Data.Cortex;
 
 /// <summary>An analyzer job on an observable (the spec's <c>OutputJob</c>).</summary>
-public sealed class CortexJob
+public sealed class CortexJob : TheHiveEntity
 {
-	/// <summary>The internal identifier (for example <c>~380928</c>).</summary>
-	[JsonPropertyName("_id")]
-	public string Id { get; set; } = string.Empty;
-
-	/// <summary>The entity type, always <c>case_artifact_job</c>.</summary>
-	[JsonPropertyName("_type")]
-	public string Type { get; set; } = string.Empty;
-
-	/// <summary>The login of the user who launched the job.</summary>
-	[JsonPropertyName("_createdBy")]
-	public string CreatedBy { get; set; } = string.Empty;
-
-	/// <summary>The login of the user who last updated the job.</summary>
-	[JsonPropertyName("_updatedBy")]
-	public string? UpdatedBy { get; set; }
-
-	/// <summary>When the job was created.</summary>
-	[JsonPropertyName("_createdAt")]
-	public DateTimeOffset CreatedAt { get; set; }
-
-	/// <summary>When the job was last updated.</summary>
-	[JsonPropertyName("_updatedAt")]
-	public DateTimeOffset? UpdatedAt { get; set; }
-
 	/// <summary>The ID of the analyzer that ran.</summary>
 	[JsonPropertyName("analyzerId")]
 	public string AnalyzerId { get; set; } = string.Empty;
@@ -69,7 +46,7 @@ public sealed class CortexJob
 	[JsonPropertyName("cortexJobId")]
 	public string CortexJobId { get; set; } = string.Empty;
 
-	/// <summary>The internal identifier of the job, identical to <see cref="Id"/>.</summary>
+	/// <summary>The internal identifier of the job, identical to <see cref="TheHive.Api.Data.Common.TheHiveAuditedEntity.Id"/>.</summary>
 	[JsonPropertyName("id")]
 	public string JobId { get; set; } = string.Empty;
 

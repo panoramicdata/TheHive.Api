@@ -1,35 +1,12 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using TheHive.Api.Data.Common;
 
 namespace TheHive.Api.Data.Functions;
 
 /// <summary>A JavaScript function (the spec's <c>OutputFunction</c>).</summary>
-public sealed class Function
+public sealed class Function : TheHiveEntity
 {
-	/// <summary>The unique identifier (for example <c>~84123</c>).</summary>
-	[JsonPropertyName("_id")]
-	public string Id { get; set; } = string.Empty;
-
-	/// <summary>The entity type, always <c>Function</c>.</summary>
-	[JsonPropertyName("_type")]
-	public string Type { get; set; } = string.Empty;
-
-	/// <summary>The login of the user who created the function.</summary>
-	[JsonPropertyName("_createdBy")]
-	public string CreatedBy { get; set; } = string.Empty;
-
-	/// <summary>When the function was created.</summary>
-	[JsonPropertyName("_createdAt")]
-	public DateTimeOffset CreatedAt { get; set; }
-
-	/// <summary>The login of the user who last updated the function.</summary>
-	[JsonPropertyName("_updatedBy")]
-	public string? UpdatedBy { get; set; }
-
-	/// <summary>When the function was last updated.</summary>
-	[JsonPropertyName("_updatedAt")]
-	public DateTimeOffset? UpdatedAt { get; set; }
-
 	/// <summary>The name of the function.</summary>
 	[JsonPropertyName("name")]
 	public string Name { get; set; } = string.Empty;

@@ -1,35 +1,12 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using TheHive.Api.Data.Common;
 
 namespace TheHive.Api.Data.Views;
 
 /// <summary>A saved list view: filters, sort order, columns and display options (the spec's <c>OutputListView</c>).</summary>
-public sealed class View
+public sealed class View : TheHiveEntity
 {
-	/// <summary>The internal identifier (for example <c>~344112</c>).</summary>
-	[JsonPropertyName("_id")]
-	public string Id { get; set; } = string.Empty;
-
-	/// <summary>The entity type, always <c>ListView</c>.</summary>
-	[JsonPropertyName("_type")]
-	public string Type { get; set; } = string.Empty;
-
-	/// <summary>When the view was created.</summary>
-	[JsonPropertyName("_createdAt")]
-	public DateTimeOffset CreatedAt { get; set; }
-
-	/// <summary>The login of the user who created the view.</summary>
-	[JsonPropertyName("_createdBy")]
-	public string CreatedBy { get; set; } = string.Empty;
-
-	/// <summary>When the view was last updated, if it has been updated.</summary>
-	[JsonPropertyName("_updatedAt")]
-	public DateTimeOffset? UpdatedAt { get; set; }
-
-	/// <summary>The login of the user who last updated the view, if it has been updated.</summary>
-	[JsonPropertyName("_updatedBy")]
-	public string? UpdatedBy { get; set; }
-
 	/// <summary>The name of the view.</summary>
 	[JsonPropertyName("name")]
 	public string Name { get; set; } = string.Empty;

@@ -1,35 +1,12 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using TheHive.Api.Data.Common;
 
 namespace TheHive.Api.Data.Attachments;
 
 /// <summary>A file attached to a case, alert, task log, observable or organization (the spec's <c>OutputAttachment</c>).</summary>
-public sealed class Attachment
+public sealed class Attachment : TheHiveEntity
 {
-	/// <summary>The internal identifier (for example <c>~456789012</c>).</summary>
-	[JsonPropertyName("_id")]
-	public string Id { get; set; } = string.Empty;
-
-	/// <summary>The entity type, always <c>Attachment</c>.</summary>
-	[JsonPropertyName("_type")]
-	public string Type { get; set; } = string.Empty;
-
-	/// <summary>The login of the user who uploaded the attachment.</summary>
-	[JsonPropertyName("_createdBy")]
-	public string CreatedBy { get; set; } = string.Empty;
-
-	/// <summary>The login of the user who last updated the attachment, if it has been updated.</summary>
-	[JsonPropertyName("_updatedBy")]
-	public string? UpdatedBy { get; set; }
-
-	/// <summary>When the attachment was uploaded.</summary>
-	[JsonPropertyName("_createdAt")]
-	public DateTimeOffset CreatedAt { get; set; }
-
-	/// <summary>When the attachment was last updated, if it has been updated.</summary>
-	[JsonPropertyName("_updatedAt")]
-	public DateTimeOffset? UpdatedAt { get; set; }
-
 	/// <summary>The file name.</summary>
 	[JsonPropertyName("name")]
 	public string Name { get; set; } = string.Empty;
@@ -46,7 +23,7 @@ public sealed class Attachment
 	[JsonPropertyName("contentType")]
 	public string ContentType { get; set; } = string.Empty;
 
-	/// <summary>The unique storage identifier of the file content (the wire's <c>id</c>, distinct from <see cref="Id"/>).</summary>
+	/// <summary>The unique storage identifier of the file content (the wire's <c>id</c>, distinct from <see cref="TheHive.Api.Data.Common.TheHiveAuditedEntity.Id"/>).</summary>
 	[JsonPropertyName("id")]
 	public string StorageId { get; set; } = string.Empty;
 

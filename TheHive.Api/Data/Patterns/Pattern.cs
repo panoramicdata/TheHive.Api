@@ -1,35 +1,12 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using TheHive.Api.Data.Common;
 
 namespace TheHive.Api.Data.Patterns;
 
 /// <summary>An attack technique, such as a MITRE ATT&amp;CK technique (the spec's <c>OutputPattern</c>).</summary>
-public sealed class Pattern
+public sealed class Pattern : TheHiveEntity
 {
-	/// <summary>The internal identifier (for example <c>~163840</c>).</summary>
-	[JsonPropertyName("_id")]
-	public string Id { get; set; } = string.Empty;
-
-	/// <summary>The entity type, always <c>Pattern</c>.</summary>
-	[JsonPropertyName("_type")]
-	public string Type { get; set; } = string.Empty;
-
-	/// <summary>The login of the user who created the record.</summary>
-	[JsonPropertyName("_createdBy")]
-	public string CreatedBy { get; set; } = string.Empty;
-
-	/// <summary>The login of the user who last updated the record, if it has been updated.</summary>
-	[JsonPropertyName("_updatedBy")]
-	public string? UpdatedBy { get; set; }
-
-	/// <summary>When the record was created.</summary>
-	[JsonPropertyName("_createdAt")]
-	public DateTimeOffset CreatedAt { get; set; }
-
-	/// <summary>When the record was last updated, if it has been updated.</summary>
-	[JsonPropertyName("_updatedAt")]
-	public DateTimeOffset? UpdatedAt { get; set; }
-
 	/// <summary>The MITRE ATT&amp;CK technique identifier (for example <c>T1486</c>).</summary>
 	[JsonPropertyName("patternId")]
 	public string PatternId { get; set; } = string.Empty;

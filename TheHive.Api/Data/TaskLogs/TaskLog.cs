@@ -1,36 +1,13 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using TheHive.Api.Data.Attachments;
+using TheHive.Api.Data.Common;
 
 namespace TheHive.Api.Data.TaskLogs;
 
 /// <summary>A log entry on a task (the spec's <c>OutputLog</c>).</summary>
-public sealed class TaskLog
+public sealed class TaskLog : TheHiveEntity
 {
-	/// <summary>The internal identifier (for example <c>~123456</c>).</summary>
-	[JsonPropertyName("_id")]
-	public string Id { get; set; } = string.Empty;
-
-	/// <summary>The entity type, always <c>Log</c>.</summary>
-	[JsonPropertyName("_type")]
-	public string Type { get; set; } = string.Empty;
-
-	/// <summary>The login of the user who created the log.</summary>
-	[JsonPropertyName("_createdBy")]
-	public string CreatedBy { get; set; } = string.Empty;
-
-	/// <summary>The login of the user who last updated the log, if it has been updated.</summary>
-	[JsonPropertyName("_updatedBy")]
-	public string? UpdatedBy { get; set; }
-
-	/// <summary>When the log was created.</summary>
-	[JsonPropertyName("_createdAt")]
-	public DateTimeOffset CreatedAt { get; set; }
-
-	/// <summary>When the log was last updated, if it has been updated.</summary>
-	[JsonPropertyName("_updatedAt")]
-	public DateTimeOffset? UpdatedAt { get; set; }
-
 	/// <summary>The content of the log (TheHive-flavored Markdown).</summary>
 	[JsonPropertyName("message")]
 	public string Message { get; set; } = string.Empty;

@@ -1,31 +1,12 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using TheHive.Api.Data.Common;
 
 namespace TheHive.Api.Data.Comments;
 
 /// <summary>A comment on a case or alert (the spec's <c>OutputComment</c>).</summary>
-public sealed class Comment
+public sealed class Comment : TheHiveTimestampedEntity
 {
-	/// <summary>The internal identifier (for example <c>~843456789</c>).</summary>
-	[JsonPropertyName("_id")]
-	public string Id { get; set; } = string.Empty;
-
-	/// <summary>The entity type, always <c>Comment</c>.</summary>
-	[JsonPropertyName("_type")]
-	public string Type { get; set; } = string.Empty;
-
-	/// <summary>The login of the user who created the comment.</summary>
-	[JsonPropertyName("createdBy")]
-	public string CreatedBy { get; set; } = string.Empty;
-
-	/// <summary>When the comment was created.</summary>
-	[JsonPropertyName("createdAt")]
-	public DateTimeOffset CreatedAt { get; set; }
-
-	/// <summary>When the comment was last updated, if it has been updated.</summary>
-	[JsonPropertyName("updatedAt")]
-	public DateTimeOffset? UpdatedAt { get; set; }
-
 	/// <summary>The login of the user who last updated the comment, if it has been updated.</summary>
 	[JsonPropertyName("updatedBy")]
 	public string? UpdatedBy { get; set; }

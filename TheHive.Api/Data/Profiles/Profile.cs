@@ -1,33 +1,14 @@
 using System.Text.Json.Serialization;
+using TheHive.Api.Data.Common;
 
 namespace TheHive.Api.Data.Profiles;
 
 /// <summary>A permission profile (the spec's <c>OutputProfile</c>).</summary>
-public sealed class Profile
+public sealed class Profile : TheHiveAuditedEntity
 {
-	/// <summary>The internal identifier (for example <c>~84123</c>).</summary>
-	[JsonPropertyName("_id")]
-	public string Id { get; set; } = string.Empty;
-
 	/// <summary>The entity type, always <c>profile</c>.</summary>
 	[JsonPropertyName("_type")]
 	public string EntityType { get; set; } = string.Empty;
-
-	/// <summary>The login of the user who created the profile.</summary>
-	[JsonPropertyName("_createdBy")]
-	public string CreatedBy { get; set; } = string.Empty;
-
-	/// <summary>The login of the user who last updated the profile, if it has been updated.</summary>
-	[JsonPropertyName("_updatedBy")]
-	public string? UpdatedBy { get; set; }
-
-	/// <summary>When the profile was created.</summary>
-	[JsonPropertyName("_createdAt")]
-	public DateTimeOffset CreatedAt { get; set; }
-
-	/// <summary>When the profile was last updated, if it has been updated.</summary>
-	[JsonPropertyName("_updatedAt")]
-	public DateTimeOffset? UpdatedAt { get; set; }
 
 	/// <summary>The kind of user the profile is for.</summary>
 	[JsonPropertyName("type")]
