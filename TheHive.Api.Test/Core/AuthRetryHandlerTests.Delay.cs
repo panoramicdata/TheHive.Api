@@ -17,8 +17,7 @@ public partial class AuthRetryHandlerTests
 				o.RetryBaseDelay = TimeSpan.FromMilliseconds(1);
 			},
 			recordDelays: false);
-		harness.Stub.Enqueue(HttpStatusCode.ServiceUnavailable);
-		harness.Stub.Enqueue(HttpStatusCode.OK);
+		harness.EnqueueTransientThenOk();
 
 		using var response = await harness.GetAsync(TestContext.Current.CancellationToken);
 
@@ -55,8 +54,7 @@ public partial class AuthRetryHandlerTests
 			o.MaxRetries = 1;
 			o.Logger = logger;
 		});
-		harness.Stub.Enqueue(HttpStatusCode.ServiceUnavailable);
-		harness.Stub.Enqueue(HttpStatusCode.OK);
+		harness.EnqueueTransientThenOk();
 
 		using var response = await harness.GetAsync(TestContext.Current.CancellationToken);
 
@@ -69,8 +67,7 @@ public partial class AuthRetryHandlerTests
 	public async Task Send_NullLogger_DoesNotThrow()
 	{
 		using var harness = new Harness(o => o.MaxRetries = 1);
-		harness.Stub.Enqueue(HttpStatusCode.ServiceUnavailable);
-		harness.Stub.Enqueue(HttpStatusCode.OK);
+		harness.EnqueueTransientThenOk();
 
 		var act = async () =>
 		{

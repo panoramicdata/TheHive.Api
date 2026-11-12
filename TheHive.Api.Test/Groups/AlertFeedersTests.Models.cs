@@ -71,13 +71,18 @@ public partial class AlertFeedersTests
 		proxy.State.Should().Be(ClientProxyState.Unknown);
 	}
 
+	private static async Task<AlertFeeder> ListedFeederWithBodyAsync(string bodyJson)
+	{
+		var stub = Stub(HttpStatusCode.OK, "[" + MinimalFeederJson.Replace("\"enabled\":false", "\"body\":" + bodyJson + ",\"enabled\":false", StringComparison.Ordinal) + "]");
+		using var client = TestClient.Create(stub);
+
+		return (await client.AlertFeeders.ListAsync(TestContext.Current.CancellationToken)).Should().ContainSingle().Subject;
+	}
+
 	[Fact]
 	public async Task ListAsync_ObjectBody_AsInTheSpecExample_IsReadAsAnObject()
 	{
-		var stub = Stub(HttpStatusCode.OK, "[" + MinimalFeederJson.Replace("\"enabled\":false", "\"body\":{\"maxRecords\":100},\"enabled\":false", StringComparison.Ordinal) + "]");
-		using var client = TestClient.Create(stub);
-
-		var feeder = (await client.AlertFeeders.ListAsync(TestContext.Current.CancellationToken)).Should().ContainSingle().Subject;
+		var feeder = await ListedFeederWithBodyAsync("{\"maxRecords\":100}");
 
 		feeder.Body!.Value.ValueKind.Should().Be(JsonValueKind.Object);
 		feeder.Body.Value.GetProperty("maxRecords").GetInt32().Should().Be(100);
@@ -85,14 +90,7 @@ public partial class AlertFeedersTests
 
 	[Fact]
 	public async Task ListAsync_StringBody_IsStillReadAsAString()
-	{
-		var stub = Stub(HttpStatusCode.OK, "[" + MinimalFeederJson.Replace("\"enabled\":false", "\"body\":\"raw\",\"enabled\":false", StringComparison.Ordinal) + "]");
-		using var client = TestClient.Create(stub);
-
-		var feeder = (await client.AlertFeeders.ListAsync(TestContext.Current.CancellationToken)).Should().ContainSingle().Subject;
-
-		feeder.Body!.Value.GetString().Should().Be("raw");
-	}
+		=> (await ListedFeederWithBodyAsync("\"raw\"")).Body!.Value.GetString().Should().Be("raw");
 
 	[Fact]
 	public async Task CreateUpdateTest_WriteAnObjectBodyAsAnObject_AndAStringBodyAsAString()
@@ -106,9 +104,10 @@ public partial class AlertFeedersTests
 		using var client = TestClient.Create(stub);
 		var objectBody = JsonSerializer.SerializeToElement(new { maxRecords = 100 });
 		var stringBody = JsonSerializer.SerializeToElement("raw");
+		var bodies = new[] { objectBody, stringBody };
 		var interval = new Interval { Value = 1, Unit = IntervalUnit.Hours };
 
-		foreach (var body in new[] { objectBody, stringBody })
+		foreach (var body in bodies)
 		{
 			await client.AlertFeeders.CreateAsync(
 				new AlertFeederCreateRequest { Name = "f", Description = "d", Method = AlertFeederMethod.Post, Url = "u", Interval = interval, FunctionName = "fn", Body = body },
@@ -119,19 +118,20 @@ public partial class AlertFeedersTests
 				TestContext.Current.CancellationToken);
 		}
 
-		await client.AlertFeeders.TestAsync(
-			new AlertFeederTestRequest { Name = "f", Description = "d", Method = AlertFeederMethod.Post, Url = "u", Interval = interval, Body = objectBody },
-			TestContext.Current.CancellationToken);
-		await client.AlertFeeders.TestAsync(
-			new AlertFeederTestRequest { Name = "f", Description = "d", Method = AlertFeederMethod.Post, Url = "u", Interval = interval, Body = stringBody },
-			TestContext.Current.CancellationToken);
+		foreach (var body in bodies)
+		{
+			await client.AlertFeeders.TestAsync(
+				new AlertFeederTestRequest { Name = "f", Description = "d", Method = AlertFeederMethod.Post, Url = "u", Interval = interval, Body = body },
+				TestContext.Current.CancellationToken);
+		}
 
-		stub.Calls[0].Body.Should().Contain("\"body\":{\"maxRecords\":100}");
-		stub.Calls[1].Body.Should().Contain("\"body\":{\"maxRecords\":100}");
-		stub.Calls[2].Body.Should().Contain("\"body\":\"raw\"");
-		stub.Calls[3].Body.Should().Contain("\"body\":\"raw\"");
-		stub.Calls[4].Body.Should().Contain("\"body\":{\"maxRecords\":100}");
-		stub.Calls[5].Body.Should().Contain("\"body\":\"raw\"");
+		const string ObjectWire = "\"body\":{\"maxRecords\":100}";
+		const string StringWire = "\"body\":\"raw\"";
+		string[] expected = [ObjectWire, ObjectWire, StringWire, StringWire, ObjectWire, StringWire];
+		for (var i = 0; i < expected.Length; i++)
+		{
+			stub.Calls[i].Body.Should().Contain(expected[i]);
+		}
 	}
 
 	[Fact]

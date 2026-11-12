@@ -6,14 +6,20 @@ namespace TheHive.Api.Test.Groups;
 
 public class AdminTests
 {
-	[Fact]
-	public async Task SetLogLevelAsync_PutsLoggerAndLevelInThePath()
+	private static async Task<StubHandler> SetLogLevelAsync(string logger, string level)
 	{
 		var stub = new StubHandler();
 		stub.Enqueue(HttpStatusCode.NoContent, "");
 		using var client = TestClient.Create(stub);
 
-		await client.Admin.SetLogLevelAsync("org.thp.thehive", LogLevels.Debug, TestContext.Current.CancellationToken);
+		await client.Admin.SetLogLevelAsync(logger, level, TestContext.Current.CancellationToken);
+		return stub;
+	}
+
+	[Fact]
+	public async Task SetLogLevelAsync_PutsLoggerAndLevelInThePath()
+	{
+		var stub = await SetLogLevelAsync("org.thp.thehive", LogLevels.Debug);
 
 		stub.Calls[0].Method.Should().Be(HttpMethod.Put);
 		stub.Calls[0].Uri.AbsolutePath.Should().Be("/api/v1/admin/log/set/org.thp.thehive/DEBUG");
@@ -35,11 +41,7 @@ public class AdminTests
 	[MemberData(nameof(SpecLevels))]
 	public async Task SetLogLevelAsync_WritesEachSpecLevelToThePathVerbatim(string level, string wire)
 	{
-		var stub = new StubHandler();
-		stub.Enqueue(HttpStatusCode.NoContent, "");
-		using var client = TestClient.Create(stub);
-
-		await client.Admin.SetLogLevelAsync("root", level, TestContext.Current.CancellationToken);
+		var stub = await SetLogLevelAsync("root", level);
 
 		stub.Calls[0].Uri.AbsolutePath.Should().Be($"/api/v1/admin/log/set/root/{wire}");
 	}

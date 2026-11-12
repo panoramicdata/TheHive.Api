@@ -15,13 +15,18 @@ namespace TheHive.Api.Test.Groups;
 
 public partial class AlertsTests
 {
+	private static async Task<StubHandler> CallAsync(HttpStatusCode status, Func<TheHiveClient, Task> call)
+	{
+		var stub = Stub(status);
+		using var client = TestClient.Create(stub);
+		await call(client);
+		return stub;
+	}
+
 	[Fact]
 	public async Task DeleteAsync_SendsDelete()
 	{
-		var stub = Stub(HttpStatusCode.NoContent);
-		using var client = TestClient.Create(stub);
-
-		await client.Alerts.DeleteAsync("~354", TestContext.Current.CancellationToken);
+		var stub = await CallAsync(HttpStatusCode.NoContent, c => c.Alerts.DeleteAsync("~354", TestContext.Current.CancellationToken));
 
 		stub.Calls[0].Method.Should().Be(HttpMethod.Delete);
 		stub.Calls[0].Uri.AbsolutePath.Should().Be("/api/v1/alert/~354");
@@ -31,8 +36,6 @@ public partial class AlertsTests
 	[Fact]
 	public async Task BulkUpdateAsync_PatchesIdsFirstThenFields()
 	{
-		var stub = Stub(HttpStatusCode.NoContent);
-		using var client = TestClient.Create(stub);
 		var request = new AlertBulkUpdateRequest { Ids = ["~1", "~2"] };
 		var fields = FullUpdate();
 		request.Type = fields.Type;
@@ -55,7 +58,7 @@ public partial class AlertsTests
 		request.AddTags = fields.AddTags;
 		request.RemoveTags = fields.RemoveTags;
 
-		await client.Alerts.BulkUpdateAsync(request, TestContext.Current.CancellationToken);
+		var stub = await CallAsync(HttpStatusCode.NoContent, c => c.Alerts.BulkUpdateAsync(request, TestContext.Current.CancellationToken));
 
 		stub.Calls[0].Method.Should().Be(HttpMethod.Patch);
 		stub.Calls[0].Uri.AbsolutePath.Should().Be("/api/v1/alert/_bulk");
@@ -66,12 +69,7 @@ public partial class AlertsTests
 	[Fact]
 	public async Task BulkUpdateAsync_SendsOnlyIdsAndSetFields()
 	{
-		var stub = Stub(HttpStatusCode.NoContent);
-		using var client = TestClient.Create(stub);
-
-		await client.Alerts.BulkUpdateAsync(
-			new AlertBulkUpdateRequest { Ids = ["~1"], Status = "Closed" },
-			TestContext.Current.CancellationToken);
+		var stub = await CallAsync(HttpStatusCode.NoContent, c => c.Alerts.BulkUpdateAsync(new AlertBulkUpdateRequest { Ids = ["~1"], Status = "Closed" }, TestContext.Current.CancellationToken));
 
 		stub.Calls[0].Body.Should().Be("""{"ids":["~1"],"status":"Closed"}""");
 	}
@@ -79,10 +77,7 @@ public partial class AlertsTests
 	[Fact]
 	public async Task BulkDeleteAsync_PostsIds()
 	{
-		var stub = Stub(HttpStatusCode.NoContent);
-		using var client = TestClient.Create(stub);
-
-		await client.Alerts.BulkDeleteAsync(new AlertBulkDeleteRequest { Ids = ["~1", "~2"] }, TestContext.Current.CancellationToken);
+		var stub = await CallAsync(HttpStatusCode.NoContent, c => c.Alerts.BulkDeleteAsync(new AlertBulkDeleteRequest { Ids = ["~1", "~2"] }, TestContext.Current.CancellationToken));
 
 		stub.Calls[0].Method.Should().Be(HttpMethod.Post);
 		stub.Calls[0].Uri.AbsolutePath.Should().Be("/api/v1/alert/delete/_bulk");

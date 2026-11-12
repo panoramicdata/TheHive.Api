@@ -3,7 +3,7 @@ using System.Text.Json.Serialization;
 namespace TheHive.Api.Data.Licenses;
 
 /// <summary>A license stored in TheHive (the spec's <c>OutputLicense</c>). It never carries the license key.</summary>
-public sealed class License
+public sealed class License : LicenseBase
 {
 	/// <summary>The internal identifier (for example <c>~84123</c>).</summary>
 	[JsonPropertyName("_id")]
@@ -25,35 +25,13 @@ public sealed class License
 	[JsonPropertyName("id")]
 	public string LicenseId { get; set; } = string.Empty;
 
-	/// <summary>The customer name recorded in the license file.</summary>
-	[JsonPropertyName("customer")]
-	public string Customer { get; set; } = string.Empty;
-
-	/// <summary>The license plan: <c>No</c>, <c>Community</c>, <c>Gold</c> or <c>Platinum</c>. Kept as the string the server sent.</summary>
-	[JsonPropertyName("plan")]
-	public string Plan { get; set; } = string.Empty;
-
-	/// <summary>The license kind: <c>Regular</c>, <c>Trial</c> or <c>Development</c>. Kept as the string the server sent.</summary>
-	[JsonPropertyName("kind")]
-	public string Kind { get; set; } = string.Empty;
-
-	/// <summary>The start of the validity period.</summary>
-	[JsonPropertyName("validFrom")]
-	public DateTimeOffset ValidFrom { get; set; }
-
-	/// <summary>The end of the validity period.</summary>
-	[JsonPropertyName("expiresAt")]
-	public DateTimeOffset ExpiresAt { get; set; }
-
 	/// <summary>Whether this is the currently active license.</summary>
 	[JsonPropertyName("current")]
+	[JsonPropertyOrder(700)]
 	public bool Current { get; set; }
-
-	/// <summary>The capability names enabled by the license (for example <c>auth.ldap</c>).</summary>
-	[JsonPropertyName("capabilities")]
-	public List<string> Capabilities { get; set; } = [];
 
 	/// <summary>The resource quotas defined by the license, mapping a capability name to its limit; <c>-1</c> means unlimited.</summary>
 	[JsonPropertyName("quotas")]
+	[JsonPropertyOrder(900)]
 	public Dictionary<string, int> Quotas { get; set; } = [];
 }
