@@ -160,7 +160,6 @@ public partial class AlertFeedersTests
 
 		var act = () => client.AlertFeeders.ListAsync(TestContext.Current.CancellationToken);
 
-		(await act.Should().ThrowAsync<TheHiveApiException>())
-			.Which.Should().Match<TheHiveApiException>(e => e.StatusCode == HttpStatusCode.Forbidden && e.ErrorType == "AuthorizationError");
+		await ApiAssert.ForbiddenAsync(act);
 	}
 }

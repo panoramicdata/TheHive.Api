@@ -84,7 +84,6 @@ public class PageTemplatesTests
 
 		var act = () => client.PageTemplates.UpdateAsync("~1", new PageUpdateRequest(), TestContext.Current.CancellationToken);
 
-		(await act.Should().ThrowAsync<TheHiveApiException>())
-			.Which.Should().Match<TheHiveApiException>(e => e.StatusCode == HttpStatusCode.Forbidden && e.ErrorType == "AuthorizationError");
+		await ApiAssert.ForbiddenAsync(act);
 	}
 }

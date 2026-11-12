@@ -34,7 +34,7 @@ public partial class AuthRetryHandlerTests
 			_invoker = new HttpMessageInvoker(Handler);
 		}
 
-		public Harness EnqueueTransientThenOk(int failures = 1)
+		public void EnqueueTransientThenOk(int failures = 1)
 		{
 			for (var i = 0; i < failures; i++)
 			{
@@ -42,7 +42,6 @@ public partial class AuthRetryHandlerTests
 			}
 
 			Stub.Enqueue(HttpStatusCode.OK);
-			return this;
 		}
 
 		public StubHandler Stub { get; } = new();
@@ -60,52 +59,39 @@ public partial class AuthRetryHandlerTests
 		public void Dispose() => _invoker.Dispose();
 	}
 
+	private static async Task<System.Net.Http.Headers.HttpRequestHeaders> SentHeadersAsync(Action<TheHiveClientOptions>? tweak = null, HttpRequestMessage? request = null)
+	{
+		using var harness = new Harness(tweak);
+		harness.Stub.Enqueue(HttpStatusCode.OK);
+		using var message = request ?? new HttpRequestMessage(HttpMethod.Get, "https://hive.test/api/v1/case");
+
+		using var response = await harness.SendAsync(message, TestContext.Current.CancellationToken);
+
+		return harness.Stub.Calls.Single().Headers;
+	}
+
 	[Fact]
 	public async Task Send_AddsBearerAuthorization()
-	{
-		using var harness = new Harness();
-		harness.Stub.Enqueue(HttpStatusCode.OK);
-
-		using var response = await harness.GetAsync(TestContext.Current.CancellationToken);
-
-		harness.Stub.Calls.Single().Headers.Authorization!.ToString().Should().Be("Bearer fake-key");
-	}
+		=> (await SentHeadersAsync()).Authorization!.ToString().Should().Be("Bearer fake-key");
 
 	[Fact]
 	public async Task Send_NoOrganisation_OmitsHeader()
-	{
-		using var harness = new Harness();
-		harness.Stub.Enqueue(HttpStatusCode.OK);
-
-		using var response = await harness.GetAsync(TestContext.Current.CancellationToken);
-
-		harness.Stub.Calls.Single().Headers.Contains("X-Organisation").Should().BeFalse();
-	}
+		=> (await SentHeadersAsync()).Contains("X-Organisation").Should().BeFalse();
 
 	[Fact]
 	public async Task Send_WithOrganisation_AddsHeader()
-	{
-		using var harness = new Harness(o => o.Organisation = "acme");
-		harness.Stub.Enqueue(HttpStatusCode.OK);
-
-		using var response = await harness.GetAsync(TestContext.Current.CancellationToken);
-
-		harness.Stub.Calls.Single().Headers.GetValues("X-Organisation").Should().Equal("acme");
-	}
+		=> (await SentHeadersAsync(o => o.Organisation = "acme")).GetValues("X-Organisation").Should().Equal("acme");
 
 	[Fact]
 	public async Task Send_OrganisationAlreadyOnRequest_IsReplaced()
 	{
-		using var harness = new Harness(o => o.Organisation = "acme");
-		harness.Stub.Enqueue(HttpStatusCode.OK);
 		using var request = new HttpRequestMessage(HttpMethod.Get, "https://hive.test/x");
 		request.Headers.Add("X-Organisation", "other");
 
-		using var response = await harness.SendAsync(request, TestContext.Current.CancellationToken);
+		var headers = await SentHeadersAsync(o => o.Organisation = "acme", request);
 
-		harness.Stub.Calls.Single().Headers.GetValues("X-Organisation").Should().Equal("acme");
+		headers.GetValues("X-Organisation").Should().Equal("acme");
 	}
-
 	[Fact]
 	public async Task Send_MutatingOptionsAfterConstruction_DoesNotChangeHeaders()
 	{

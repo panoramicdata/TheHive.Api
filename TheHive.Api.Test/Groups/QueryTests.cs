@@ -458,8 +458,7 @@ public class QueryTests
 
 		var act = () => client.Query.GetExportFieldsAsync(TestContext.Current.CancellationToken);
 
-		(await act.Should().ThrowAsync<TheHiveApiException>())
-			.Which.Should().Match<TheHiveApiException>(e => e.StatusCode == HttpStatusCode.Forbidden && e.ErrorType == "AuthorizationError");
+		await ApiAssert.ForbiddenAsync(act);
 	}
 
 	[Fact]

@@ -268,7 +268,6 @@ public class TaxonomiesTests
 
 		var act = () => client.Taxonomies.ImportZipAsync(new ByteArrayPart([1], "t.zip", "application/zip"), TestContext.Current.CancellationToken);
 
-		(await act.Should().ThrowAsync<TheHiveApiException>())
-			.Which.Should().Match<TheHiveApiException>(e => e.StatusCode == HttpStatusCode.Forbidden && e.ErrorType == "AuthorizationError");
+		await ApiAssert.ForbiddenAsync(act);
 	}
 }

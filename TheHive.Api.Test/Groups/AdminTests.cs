@@ -21,9 +21,7 @@ public class AdminTests
 	{
 		var stub = await SetLogLevelAsync("org.thp.thehive", LogLevels.Debug);
 
-		stub.Calls[0].Method.Should().Be(HttpMethod.Put);
-		stub.Calls[0].Uri.AbsolutePath.Should().Be("/api/v1/admin/log/set/org.thp.thehive/DEBUG");
-		stub.Calls[0].Body.Should().BeNull();
+		stub.ShouldHaveFirstCall(HttpMethod.Put, "/api/v1/admin/log/set/org.thp.thehive/DEBUG", null);
 	}
 
 	public static TheoryData<string, string> SpecLevels => new()
@@ -55,7 +53,6 @@ public class AdminTests
 
 		var act = () => client.Admin.SetLogLevelAsync("root", LogLevels.Off, TestContext.Current.CancellationToken);
 
-		(await act.Should().ThrowAsync<TheHiveApiException>())
-			.Which.Should().Match<TheHiveApiException>(e => e.StatusCode == HttpStatusCode.Forbidden && e.ErrorType == "AuthorizationError");
+		await ApiAssert.ForbiddenAsync(act);
 	}
 }

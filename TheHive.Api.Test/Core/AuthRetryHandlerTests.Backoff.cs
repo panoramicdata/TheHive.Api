@@ -1,5 +1,4 @@
 using System.Net;
-using System.Net.Http.Headers;
 using TheHive.Api.Handlers;
 using TheHive.Api.Test.Support;
 
@@ -9,7 +8,8 @@ public partial class AuthRetryHandlerTests
 {
 	private static async Task<List<TimeSpan>> BackoffDelaysAsync(int failures, Action<TheHiveClientOptions> tweak)
 	{
-		using var harness = new Harness(tweak).EnqueueTransientThenOk(failures);
+		using var harness = new Harness(tweak);
+		harness.EnqueueTransientThenOk(failures);
 
 		using var response = await harness.GetAsync(TestContext.Current.CancellationToken);
 

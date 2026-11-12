@@ -137,7 +137,6 @@ public class MispTests
 
 		var act = () => client.Misp.ImportCaseAsync(new MispCaseImportRequest(), new ByteArrayPart([1], "e.json"), TestContext.Current.CancellationToken);
 
-		(await act.Should().ThrowAsync<TheHiveApiException>())
-			.Which.Should().Match<TheHiveApiException>(e => e.StatusCode == HttpStatusCode.Forbidden && e.ErrorType == "AuthorizationError");
+		await ApiAssert.ForbiddenAsync(act);
 	}
 }

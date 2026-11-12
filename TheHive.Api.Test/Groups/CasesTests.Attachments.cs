@@ -136,8 +136,7 @@ public partial class CasesTests
 
 		var act = () => client.Cases.ExportAsync("~123", "pw", TestContext.Current.CancellationToken);
 
-		(await act.Should().ThrowAsync<TheHiveApiException>())
-			.Which.Should().Match<TheHiveApiException>(e => e.StatusCode == HttpStatusCode.Forbidden && e.ErrorType == "AuthorizationError");
+		await ApiAssert.ForbiddenAsync(act);
 	}
 
 	[Fact]

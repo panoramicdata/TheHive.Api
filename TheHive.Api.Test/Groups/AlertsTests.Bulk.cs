@@ -28,9 +28,7 @@ public partial class AlertsTests
 	{
 		var stub = await CallAsync(HttpStatusCode.NoContent, c => c.Alerts.DeleteAsync("~354", TestContext.Current.CancellationToken));
 
-		stub.Calls[0].Method.Should().Be(HttpMethod.Delete);
-		stub.Calls[0].Uri.AbsolutePath.Should().Be("/api/v1/alert/~354");
-		stub.Calls[0].Body.Should().BeNull();
+		stub.ShouldHaveFirstCall(HttpMethod.Delete, "/api/v1/alert/~354", null);
 	}
 
 	[Fact]
@@ -60,10 +58,7 @@ public partial class AlertsTests
 
 		var stub = await CallAsync(HttpStatusCode.NoContent, c => c.Alerts.BulkUpdateAsync(request, TestContext.Current.CancellationToken));
 
-		stub.Calls[0].Method.Should().Be(HttpMethod.Patch);
-		stub.Calls[0].Uri.AbsolutePath.Should().Be("/api/v1/alert/_bulk");
-		stub.Calls[0].Body.Should().Be(
-			"""{"ids":["~1","~2"],"type":"t","source":"s","sourceRef":"r","externalLink":null,"title":"title","description":"d","severity":1,"date":10,"lastSyncDate":20,"tags":["a"],"tlp":0,"pap":2,"follow":false,"customFields":[{"name":"severity","value":3}],"status":"InProgress","summary":null,"assignee":null,"addTags":["ransomware"],"removeTags":["old"]}""");
+		stub.ShouldHaveFirstCall(HttpMethod.Patch, "/api/v1/alert/_bulk", """{"ids":["~1","~2"],"type":"t","source":"s","sourceRef":"r","externalLink":null,"title":"title","description":"d","severity":1,"date":10,"lastSyncDate":20,"tags":["a"],"tlp":0,"pap":2,"follow":false,"customFields":[{"name":"severity","value":3}],"status":"InProgress","summary":null,"assignee":null,"addTags":["ransomware"],"removeTags":["old"]}""");
 	}
 
 	[Fact]
@@ -79,9 +74,7 @@ public partial class AlertsTests
 	{
 		var stub = await CallAsync(HttpStatusCode.NoContent, c => c.Alerts.BulkDeleteAsync(new AlertBulkDeleteRequest { Ids = ["~1", "~2"] }, TestContext.Current.CancellationToken));
 
-		stub.Calls[0].Method.Should().Be(HttpMethod.Post);
-		stub.Calls[0].Uri.AbsolutePath.Should().Be("/api/v1/alert/delete/_bulk");
-		stub.Calls[0].Body.Should().Be("""{"ids":["~1","~2"]}""");
+		stub.ShouldHaveFirstCall(HttpMethod.Post, "/api/v1/alert/delete/_bulk", """{"ids":["~1","~2"]}""");
 	}
 
 	[Fact]
@@ -114,10 +107,7 @@ public partial class AlertsTests
 
 		var result = await client.Alerts.CreateCaseAsync("~354", request, TestContext.Current.CancellationToken);
 
-		stub.Calls[0].Method.Should().Be(HttpMethod.Post);
-		stub.Calls[0].Uri.AbsolutePath.Should().Be("/api/v1/alert/~354/case");
-		stub.Calls[0].Body.Should().Be(
-			"""{"title":"Suspicious Ransomware Activity","description":"cd","severity":3,"startDate":1,"endDate":2,"tags":["x"],"flag":true,"tlp":4,"pap":3,"status":"New","summary":"sum","assignee":"lucas@example.com","customFields":[{"name":"threat-type","value":"Malware"}],"caseTemplate":"Ransomware","tasks":[{"title":"Isolate","status":"Waiting"}],"pages":[{"title":"Notes","content":"c","category":"Investigation"}],"sharingParameters":[{"organisation":"Org","share":true}],"taskRule":"manual","observableRule":"autoShare"}""");
+		stub.ShouldHaveFirstCall(HttpMethod.Post, "/api/v1/alert/~354/case", """{"title":"Suspicious Ransomware Activity","description":"cd","severity":3,"startDate":1,"endDate":2,"tags":["x"],"flag":true,"tlp":4,"pap":3,"status":"New","summary":"sum","assignee":"lucas@example.com","customFields":[{"name":"threat-type","value":"Malware"}],"caseTemplate":"Ransomware","tasks":[{"title":"Isolate","status":"Waiting"}],"pages":[{"title":"Notes","content":"c","category":"Investigation"}],"sharingParameters":[{"organisation":"Org","share":true}],"taskRule":"manual","observableRule":"autoShare"}""");
 		result.Number.Should().Be(7);
 		result.Title.Should().Be("Ransomware");
 	}
@@ -130,9 +120,7 @@ public partial class AlertsTests
 
 		var result = await client.Alerts.CreateCaseAsync("~354", new CaseFromAlertRequest(), TestContext.Current.CancellationToken);
 
-		stub.Calls[0].Method.Should().Be(HttpMethod.Post);
-		stub.Calls[0].Uri.AbsolutePath.Should().Be("/api/v1/alert/~354/case");
-		stub.Calls[0].Body.Should().Be("{}");
+		stub.ShouldHaveFirstCall(HttpMethod.Post, "/api/v1/alert/~354/case", "{}");
 		result.Id.Should().Be("~123");
 	}
 }
