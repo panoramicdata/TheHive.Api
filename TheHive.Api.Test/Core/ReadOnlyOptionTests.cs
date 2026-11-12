@@ -69,9 +69,7 @@ public class ReadOnlyOptionTests
 
 		var act = () => client.Cases.CreateAsync(new TheHive.Api.Data.Cases.CaseCreateRequest { Title = "t", Description = "d" }, TestContext.Current.CancellationToken);
 
-		// Refit wraps a handler exception thrown for a request with a body in ApiRequestException.
-		var thrown = await act.Should().ThrowAsync<Refit.ApiRequestException>();
-		thrown.Which.InnerException.Should().BeOfType<InvalidOperationException>();
+		await act.Should().ThrowExactlyAsync<InvalidOperationException>();
 		stub.Calls.Should().BeEmpty();
 	}
 

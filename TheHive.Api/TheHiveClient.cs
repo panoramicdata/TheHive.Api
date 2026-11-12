@@ -55,7 +55,9 @@ public sealed class TheHiveClient : IDisposable
 		UrlResolution = UrlResolutionMode.Rfc3986,
 		// Boolean query parameters must be lowercase true/false, not Refit's True/False.
 		UrlParameterFormatter = new TheHiveUrlParameterFormatter(),
-		ExceptionFactory = response => new ValueTask<Exception?>(TheHiveErrorMapper.CreateAsync(response))
+		ExceptionFactory = response => new ValueTask<Exception?>(TheHiveErrorMapper.CreateAsync(response)),
+		// Issue 22: surface timeouts and network failures as themselves, not wrapped in ApiRequestException.
+		TransportExceptionFactory = static (_, exception, _) => exception
 	};
 
 	private T For<T>() => RestService.For<T>(_httpClient, Settings);
