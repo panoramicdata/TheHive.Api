@@ -11,7 +11,7 @@
     <RepositoryType>git</RepositoryType>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageIcon>Logo.png</PackageIcon>
-    <Description>.NET 10 client for the TheHive 5 REST API.</Description>
+    <Description>.NET client for the TheHive 5 REST API.</Description>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>

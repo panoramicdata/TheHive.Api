@@ -3,9 +3,11 @@
 <!-- TODO(owner): add Codacy grade/coverage badges once the repo has a Codacy project id -->
 [![NuGet](https://img.shields.io/nuget/v/TheHive.Api.svg)](https://www.nuget.org/packages/TheHive.Api)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![.NET](https://img.shields.io/badge/.NET-10.0-512BD4.svg)](https://dotnet.microsoft.com/)
+[![.NET](https://img.shields.io/badge/.NET-11.0-512BD4.svg)](https://dotnet.microsoft.com/)
 
-A strongly typed .NET 10 client for the [TheHive 5](https://strangebee.com/thehive/) REST API (StrangeBee), published by Panoramic Data Limited.
+Supports .NET 11.0.
+
+A strongly typed .NET 11.0 client for the [TheHive 5](https://strangebee.com/thehive/) REST API (StrangeBee), published by Panoramic Data Limited.
 
 It covers every non-deprecated operation of the TheHive 5.8.0 OpenAPI specification (264 operations across 41 groups), exposes each group as a [Refit](https://github.com/reactiveui/refit)-backed interface, uses `System.Text.Json`, and handles bearer authentication, the organisation header and transient-failure retries for you.
 
@@ -17,7 +19,7 @@ The package is published on NuGet as [TheHive.Api](https://www.nuget.org/package
 dotnet add package TheHive.Api
 ```
 
-Requires .NET 10.
+Requires .NET 11.0.
 
 ## Targeted TheHive version
 
