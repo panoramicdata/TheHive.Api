@@ -1,5 +1,7 @@
 # TheHive.Api
 
+> **Need help with APIs or .NET?** Panoramic Data are experts in APIs and .NET, and we can help with your development. [Contact us](https://www.panoramicdata.com/contact-us) or see our [software services](https://www.panoramicdata.com/services/software).
+
 <!-- TODO(owner): add Codacy grade/coverage badges once the repo has a Codacy project id -->
 [![NuGet](https://img.shields.io/nuget/v/TheHive.Api.svg)](https://www.nuget.org/packages/TheHive.Api)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
