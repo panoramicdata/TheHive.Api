@@ -5,7 +5,7 @@ namespace TheHive.Api.Test.Core;
 public class UrlParameterFormatterTests
 {
 	private static string? Format(object? value, Type type)
-		=> new TheHiveUrlParameterFormatter().Format(value, typeof(UrlParameterFormatterTests), type);
+		=> new TheHiveUrlParameterFormatter().Format(value, Refit.GeneratedParameterAttributeProvider.Empty, type);
 
 	[Fact]
 	public void Format_True_IsLowercase() => Format(true, typeof(bool)).Should().Be("true");
