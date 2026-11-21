@@ -18,6 +18,6 @@
 		<PackageVersion Include="Refit" Version="17.0.0" />
 		<PackageVersion Include="Refit.Reflection" Version="17.0.0" />
 		<PackageVersion Include="xunit.v3" Version="4.0.3" />
-		<PackageVersion Include="Xunit.Microsoft.DependencyInjection" Version="10.2.0" />
+		<PackageVersion Include="Xunit.Microsoft.DependencyInjection" Version="11.0.0" />
 	</ItemGroup>
 </Project>
