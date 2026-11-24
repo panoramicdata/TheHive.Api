@@ -1,3 +1,5 @@
+[![Codacy Badge](https://app.codacy.com/project/badge/Grade/ee07650e91f143259270f4a8261af453)](https://app.codacy.com/gh/panoramicdata/TheHive.Api/dashboard)
+
 # TheHive.Api
 
 > **Need help with APIs or .NET?** Panoramic Data are experts in APIs and .NET, and we can help with your development. [Contact us](https://www.panoramicdata.com/contact-us) or see our [software services](https://www.panoramicdata.com/services/software).
